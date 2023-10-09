@@ -21,7 +21,7 @@ private fun MainScreenContent(state: MainContentState) {
     }
 }
 
-@Preview(showBackground = true)
+@Preview
 @Composable
 fun GreetingPreview() {
     val state = MainContentState(

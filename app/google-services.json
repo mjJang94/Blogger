@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "223045837931",
+    "project_id": "fir-d3e60",
+    "storage_bucket": "fir-d3e60.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:223045837931:android:8b4e68a695613aa86ebd2e",
+        "android_client_info": {
+          "package_name": "com.mj.blogger"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBhNkYjwk7-bn4GyFad5hYwrMvg0Mq_cOg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
