@@ -5,11 +5,16 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mj.blogger.R
+import com.mj.blogger.common.compose.foundation.BloggerImage
+import com.mj.blogger.common.compose.foundation.BloggerMaskingTextField
 import com.mj.blogger.common.compose.foundation.BloggerPageButton
 import com.mj.blogger.common.compose.foundation.BloggerTextField
 import com.mj.blogger.common.compose.theme.BloggerTheme
@@ -28,12 +33,20 @@ private fun LoginScreenContent(state: LoginContentState) {
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White),
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
 
-        val enabled by remember(state.enabled) {
+        val available by remember {
             derivedStateOf { state.enabled }
         }
+
+        BloggerImage(
+            modifier = Modifier.size(100.dp),
+            painter = painterResource(id = R.drawable.ic_baseline_article),
+        )
+
+        Spacer(modifier = Modifier.height(10.dp))
 
         LoginTextField(
             email = state.email,
@@ -45,14 +58,14 @@ private fun LoginScreenContent(state: LoginContentState) {
         Spacer(modifier = Modifier.height(30.dp))
 
         SignInButton(
-            enabled = enabled,
+            enabled = available,
             onClick = { state.onSign(Type.SIGN_IN) },
         )
 
         Spacer(modifier = Modifier.height(10.dp))
 
         SignUpButton(
-            enabled = enabled,
+            enabled = available,
             onClick = { state.onSign(Type.SIGN_UP) },
         )
     }
@@ -101,6 +114,7 @@ private fun LoginTextField(
     onEmailChanged: (String) -> Unit,
     onPasswordChanged: (String) -> Unit,
 ) {
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -134,14 +148,14 @@ private fun LoginTextField(
                 .border(width = 1.dp, color = Color.LightGray, shape = RoundedCornerShape(16.dp))
                 .background(color = Color.White, shape = RoundedCornerShape(16.dp))
         ) {
-            BloggerTextField(
+            BloggerMaskingTextField(
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentHeight()
                     .padding(horizontal = 10.dp, vertical = 10.dp),
                 insert = password,
                 onInsertChanged = onPasswordChanged,
-                hint = "패스워드",
+                hint = "비밀번호",
                 hintColor = Color.Gray,
             )
         }

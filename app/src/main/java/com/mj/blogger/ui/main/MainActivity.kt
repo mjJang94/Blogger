@@ -9,16 +9,16 @@ import androidx.activity.viewModels
 import com.mj.blogger.common.compose.theme.BloggerTheme
 import com.mj.blogger.ui.main.presentation.MainScreen
 
-class ActMain : ComponentActivity() {
+class MainActivity : ComponentActivity() {
 
     companion object {
         fun start(context: Context) {
-            val intent = Intent(context, ActMain::class.java)
+            val intent = Intent(context, MainActivity::class.java)
             context.startActivity(intent)
         }
     }
 
-    private val viewModel: VMMain by viewModels()
+    private val viewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

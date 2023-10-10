@@ -10,7 +10,7 @@ import com.mj.blogger.ui.login.presentation.SignType
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
-class VMLogin : ViewModel(), LoginPresenter {
+class LoginViewModel : ViewModel(), LoginPresenter {
 
     private val _email = MutableStateFlow("")
     override val email: StateFlow<String> = _email.asStateFlow()

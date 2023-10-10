@@ -1,5 +1,7 @@
 package com.mj.blogger.ui.login
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -13,22 +15,27 @@ import com.google.firebase.ktx.Firebase
 import com.mj.blogger.common.compose.theme.BloggerTheme
 import com.mj.blogger.common.ktx.observe
 import com.mj.blogger.ui.login.presentation.LoginScreen
+import com.mj.blogger.ui.main.MainActivity
 import com.mj.blogger.ui.login.presentation.SignType as Type
-import com.mj.blogger.ui.main.ActMain
 
-class ActLogin : AppCompatActivity() {
+class LoginActivity : AppCompatActivity() {
 
-    private val viewModel: VMLogin by viewModels()
+    private val viewModel: LoginViewModel by viewModels()
 
-    private lateinit var auth: FirebaseAuth
+    private val auth: FirebaseAuth by lazy { Firebase.auth }
+
+    companion object {
+        fun start(context: Context) {
+            val intent = Intent(context, LoginActivity::class.java)
+            context.startActivity(intent)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        auth = Firebase.auth
-
         if (auth.currentUser != null) {
-            ActMain.start(this@ActLogin)
+            MainActivity.start(this@LoginActivity)
         }
 
         setContent {
@@ -45,10 +52,6 @@ class ActLogin : AppCompatActivity() {
                 Type.SIGN_IN -> signIn(info.id, info.password)
                 Type.SIGN_UP -> signUp(info.id, info.password)
             }
-        }
-
-        viewModel.enabled.observe(this) {
-            Log.d(this::class.simpleName, "$it")
         }
 
         LoginScreen(presenter = viewModel)

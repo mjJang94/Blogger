@@ -2,4 +2,5 @@
 <resources>
 
     <style name="Theme.Blogger" parent="Theme.AppCompat.Light.NoActionBar" />
+
 </resources>

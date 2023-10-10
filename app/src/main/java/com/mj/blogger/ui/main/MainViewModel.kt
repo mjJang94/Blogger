@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-class VMMain: ViewModel(), MainPresenter {
+class MainViewModel: ViewModel(), MainPresenter {
 
     private val _data = MutableStateFlow("")
     override val data: StateFlow<String> =  _data.asStateFlow()
