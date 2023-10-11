@@ -14,6 +14,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -48,10 +49,7 @@ fun BloggerTextField(
                 fontSize = textSize,
                 color = textColor
             ),
-            cursorBrush = Brush.verticalGradient(
-                0.00f to cursorColor,
-                1.00f to cursorColor,
-            ),
+            cursorBrush = SolidColor(cursorColor),
             decorationBox = { innerTextField ->
                 Box(
                     modifier = Modifier
@@ -96,6 +94,7 @@ fun BloggerMaskingTextField(
                 fontSize = textSize,
                 color = textColor
             ),
+            cursorBrush = SolidColor(cursorColor),
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Password
             ),
@@ -104,10 +103,6 @@ fun BloggerMaskingTextField(
             } else {
                 VisualTransformation.None
             },
-            cursorBrush = Brush.verticalGradient(
-                0.00f to cursorColor,
-                1.00f to cursorColor,
-            ),
             decorationBox = { innerTextField ->
                 Row(
                     modifier = Modifier.fillMaxWidth(),

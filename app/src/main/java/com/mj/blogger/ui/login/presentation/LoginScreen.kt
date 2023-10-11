@@ -14,7 +14,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mj.blogger.R
 import com.mj.blogger.common.compose.foundation.BloggerImage
-import com.mj.blogger.common.compose.foundation.BloggerMaskingTextField
 import com.mj.blogger.common.compose.foundation.BloggerPageButton
 import com.mj.blogger.common.compose.foundation.BloggerTextField
 import com.mj.blogger.common.compose.theme.BloggerTheme
@@ -148,7 +147,7 @@ private fun LoginTextField(
                 .border(width = 1.dp, color = Color.LightGray, shape = RoundedCornerShape(16.dp))
                 .background(color = Color.White, shape = RoundedCornerShape(16.dp))
         ) {
-            BloggerMaskingTextField(
+            BloggerTextField(
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentHeight()
