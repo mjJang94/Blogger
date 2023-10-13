@@ -86,4 +86,8 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:32.3.1"))
     implementation("com.google.firebase:firebase-analytics-ktx")
     implementation("com.google.firebase:firebase-auth-ktx")
+
+    //data store
+    implementation ("androidx.datastore:datastore-preferences:1.0.0")
+
 }

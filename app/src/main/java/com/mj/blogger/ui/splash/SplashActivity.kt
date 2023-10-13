@@ -17,8 +17,6 @@ class SplashActivity : ComponentActivity() {
 
     private val viewModel: SplashViewModel by viewModels()
 
-    private val auth: FirebaseAuth by lazy { Firebase.auth }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -27,7 +25,7 @@ class SplashActivity : ComponentActivity() {
 
         // 실제 앱 로딩 로직
         viewModel.waitForLoading {
-            when (auth.currentUser) {
+            when (Firebase.auth.currentUser) {
                 null -> LoginActivity.start(this@SplashActivity)
                 else -> MainActivity.start(this@SplashActivity)
             }

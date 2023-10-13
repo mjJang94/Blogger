@@ -10,6 +10,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.Composable
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.actionCodeSettings
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.mj.blogger.common.compose.theme.BloggerTheme
@@ -22,8 +23,6 @@ class LoginActivity : AppCompatActivity() {
 
     private val viewModel: LoginViewModel by viewModels()
 
-    private val auth: FirebaseAuth by lazy { Firebase.auth }
-
     companion object {
         fun start(context: Context) {
             val intent = Intent(context, LoginActivity::class.java)
@@ -34,7 +33,7 @@ class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        if (auth.currentUser != null) {
+        if (Firebase.auth.currentUser != null) {
             MainActivity.start(this@LoginActivity)
         }
 
@@ -58,12 +57,14 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun signUp(id: String, password: String) {
-        auth.createUserWithEmailAndPassword(id, password)
+        Firebase.auth.createUserWithEmailAndPassword(id, password)
             .addOnCompleteListener(this) { task ->
                 when {
                     task.isSuccessful -> {
                         Log.d(this::class.simpleName, "createUserWithEmail:success")
                         //move to main
+                        //회원 고유 id -> 로컬 저장
+                        val userId = Firebase.auth.currentUser?.uid
                     }
                     else -> {
                         Log.w(this::class.simpleName, "createUserWithEmail:failure", task.exception)
@@ -73,13 +74,14 @@ class LoginActivity : AppCompatActivity() {
             }
     }
 
-    private fun signIn(id: String, password: String) {
-        auth.signInWithEmailAndPassword(id, password)
+    private fun signIn(email: String, password: String) {
+        Firebase.auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
                 when {
                     task.isSuccessful -> {
                         Log.d(this::class.simpleName, "signInWithEmail:success")
                         //move to main
+                        //회원 고유 id나 인증 정보 필요
                     }
                     else -> {
                         Log.w(this::class.simpleName, "signInWithEmail:failure", task.exception)
