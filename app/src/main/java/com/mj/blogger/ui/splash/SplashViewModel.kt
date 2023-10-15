@@ -2,16 +2,34 @@ package com.mj.blogger.ui.splash
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mj.blogger.repo.di.BloggerRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class SplashViewModel: ViewModel() {
+@HiltViewModel
+class SplashViewModel @Inject constructor(
+    repository: BloggerRepository,
+) : ViewModel() {
 
-    fun waitForLoading(action: () -> Unit) {
-        // 일정 시간 후에 메인 화면으로 이동
+    private val _userId = repository.userIdFlow.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Lazily,
+        initialValue = null
+    )
+
+    fun waitForLoading(action: (Boolean) -> Unit) {
         viewModelScope.launch {
-            delay(3000) // 2초 동안 로딩 화면을 표시
-            action.invoke()
+            val result = when (_userId.firstOrNull()) {
+                null -> false
+                else -> true
+            }
+            delay(3000)
+            action.invoke(result)
         }
     }
 }

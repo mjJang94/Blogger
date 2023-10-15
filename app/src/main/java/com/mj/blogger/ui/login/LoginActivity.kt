@@ -9,16 +9,16 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.Composable
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.actionCodeSettings
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.mj.blogger.common.compose.theme.BloggerTheme
 import com.mj.blogger.common.ktx.observe
 import com.mj.blogger.ui.login.presentation.LoginScreen
 import com.mj.blogger.ui.main.MainActivity
+import dagger.hilt.android.AndroidEntryPoint
 import com.mj.blogger.ui.login.presentation.SignType as Type
 
+@AndroidEntryPoint
 class LoginActivity : AppCompatActivity() {
 
     private val viewModel: LoginViewModel by viewModels()
@@ -62,9 +62,9 @@ class LoginActivity : AppCompatActivity() {
                 when {
                     task.isSuccessful -> {
                         Log.d(this::class.simpleName, "createUserWithEmail:success")
-                        //move to main
-                        //회원 고유 id -> 로컬 저장
-                        val userId = Firebase.auth.currentUser?.uid
+                        Firebase.auth.currentUser?.uid?.let { id ->
+                            viewModel.saveUserId(id)
+                        }
                     }
                     else -> {
                         Log.w(this::class.simpleName, "createUserWithEmail:failure", task.exception)
@@ -80,8 +80,9 @@ class LoginActivity : AppCompatActivity() {
                 when {
                     task.isSuccessful -> {
                         Log.d(this::class.simpleName, "signInWithEmail:success")
-                        //move to main
-                        //회원 고유 id나 인증 정보 필요
+                        Firebase.auth.currentUser?.uid?.let { id ->
+                            viewModel.saveUserId(id)
+                        }
                     }
                     else -> {
                         Log.w(this::class.simpleName, "signInWithEmail:failure", task.exception)

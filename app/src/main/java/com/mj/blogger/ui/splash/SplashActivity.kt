@@ -11,7 +11,9 @@ import com.google.firebase.ktx.Firebase
 import com.mj.blogger.ui.login.LoginActivity
 import com.mj.blogger.ui.main.MainActivity
 import com.mj.blogger.ui.splash.presentation.SplashScreen
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 @SuppressLint("CustomSplashScreen")
 class SplashActivity : ComponentActivity() {
 
@@ -23,11 +25,10 @@ class SplashActivity : ComponentActivity() {
             SplashScreen()
         }
 
-        // 실제 앱 로딩 로직
-        viewModel.waitForLoading {
-            when (Firebase.auth.currentUser) {
-                null -> LoginActivity.start(this@SplashActivity)
-                else -> MainActivity.start(this@SplashActivity)
+        viewModel.waitForLoading { result ->
+            when (result) {
+                true -> MainActivity.start(this@SplashActivity)
+                else -> LoginActivity.start(this@SplashActivity)
             }
         }
     }

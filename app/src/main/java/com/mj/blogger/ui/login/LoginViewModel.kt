@@ -1,22 +1,27 @@
 package com.mj.blogger.ui.login
 
-import android.util.Log
 import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mj.blogger.repo.di.BloggerRepository
 import com.mj.blogger.ui.login.presentation.LoginPresenter
 import com.mj.blogger.ui.login.presentation.SignInfo
 import com.mj.blogger.ui.login.presentation.SignType
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class LoginViewModel : ViewModel(), LoginPresenter {
+@HiltViewModel
+class LoginViewModel @Inject constructor(
+    private val repository: BloggerRepository,
+) : ViewModel(), LoginPresenter {
 
     private val _email = MutableStateFlow("")
     override val email: StateFlow<String> = _email.asStateFlow()
     override fun onEmailChanged(insert: String) {
         viewModelScope.launch {
-            Log.d("VMLogin", "id insert = $insert")
             _email.emit(insert)
         }
     }
@@ -25,7 +30,6 @@ class LoginViewModel : ViewModel(), LoginPresenter {
     override val password: StateFlow<String> = _password.asStateFlow()
     override fun onPasswordChanged(insert: String) {
         viewModelScope.launch {
-            Log.d("VMLogin", "password insert = $insert")
             _password.emit(insert)
         }
     }
@@ -54,6 +58,12 @@ class LoginViewModel : ViewModel(), LoginPresenter {
                 password = password,
             )
             _signEvent.emit(info)
+        }
+    }
+
+    fun saveUserId(id: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.storeUserId(id)
         }
     }
 }
