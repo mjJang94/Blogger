@@ -2,7 +2,7 @@ package com.mj.blogger.ui.splash
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mj.blogger.repo.di.BloggerRepository
+import com.mj.blogger.repo.di.Repository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.SharingStarted
@@ -13,7 +13,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SplashViewModel @Inject constructor(
-    repository: BloggerRepository,
+    repository: Repository,
 ) : ViewModel() {
 
     private val _userId = repository.userIdFlow.stateIn(

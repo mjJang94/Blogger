@@ -3,19 +3,19 @@ package com.mj.blogger.ui.login
 import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mj.blogger.repo.di.BloggerRepository
+import com.mj.blogger.repo.di.Repository
 import com.mj.blogger.ui.login.presentation.LoginPresenter
+import com.mj.blogger.ui.login.presentation.LoginState
 import com.mj.blogger.ui.login.presentation.SignInfo
 import com.mj.blogger.ui.login.presentation.SignType
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val repository: BloggerRepository,
+    private val repository: Repository,
 ) : ViewModel(), LoginPresenter {
 
     private val _email = MutableStateFlow("")
@@ -61,9 +61,18 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    fun saveUserId(id: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.storeUserId(id)
+    private val _loginEvent = MutableSharedFlow<LoginState>()
+    val loginEvent = _loginEvent.asSharedFlow()
+
+    fun saveUserId(id: String?) {
+        viewModelScope.launch {
+            when (id) {
+                null -> _loginEvent.emit(LoginState.FAIL)
+                else -> {
+                    repository.storeUserId(id)
+                    _loginEvent.emit(LoginState.SUCCESS)
+                }
+            }
         }
     }
 }

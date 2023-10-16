@@ -4,9 +4,9 @@ import com.mj.blogger.repo.local.UserDataStore
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-class BloggerRepositoryImpl @Inject constructor(
+class RepositoryImpl @Inject constructor(
     private val dataStore: UserDataStore,
-): BloggerRepository {
+): Repository {
 
     override suspend fun storeUserId(id: String) {
         dataStore.storeUserId(id)

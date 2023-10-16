@@ -11,9 +11,15 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-class BloggerModule {
+class RepositoryModule {
 
     @Provides
     @Singleton
     fun provideDataStore(@ApplicationContext context: Context) = UserDataStore(context)
+
+    @Provides
+    @Singleton
+    fun provideRepository(
+        dataStore: UserDataStore
+    ): Repository = RepositoryImpl(dataStore)
 }

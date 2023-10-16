@@ -9,17 +9,21 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.Composable
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.auth.FirebaseAuth
 import com.mj.blogger.common.compose.theme.BloggerTheme
 import com.mj.blogger.common.ktx.observe
 import com.mj.blogger.ui.login.presentation.LoginScreen
+import com.mj.blogger.ui.login.presentation.LoginState
 import com.mj.blogger.ui.main.MainActivity
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 import com.mj.blogger.ui.login.presentation.SignType as Type
 
 @AndroidEntryPoint
-class LoginActivity : AppCompatActivity() {
+class LoginActivity: AppCompatActivity() {
+
+    @Inject
+    lateinit var auth: FirebaseAuth
 
     private val viewModel: LoginViewModel by viewModels()
 
@@ -33,7 +37,7 @@ class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        if (Firebase.auth.currentUser != null) {
+        if (auth.currentUser != null) {
             MainActivity.start(this@LoginActivity)
         }
 
@@ -53,18 +57,24 @@ class LoginActivity : AppCompatActivity() {
             }
         }
 
+        viewModel.loginEvent.observe(this) { result ->
+            when (result){
+                LoginState.SUCCESS -> MainActivity.start(this)
+                LoginState.FAIL -> Toast.makeText(this, "로그인에 실패하였습니다.", Toast.LENGTH_SHORT).show()
+            }
+        }
+
         LoginScreen(presenter = viewModel)
     }
 
     private fun signUp(id: String, password: String) {
-        Firebase.auth.createUserWithEmailAndPassword(id, password)
+        auth.createUserWithEmailAndPassword(id, password)
             .addOnCompleteListener(this) { task ->
                 when {
                     task.isSuccessful -> {
                         Log.d(this::class.simpleName, "createUserWithEmail:success")
-                        Firebase.auth.currentUser?.uid?.let { id ->
-                            viewModel.saveUserId(id)
-                        }
+                        val userId = auth.currentUser?.uid
+                        viewModel.saveUserId(userId)
                     }
                     else -> {
                         Log.w(this::class.simpleName, "createUserWithEmail:failure", task.exception)
@@ -75,14 +85,13 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun signIn(email: String, password: String) {
-        Firebase.auth.signInWithEmailAndPassword(email, password)
+        auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
                 when {
                     task.isSuccessful -> {
                         Log.d(this::class.simpleName, "signInWithEmail:success")
-                        Firebase.auth.currentUser?.uid?.let { id ->
-                            viewModel.saveUserId(id)
-                        }
+                        val userId = auth.currentUser?.uid
+                        viewModel.saveUserId(userId)
                     }
                     else -> {
                         Log.w(this::class.simpleName, "signInWithEmail:failure", task.exception)
