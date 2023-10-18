@@ -1,14 +1,18 @@
+@file:OptIn(ExperimentalFoundationApi::class)
+
 package com.mj.blogger.ui.main.presentation
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
-import androidx.compose.material3.Text
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material3.*
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -27,36 +31,59 @@ fun MainScreen(presenter: MainPresenter) {
 @Composable
 private fun MainScreenContent(state: MainContentState) {
 
-    var selectedPageIndex by remember { mutableStateOf(0) }
+    var selectedPage by remember { mutableStateOf(MainPages.HOME) }
+    val pagerState = rememberPagerState(initialPage = MainPages.HOME.ordinal)
+
     val pages = MainPages.values()
 
-    Column {
-        TabRow(selectedTabIndex = selectedPageIndex) {
-            pages.forEachIndexed { index, page ->
-                Tab(
-                    selected = selectedPageIndex == index,
-                    onClick = { selectedPageIndex = index },
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f),
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        Text(
-                            text = stringResource(id = page.title)
-                        )
-
-                        BloggerImage(
-                            painter = painterResource(id = page.iconRes)
-                        )
-                    }
-                }
-            }
-            when (selectedPageIndex) {
+    Column(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        HorizontalPager(
+            modifier = Modifier.weight(1f),
+            pageCount = pages.size,
+            state = pagerState,
+        ) { page ->
+            when (page) {
                 MainPages.HOME.ordinal -> MainHomeContent()
                 MainPages.CREATE.ordinal -> MainCreateContent()
                 MainPages.SETTINGS.ordinal -> MainSettingsContent()
+
+            }
+        }
+
+        TabRow(
+            modifier = Modifier.fillMaxWidth(),
+            selectedTabIndex = selectedPage.ordinal,
+            indicator = { Spacer(modifier = Modifier.background(Color.Transparent))},
+        ){
+            pages.forEachIndexed { index, page ->
+                Tab(
+                    selected = selectedPage == page,
+                    onClick = { selectedPage = pages[index] },
+                    selectedContentColor = Color.Black,
+                    unselectedContentColor = Color.Gray,
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            Text(
+                                text = stringResource(id = page.title)
+                            )
+
+                            BloggerImage(
+                                painter = painterResource(id = page.iconRes)
+                            )
+                        }
+                    }
+                }
             }
         }
     }
@@ -64,7 +91,7 @@ private fun MainScreenContent(state: MainContentState) {
 
 @Preview
 @Composable
-fun GreetingPreview() {
+fun MainScreenPreview() {
     val state = MainContentState(
         data = remember { mutableStateOf("") },
         close = {}
