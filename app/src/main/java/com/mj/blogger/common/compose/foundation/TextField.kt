@@ -10,9 +10,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.colorResource
@@ -29,7 +26,7 @@ import com.mj.blogger.R
 import com.mj.blogger.common.compose.theme.BloggerTheme
 
 @Composable
-fun BloggerTextField(
+fun TextField(
     modifier: Modifier,
     insert: String,
     hint: String = "",
@@ -57,7 +54,7 @@ fun BloggerTextField(
                         .wrapContentHeight()
                 ) {
                     if (insert.isEmpty()) {
-                        InsertHint(
+                        Hint(
                             hint = hint,
                             hintColor = hintColor,
                             hintSize = textSize,
@@ -71,7 +68,7 @@ fun BloggerTextField(
 }
 
 @Composable
-fun BloggerMaskingTextField(
+fun MaskingTextField(
     modifier: Modifier,
     insert: String,
     hint: String = "",
@@ -110,7 +107,7 @@ fun BloggerMaskingTextField(
                     horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
                     if (insert.isEmpty()) {
-                        InsertHint(
+                        Hint(
                             hint = hint,
                             hintColor = hintColor,
                             hintSize = textSize,
@@ -119,7 +116,7 @@ fun BloggerMaskingTextField(
 
                     innerTextField()
 
-                    BloggerImage(
+                    Image(
                         modifier = Modifier.clickable(
                             onClick = { isMasked = !isMasked }
                         ),
@@ -137,7 +134,7 @@ fun BloggerMaskingTextField(
 }
 
 @Composable
-private fun InsertHint(
+private fun Hint(
     hint: String,
     hintColor: Color,
     hintSize: TextUnit,
@@ -161,7 +158,7 @@ private fun BloggerTextFieldPreview() {
                 .fillMaxSize()
                 .background(Color.White)
         ) {
-            BloggerTextField(
+            TextField(
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentHeight()
@@ -169,7 +166,7 @@ private fun BloggerTextFieldPreview() {
                 insert = "123",
                 onInsertChanged = {},
             )
-            BloggerMaskingTextField(
+            MaskingTextField(
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentHeight()

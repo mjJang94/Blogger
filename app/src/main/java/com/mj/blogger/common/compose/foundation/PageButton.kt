@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
 import com.mj.blogger.R
 
 @Composable
-fun BloggerPageButton(
+fun PageButton(
     modifier: Modifier,
     text: String,
     textColor: Color,

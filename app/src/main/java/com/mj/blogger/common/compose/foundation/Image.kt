@@ -6,7 +6,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
 
 @Composable
-fun BloggerImage(
+fun Image(
     modifier: Modifier = Modifier,
     painter: Painter,
     contentDescription: String? = null,

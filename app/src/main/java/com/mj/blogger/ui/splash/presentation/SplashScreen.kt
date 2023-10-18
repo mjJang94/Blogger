@@ -11,7 +11,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mj.blogger.R
-import com.mj.blogger.common.compose.foundation.BloggerImage
+import com.mj.blogger.common.compose.foundation.Image
 import com.mj.blogger.common.compose.theme.BloggerTheme
 
 @Composable
@@ -23,7 +23,7 @@ fun SplashScreen() {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        BloggerImage(
+        Image(
             modifier = Modifier.size(100.dp),
             painter = painterResource(id = R.drawable.ic_baseline_article),
         )

@@ -13,9 +13,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mj.blogger.R
-import com.mj.blogger.common.compose.foundation.BloggerImage
-import com.mj.blogger.common.compose.foundation.BloggerPageButton
-import com.mj.blogger.common.compose.foundation.BloggerTextField
+import com.mj.blogger.common.compose.foundation.Image
+import com.mj.blogger.common.compose.foundation.PageButton
+import com.mj.blogger.common.compose.foundation.TextField
 import com.mj.blogger.common.compose.theme.BloggerTheme
 import com.mj.blogger.ui.login.presentation.state.LoginContentState
 import com.mj.blogger.ui.login.presentation.state.rememberLoginContentState
@@ -40,7 +40,7 @@ private fun LoginScreenContent(state: LoginContentState) {
             derivedStateOf { state.enabled }
         }
 
-        BloggerImage(
+        Image(
             modifier = Modifier.size(100.dp),
             painter = painterResource(id = R.drawable.ic_baseline_article),
         )
@@ -75,7 +75,7 @@ private fun SignInButton(
     enabled: Boolean,
     onClick: () -> Unit,
 ) {
-    BloggerPageButton(
+    PageButton(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
@@ -93,7 +93,7 @@ private fun SignUpButton(
     enabled: Boolean,
     onClick: () -> Unit,
 ) {
-    BloggerPageButton(
+    PageButton(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
@@ -126,7 +126,7 @@ private fun LoginTextField(
                 .border(width = 1.dp, color = Color.LightGray, shape = RoundedCornerShape(16.dp))
                 .background(color = Color.White, shape = RoundedCornerShape(16.dp))
         ) {
-            BloggerTextField(
+            TextField(
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentHeight()
@@ -147,7 +147,7 @@ private fun LoginTextField(
                 .border(width = 1.dp, color = Color.LightGray, shape = RoundedCornerShape(16.dp))
                 .background(color = Color.White, shape = RoundedCornerShape(16.dp))
         ) {
-            BloggerTextField(
+            TextField(
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentHeight()
