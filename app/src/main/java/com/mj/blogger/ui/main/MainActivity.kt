@@ -3,13 +3,15 @@ package com.mj.blogger.ui.main
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.runtime.Composable
 import com.mj.blogger.common.compose.theme.BloggerTheme
+import com.mj.blogger.common.ktx.observe
 import com.mj.blogger.ui.main.presentation.MainScreen
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
 
     companion object {
         fun start(context: Context) {
@@ -25,9 +27,19 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             BloggerTheme {
-                MainScreen(presenter = viewModel)
+                MainScreen()
             }
         }
+    }
+
+    @Composable
+    private fun MainScreen() {
+
+        viewModel.composeEvent.observe {
+            MainComposeDialog.show(supportFragmentManager)
+        }
+
+        MainScreen(presenter = viewModel)
     }
 }
 

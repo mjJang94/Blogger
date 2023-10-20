@@ -11,9 +11,9 @@ enum class MainPage(
         defaultIconRes = R.drawable.ic_baseline_home_off,
         selectedIconRes = R.drawable.ic_baseline_home_on,
     ),
-    CREATE(
-        defaultIconRes = R.drawable.ic_baseline_create_off,
-        selectedIconRes = R.drawable.ic_baseline_create_on,
+    COMPOSE(
+        defaultIconRes = R.drawable.ic_baseline_compose_off,
+        selectedIconRes = R.drawable.ic_baseline_compose_on,
     ),
     SETTINGS(
         defaultIconRes = R.drawable.ic_baseline_settings_off,

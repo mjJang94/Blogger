@@ -54,50 +54,79 @@ fun MainScreen(
 @Composable
 private fun MainScreenContent(state: MainContentState) {
 
-    var selectedPage by remember { mutableStateOf(Page.HOME) }
-
     val pages = Page.values()
 
-    Column(
-        modifier = Modifier.fillMaxSize()
-    ) {
+    LaunchedEffect(state.page) {
+        snapshotFlow {
+            state.page.ordinal.coerceIn(pages.indices)
+        }.collect {
+            state.pagerState.scrollToPage(it)
+        }
+    }
+
+    Column(modifier = Modifier.fillMaxSize()) {
+
         HorizontalPager(
             modifier = Modifier.weight(1f),
             state = state.pagerState,
             pageCount = pages.size,
+            key = { it },
+            userScrollEnabled = false,
         ) { pageIndex ->
             when (pages[pageIndex]) {
                 Page.HOME -> MainHomeContent()
-                Page.CREATE -> MainCreateContent()
                 Page.SETTINGS -> MainSettingsContent()
+                else -> {}
             }
         }
 
-        TabRow(
+        Divider(
             modifier = Modifier.fillMaxWidth(),
-            selectedTabIndex = selectedPage.ordinal,
-            indicator = { TabRowDefaults.Indicator(color = Color.Transparent) },
-        ) {
-            pages.forEachIndexed { index, page ->
-                Tab(
-                    selected = selectedPage == page,
-                    onClick = { selectedPage = pages[index] },
+            thickness = 1.dp,
+            color = Color.LightGray,
+        )
+
+        BottomNavigator(
+            modifier = Modifier.fillMaxWidth(),
+            pages = pages,
+            selectedPage = state.page,
+            onPageSwitch = state.onPageSwitch,
+        )
+    }
+}
+
+@Composable
+private fun BottomNavigator(
+    modifier: Modifier,
+    pages: Array<Page>,
+    selectedPage: Page,
+    onPageSwitch: (Page) -> Unit,
+) {
+
+    TabRow(
+        modifier = modifier,
+        selectedTabIndex = selectedPage.ordinal,
+        indicator = { TabRowDefaults.Indicator(color = Color.Transparent) },
+    ) {
+        pages.forEach { page ->
+            Tab(
+                selected = selectedPage == page,
+                onClick = { onPageSwitch(page) },
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    contentAlignment = Alignment.Center,
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(56.dp),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Image(
-                            painter = painterResource(
-                                id = when (selectedPage == page) {
-                                    true -> page.selectedIconRes
-                                    false -> page.defaultIconRes
-                                }
-                            )
+                    Image(
+                        painter = painterResource(
+                            id = when (selectedPage == page) {
+                                true -> page.selectedIconRes
+                                false -> page.defaultIconRes
+                            }
                         )
-                    }
+                    )
                 }
             }
         }
@@ -110,7 +139,8 @@ fun MainScreenPreview() {
     val state = MainContentState(
         pagerState = rememberPagerState(initialPage = Page.HOME.ordinal),
         page = remember { mutableStateOf(Page.HOME) },
-        close = {}
+        onPageSwitch = {},
+        onComposePosting = {},
     )
     BloggerTheme {
         MainScreenContent(state)

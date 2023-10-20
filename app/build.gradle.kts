@@ -61,6 +61,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.6.2")
     implementation("androidx.activity:activity-compose:1.8.0")
+    implementation("androidx.fragment:fragment-ktx:1.6.1")
     implementation("androidx.paging:paging-compose:3.2.1")
     implementation("androidx.annotation:annotation:1.7.0")
     implementation("androidx.viewpager2:viewpager2:1.0.0")

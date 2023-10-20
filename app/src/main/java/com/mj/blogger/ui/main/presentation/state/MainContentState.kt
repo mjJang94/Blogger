@@ -12,8 +12,11 @@ import com.mj.blogger.ui.main.presentation.MainScreenState
 @Stable
 class MainContentState(
     val pagerState: PagerState,
+
     page: State<MainPage>,
-    val close: () -> Unit,
+
+    val onPageSwitch: (MainPage) -> Unit,
+    val onComposePosting: () -> Unit,
 ) {
     val page by page
 }
@@ -29,7 +32,8 @@ fun rememberMainContentState(
         MainContentState(
             pagerState = screenState.pagerState,
             page = currentPage,
-            close = presenter::close
+            onPageSwitch = presenter::onPageSwitch,
+            onComposePosting = presenter::onComposePosting
         )
     }
 }

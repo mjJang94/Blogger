@@ -50,14 +50,14 @@ class LoginActivity: AppCompatActivity() {
 
     @Composable
     private fun LoginScreen() {
-        viewModel.signEvent.observe(this) { info ->
+        viewModel.signEvent.observe { info ->
             when (info.requestType) {
                 Type.SIGN_IN -> signIn(info.id, info.password)
                 Type.SIGN_UP -> signUp(info.id, info.password)
             }
         }
 
-        viewModel.loginEvent.observe(this) { result ->
+        viewModel.loginEvent.observe { result ->
             when (result){
                 LoginState.SUCCESS -> MainActivity.start(this)
                 LoginState.FAIL -> Toast.makeText(this, "로그인에 실패하였습니다.", Toast.LENGTH_SHORT).show()
