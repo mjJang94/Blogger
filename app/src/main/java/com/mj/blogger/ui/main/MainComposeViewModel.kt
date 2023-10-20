@@ -29,7 +29,7 @@ class MainComposeViewModel: ViewModel(), MainComposePresenter {
     }
 
     override fun onPost() {
-        Log.d(tag, "post()")
+        Log.d(tag, "onPost()")
     }
 
     private val _closeEvent = MutableSharedFlow<Unit>()
