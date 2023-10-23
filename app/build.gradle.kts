@@ -54,7 +54,7 @@ dependencies {
 
     //android
     implementation("com.google.android.material:material:1.10.0")
-
+    implementation("androidx.compose.material:material:1.0.0")
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
@@ -96,5 +96,8 @@ dependencies {
     //hilt
     implementation ("com.google.dagger:hilt-android:2.44")
     kapt ("com.google.dagger:hilt-compiler:2.44")
+
+    //MP Chart
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 
 }
