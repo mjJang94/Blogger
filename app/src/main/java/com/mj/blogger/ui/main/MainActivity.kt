@@ -3,15 +3,28 @@ package com.mj.blogger.ui.main
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.Composable
+import androidx.lifecycle.lifecycleScope
+import com.google.firebase.firestore.FirebaseFirestore
 import com.mj.blogger.common.compose.theme.BloggerTheme
 import com.mj.blogger.common.ktx.observe
 import com.mj.blogger.ui.main.presentation.MainScreen
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import javax.inject.Inject
+import kotlin.coroutines.CoroutineContext
 
-class MainActivity : AppCompatActivity() {
+@AndroidEntryPoint
+class MainActivity : AppCompatActivity(), CoroutineScope {
+
+    override val coroutineContext: CoroutineContext = lifecycleScope.coroutineContext
+
+    @Inject
+    lateinit var fireStore: FirebaseFirestore
 
     companion object {
         fun start(context: Context) {
@@ -25,6 +38,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        viewModel.fetchDataFromFireStoreRealtime()
+
         setContent {
             BloggerTheme {
                 MainScreen()
@@ -34,9 +49,12 @@ class MainActivity : AppCompatActivity() {
 
     @Composable
     private fun MainScreen() {
-
         viewModel.composeEvent.observe {
             MainComposeDialog.show(supportFragmentManager)
+        }
+
+        viewModel.loadErrorEvent.observe { tr ->
+            Toast.makeText(this, tr.message, Toast.LENGTH_SHORT).show()
         }
 
         MainScreen(presenter = viewModel)

@@ -67,14 +67,14 @@ class LoginActivity: AppCompatActivity() {
         LoginScreen(presenter = viewModel)
     }
 
-    private fun signUp(id: String, password: String) {
-        auth.createUserWithEmailAndPassword(id, password)
+    private fun signUp(email: String, password: String) {
+        auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
                 when {
                     task.isSuccessful -> {
                         Log.d(this::class.simpleName, "createUserWithEmail:success")
                         val userId = auth.currentUser?.uid
-                        viewModel.saveUserId(userId)
+                        viewModel.saveUserInfo(userId, email)
                     }
                     else -> {
                         Log.w(this::class.simpleName, "createUserWithEmail:failure", task.exception)
@@ -91,7 +91,7 @@ class LoginActivity: AppCompatActivity() {
                     task.isSuccessful -> {
                         Log.d(this::class.simpleName, "signInWithEmail:success")
                         val userId = auth.currentUser?.uid
-                        viewModel.saveUserId(userId)
+                        viewModel.saveUserInfo(userId, email)
                     }
                     else -> {
                         Log.w(this::class.simpleName, "signInWithEmail:failure", task.exception)

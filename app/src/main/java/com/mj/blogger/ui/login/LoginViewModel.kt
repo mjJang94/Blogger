@@ -64,12 +64,13 @@ class LoginViewModel @Inject constructor(
     private val _loginEvent = MutableSharedFlow<LoginState>()
     val loginEvent = _loginEvent.asSharedFlow()
 
-    fun saveUserId(id: String?) {
+    fun saveUserInfo(id: String?, email: String) {
         viewModelScope.launch {
             when (id) {
                 null -> _loginEvent.emit(LoginState.FAIL)
                 else -> {
                     repository.storeUserId(id)
+                    repository.storeEmail(email)
                     _loginEvent.emit(LoginState.SUCCESS)
                 }
             }

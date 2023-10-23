@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatDialogFragment
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.ComposeView
@@ -13,7 +14,9 @@ import com.mj.blogger.R
 import com.mj.blogger.common.compose.theme.BloggerTheme
 import com.mj.blogger.common.ktx.observe
 import com.mj.blogger.ui.main.presentation.MainComposeScreen
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainComposeDialog : AppCompatDialogFragment() {
 
     companion object {
@@ -46,6 +49,11 @@ class MainComposeDialog : AppCompatDialogFragment() {
     private fun MainComposeScreen() {
 
         viewModel.closeEvent.observe {
+            dismissAllowingStateLoss()
+        }
+
+        viewModel.completeEvent.observe {
+            Toast.makeText(requireContext(), R.string.posting_complete, Toast.LENGTH_SHORT).show()
             dismissAllowingStateLoss()
         }
 
