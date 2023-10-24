@@ -16,10 +16,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mj.blogger.common.compose.foundation.Image
+import com.mj.blogger.common.compose.ktx.rememberImmutableList
 import com.mj.blogger.common.compose.theme.BloggerTheme
 import com.mj.blogger.ui.main.presentation.state.MainContentState
 import com.mj.blogger.ui.main.presentation.state.rememberMainContentState
-import kotlinx.collections.immutable.toImmutableList
 import com.mj.blogger.ui.main.presentation.state.MainPage as Page
 
 @Stable
@@ -51,7 +51,6 @@ fun MainScreen(
         )
     )
 }
-
 @Composable
 private fun MainScreenContent(state: MainContentState) {
 
@@ -77,7 +76,9 @@ private fun MainScreenContent(state: MainContentState) {
             when (pages[pageIndex]) {
                 Page.HOME -> MainHomeContent(
                     email = state.email,
-                    recentPostingItems = state.recentPostingItems.toImmutableList(),
+                    prevWeekDays = state.prevWeekDays,
+                    postingChartItems = state.postingChartItems,
+                    recentPostingItems = state.recentPostingItems,
                 )
                 Page.SETTINGS -> MainSettingsContent()
                 else -> {}
@@ -145,7 +146,7 @@ fun MainScreenPreview() {
         page = remember { mutableStateOf(Page.HOME) },
         email = remember { mutableStateOf("alswhddl10@naver.com") },
         prevWeekDays = remember { mutableStateOf(emptyList()) },
-        postingDateItems = remember { mutableStateOf(emptyList()) },
+        postingChartItems = remember { mutableStateOf(emptyList()) },
         recentPostingItems = remember { mutableStateOf(emptyList()) },
         onPageSwitch = {},
     )

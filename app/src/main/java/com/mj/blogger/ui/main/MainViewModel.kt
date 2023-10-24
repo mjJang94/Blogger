@@ -48,12 +48,15 @@ class MainViewModel @Inject constructor(
                     .addSnapshotListener { documents, exception ->
                         when {
                             exception != null -> {
+                                Log.e(TAG, "$exception")
                                 loadError(exception)
                                 return@addSnapshotListener
                             }
 
                             else -> {
-                                val postings = documents?.toObjects<Posting>()?.map { it.translate() } ?: emptyList()
+                                val postings =
+                                    documents?.toObjects<Posting>()?.map { it.translate() }
+                                        ?: emptyList()
                                 Log.d(TAG, "posting = $postings")
 
                                 setPostingItems(postings)
@@ -61,6 +64,7 @@ class MainViewModel @Inject constructor(
                         }
                     }
             }.getOrElse { tr ->
+                Log.e(TAG, "$tr")
                 loadError(tr)
             }
         }
@@ -92,14 +96,15 @@ class MainViewModel @Inject constructor(
 
     private val _prevWeekDays = flow { emit(getPreviousWeekDays()) }
 
-    override val prevWeekDays = _prevWeekDays
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.Lazily,
-            initialValue = emptyList()
-        )
+    override val prevWeekDays = _prevWeekDays.map { list ->
+        list.map { dateToDayOfWeek(it) }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Lazily,
+        initialValue = emptyList()
+    )
 
-    override val postingDateItems = combine(_postingItems, _prevWeekDays) { posting, prevDay ->
+    override val postingChartItems = combine(_postingItems, _prevWeekDays) { posting, prevDay ->
         posting.groupBy { post -> millisecondsToDateString(post.postTime) }
             .filter { (key, _) -> prevDay.contains(key) }
             .map { (day, list) ->
@@ -110,6 +115,16 @@ class MainViewModel @Inject constructor(
         started = SharingStarted.Lazily,
         initialValue = emptyList(),
     )
+
+    private fun dateToDayOfWeek(dateString: String): String =
+        run {
+            val inputFormat =
+                SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+            val date = inputFormat.parse(dateString)
+
+            val outputFormat = SimpleDateFormat("EEEE", Locale.getDefault())
+            date?.let { outputFormat.format(it) } ?: ""
+        }
 
     private fun getPreviousWeekDays(): List<String> {
 

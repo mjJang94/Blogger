@@ -16,13 +16,15 @@ class MainContentState(
 
     email: State<String>,
     prevWeekDays: State<List<String>>,
-    postingDateItems: State<List<PostingChartItem>>,
+    postingChartItems: State<List<PostingChartItem>>,
     recentPostingItems: State<List<PostingItem>>,
 
     val onPageSwitch: (MainPage) -> Unit,
 ) {
     val page by page
     val email by email
+    val prevWeekDays by prevWeekDays
+    val postingChartItems by postingChartItems
     val recentPostingItems by recentPostingItems
 }
 
@@ -34,7 +36,7 @@ fun rememberMainContentState(
     val currentPage = presenter.page.collectAsStateWithLifecycle()
     val email = presenter.email.collectAsStateWithLifecycle()
     val prevWeekDays = presenter.prevWeekDays.collectAsStateWithLifecycle()
-    val postingDateItems = presenter.postingDateItems.collectAsStateWithLifecycle()
+    val postingChartItems = presenter.postingChartItems.collectAsStateWithLifecycle()
     val recentPostingItems = presenter.recentPostingItems.collectAsStateWithLifecycle()
 
     return remember {
@@ -43,7 +45,7 @@ fun rememberMainContentState(
             page = currentPage,
             email = email,
             prevWeekDays = prevWeekDays,
-            postingDateItems = postingDateItems,
+            postingChartItems = postingChartItems,
             recentPostingItems = recentPostingItems,
             onPageSwitch = presenter::onPageSwitch,
         )

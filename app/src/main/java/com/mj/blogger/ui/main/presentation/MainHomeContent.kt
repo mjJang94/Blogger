@@ -16,20 +16,25 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import kotlinx.collections.immutable.toImmutableList
 import com.github.mikephil.charting.charts.BarChart
+import com.github.mikephil.charting.components.Description
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.mj.blogger.R
+import com.mj.blogger.common.compose.ktx.rememberImmutableList
 import com.mj.blogger.common.compose.theme.BloggerTheme
+import com.mj.blogger.ui.main.presentation.state.PostingChartItem
 import com.mj.blogger.ui.main.presentation.state.PostingItem
 import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 fun MainHomeContent(
     email: String,
-    recentPostingItems: ImmutableList<PostingItem>,
+    prevWeekDays: List<String>,
+    postingChartItems: List<PostingChartItem>,
+    recentPostingItems: List<PostingItem>,
 ) {
     Column(
         modifier = Modifier
@@ -38,14 +43,19 @@ fun MainHomeContent(
             .padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
-        MainLabel()
+        WelcomeLabel()
+
         LoginLabel(email = "alswhddl10@naver.com")
-        PostingGraphCard()
+
+        PostingGraphCard(
+            prevWeekDays = rememberImmutableList(prevWeekDays),
+            postingChartItems = rememberImmutableList(postingChartItems),
+        )
     }
 }
 
 @Composable
-private fun MainLabel() {
+private fun WelcomeLabel() {
     Text(
         modifier = Modifier
             .fillMaxWidth()
@@ -70,21 +80,16 @@ private fun LoginLabel(email: String) {
 }
 
 @Composable
-private fun PostingGraphCard() {
-    val labels = listOf(
-        "label 1",
-        "label 2",
-        "label 3",
-    )
+private fun PostingGraphCard(
+    prevWeekDays: ImmutableList<String>,
+    postingChartItems: ImmutableList<PostingChartItem>,
+) {
 
     val barData = BarData().apply {
         val dataSet = BarDataSet(
-            listOf(
-                BarEntry(1f, 2f),
-                BarEntry(2f, 4f),
-                BarEntry(3f, 6f),
-            ),
-            "BAR DATA"
+            postingChartItems.mapIndexed { index, postingChartItem ->
+                BarEntry(index.toFloat(), postingChartItem.count.toFloat())
+            }, "BAR DATA"
         )
         addDataSet(dataSet)
         barWidth = 0.2f
@@ -101,7 +106,7 @@ private fun PostingGraphCard() {
                 BarChart(context).apply {
                     setTouchEnabled(false)
                     //X, Y축 숨기기
-                    xAxis.isEnabled = false
+                    xAxis.isEnabled = true
                     axisLeft.isEnabled = false
                     axisRight.isEnabled = false
 
@@ -121,7 +126,8 @@ private fun PostingGraphCard() {
             },
             update = { barChart ->
                 barChart.data = barData
-                barChart.xAxis.valueFormatter = IndexAxisValueFormatter(labels)
+                barChart.xAxis.valueFormatter = IndexAxisValueFormatter(prevWeekDays)
+                barChart.description = Description().apply { isEnabled = false }
             }
         )
     }
@@ -150,9 +156,52 @@ private fun MainHomeContentPreview() {
 
     )
 
+    val prevWeekDays = listOf(
+        "월",
+        "화",
+        "수",
+        "목",
+        "금",
+        "토",
+        "일",
+    )
+
+    val postingDateItems = listOf(
+        PostingChartItem(
+            day = "2023-10-18",
+            count = 1
+        ),
+        PostingChartItem(
+            day = "2023-10-19",
+            count = 1
+        ),
+        PostingChartItem(
+            day = "2023-10-20",
+            count = 2
+        ),
+        PostingChartItem(
+            day = "2023-10-21",
+            count = 9
+        ),
+        PostingChartItem(
+            day = "2023-10-22",
+            count = 2
+        ),
+        PostingChartItem(
+            day = "2023-10-23",
+            count = 5
+        ),
+        PostingChartItem(
+            day = "2023-10-24",
+            count = 10
+        ),
+    )
+
     BloggerTheme {
         MainHomeContent(
             email = "alswhddl10@naver.com",
+            prevWeekDays = prevWeekDays.toImmutableList(),
+            postingChartItems = postingDateItems.toImmutableList(),
             recentPostingItems = recentItems.toImmutableList(),
         )
     }
