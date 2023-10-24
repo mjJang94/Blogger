@@ -3,6 +3,7 @@ package com.mj.blogger.ui.main
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -51,6 +52,10 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
     private fun MainScreen() {
         viewModel.composeEvent.observe {
             MainComposeDialog.show(supportFragmentManager)
+        }
+
+        viewModel.postingDateItems.observe {
+            Log.d("MainActivity", "dateposting = $it")
         }
 
         viewModel.loadErrorEvent.observe { tr ->

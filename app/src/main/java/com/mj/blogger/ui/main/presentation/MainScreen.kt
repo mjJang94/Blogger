@@ -19,6 +19,7 @@ import com.mj.blogger.common.compose.foundation.Image
 import com.mj.blogger.common.compose.theme.BloggerTheme
 import com.mj.blogger.ui.main.presentation.state.MainContentState
 import com.mj.blogger.ui.main.presentation.state.rememberMainContentState
+import kotlinx.collections.immutable.toImmutableList
 import com.mj.blogger.ui.main.presentation.state.MainPage as Page
 
 @Stable
@@ -74,7 +75,10 @@ private fun MainScreenContent(state: MainContentState) {
             userScrollEnabled = false,
         ) { pageIndex ->
             when (pages[pageIndex]) {
-                Page.HOME -> MainHomeContent()
+                Page.HOME -> MainHomeContent(
+                    email = state.email,
+                    recentPostingItems = state.recentPostingItems.toImmutableList(),
+                )
                 Page.SETTINGS -> MainSettingsContent()
                 else -> {}
             }
@@ -139,6 +143,10 @@ fun MainScreenPreview() {
     val state = MainContentState(
         pagerState = rememberPagerState(initialPage = Page.HOME.ordinal),
         page = remember { mutableStateOf(Page.HOME) },
+        email = remember { mutableStateOf("alswhddl10@naver.com") },
+        prevWeekDays = remember { mutableStateOf(emptyList()) },
+        postingDateItems = remember { mutableStateOf(emptyList()) },
+        recentPostingItems = remember { mutableStateOf(emptyList()) },
         onPageSwitch = {},
     )
     BloggerTheme {

@@ -5,9 +5,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.firestore.FirebaseFirestore
 import com.mj.blogger.common.compose.ktx.invoke
+import com.mj.blogger.common.firebase.vo.Posting
 import com.mj.blogger.repo.di.Repository
 import com.mj.blogger.ui.main.presentation.MainComposePresenter
-import com.mj.blogger.ui.main.presentation.PostingData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -44,7 +44,7 @@ class MainComposeViewModel @Inject constructor(
             val message = _message.firstOrNull() ?: return@launch
             Log.d(tag, "onPost() : userId = $userId, title = $title, message = $message")
 
-            val post = PostingData(
+            val post = Posting(
                 title = title,
                 message = message,
                 postTime = System.currentTimeMillis(),
