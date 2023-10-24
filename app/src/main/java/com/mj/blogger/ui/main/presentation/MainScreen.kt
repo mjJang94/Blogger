@@ -140,7 +140,6 @@ fun MainScreenPreview() {
         pagerState = rememberPagerState(initialPage = Page.HOME.ordinal),
         page = remember { mutableStateOf(Page.HOME) },
         onPageSwitch = {},
-        onComposePosting = {},
     )
     BloggerTheme {
         MainScreenContent(state)

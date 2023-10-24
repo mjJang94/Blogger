@@ -7,6 +7,5 @@ interface Repository {
     val emailFlow: Flow<String>
 
     suspend fun storeUserId(id: String)
-    suspend fun userId(): String
     val userIdFlow: Flow<String>
 }

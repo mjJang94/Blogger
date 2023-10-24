@@ -13,23 +13,14 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SplashViewModel @Inject constructor(
-    repository: Repository,
+    val repository: Repository,
 ) : ViewModel() {
-
-    private val _userId = repository.userIdFlow.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.Lazily,
-        initialValue = null
-    )
 
     fun waitForLoading(action: (Boolean) -> Unit) {
         viewModelScope.launch {
-            val result = when (_userId.firstOrNull()) {
-                null -> false
-                else -> true
-            }
+            val userId = repository.userId()
             delay(3000)
-            action.invoke(result)
+            action.invoke(userId.isNotBlank())
         }
     }
 }

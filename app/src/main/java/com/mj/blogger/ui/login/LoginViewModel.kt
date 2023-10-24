@@ -9,8 +9,10 @@ import com.mj.blogger.ui.login.presentation.LoginState
 import com.mj.blogger.ui.login.presentation.SignInfo
 import com.mj.blogger.ui.login.presentation.SignType
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -69,8 +71,10 @@ class LoginViewModel @Inject constructor(
             when (id) {
                 null -> _loginEvent.emit(LoginState.FAIL)
                 else -> {
-                    repository.storeUserId(id)
-                    repository.storeEmail(email)
+                    withContext(Dispatchers.IO){
+                        repository.storeUserId(id)
+                        repository.storeEmail(email)
+                    }
                     _loginEvent.emit(LoginState.SUCCESS)
                 }
             }

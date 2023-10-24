@@ -12,6 +12,8 @@ import androidx.lifecycle.lifecycleScope
 import com.google.firebase.firestore.FirebaseFirestore
 import com.mj.blogger.common.compose.theme.BloggerTheme
 import com.mj.blogger.common.ktx.observe
+import com.mj.blogger.ui.login.LoginActivity
+import com.mj.blogger.ui.main.MainViewModel.*
 import com.mj.blogger.ui.main.presentation.MainScreen
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -38,8 +40,6 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        viewModel.fetchDataFromFireStoreRealtime()
-
         setContent {
             BloggerTheme {
                 MainScreen()
@@ -54,7 +54,10 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
         }
 
         viewModel.loadErrorEvent.observe { tr ->
-            Toast.makeText(this, tr.message, Toast.LENGTH_SHORT).show()
+            when (tr) {
+                is InvalidUserException -> LoginActivity.start(this@MainActivity)
+                else -> Toast.makeText(this, tr.message, Toast.LENGTH_SHORT).show()
+            }
         }
 
         MainScreen(presenter = viewModel)

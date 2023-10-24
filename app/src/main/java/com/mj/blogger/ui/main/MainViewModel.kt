@@ -11,11 +11,10 @@ import com.mj.blogger.ui.main.presentation.MainPresenter
 import com.mj.blogger.ui.main.presentation.PostingData
 import com.mj.blogger.ui.main.presentation.state.MainPage
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -26,32 +25,32 @@ class MainViewModel @Inject constructor(
 
     private val tag = this::class.java.simpleName
 
-    fun fetchDataFromFireStoreRealtime() = viewModelScope.launch {
-        val userId = repository.userId()
-        Log.d(tag, "posting = id : $userId")
+    class InvalidUserException: Exception()
 
-        fireStore.collection(userId).addSnapshotListener { documents, exception ->
-            if (exception != null) {
-                loadError(exception)
-                return@addSnapshotListener
-            }
-
-            if (documents != null) {
-                val postings = documents.toObjects<PostingData>()
-                postings.forEach {
-                    Log.d(tag, "posting = $it")
-                }
-            } else {
-                Log.d(tag, "posting = null")
-            }
-        }
-    }
-
-    private val _loadErrorEvent = MutableSharedFlow<Exception>()
-    val loadErrorEvent = _loadErrorEvent.asSharedFlow()
-    private fun loadError(exception: Exception) {
+    init {
         viewModelScope.launch {
-            _loadErrorEvent.emit(exception)
+            runCatching {
+                val collectionPath = withContext(Dispatchers.IO) {
+                    repository.userIdFlow.firstOrNull() ?: throw InvalidUserException()
+                }
+                fireStore.collection(collectionPath).addSnapshotListener { documents, exception ->
+                    when {
+                        exception != null -> {
+                            loadError(exception)
+                            return@addSnapshotListener
+                        }
+
+                        else -> {
+                            val postings = documents?.toObjects<PostingData>() ?: emptyList()
+                            Log.d(tag, "posting = $postings")
+
+                            addPostingItems(postings)
+                        }
+                    }
+                }
+            }.getOrElse { tr ->
+                loadError(tr)
+            }
         }
     }
 
@@ -66,9 +65,22 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    private val _postingItems = MutableStateFlow<List<PostingData>>(emptyList())
+    override val postingItems = _postingItems.asStateFlow()
+    private fun addPostingItems(items: List<PostingData>) {
+        viewModelScope.launch {
+            _postingItems.emit(items)
+        }
+    }
+
+    private val _loadErrorEvent = MutableSharedFlow<Throwable>()
+    val loadErrorEvent = _loadErrorEvent.asSharedFlow()
+    private fun loadError(tr: Throwable) {
+        viewModelScope.launch {
+            _loadErrorEvent.emit(tr)
+        }
+    }
+
     private val _composeEvent = MutableSharedFlow<Unit>()
     val composeEvent = _composeEvent.asSharedFlow()
-    override fun onComposePosting() {
-        viewModelScope.launch { _composeEvent() }
-    }
 }

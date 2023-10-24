@@ -16,7 +16,6 @@ class MainContentState(
     page: State<MainPage>,
 
     val onPageSwitch: (MainPage) -> Unit,
-    val onComposePosting: () -> Unit,
 ) {
     val page by page
 }
@@ -33,7 +32,6 @@ fun rememberMainContentState(
             pagerState = screenState.pagerState,
             page = currentPage,
             onPageSwitch = presenter::onPageSwitch,
-            onComposePosting = presenter::onComposePosting
         )
     }
 }
