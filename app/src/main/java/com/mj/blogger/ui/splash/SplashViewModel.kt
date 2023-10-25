@@ -20,7 +20,7 @@ class SplashViewModel @Inject constructor(
         viewModelScope.launch {
             val userId = repository.userIdFlow.firstOrNull()
             delay(3000)
-            action.invoke(userId.isNullOrBlank())
+            action.invoke(!userId.isNullOrBlank())
         }
     }
 }

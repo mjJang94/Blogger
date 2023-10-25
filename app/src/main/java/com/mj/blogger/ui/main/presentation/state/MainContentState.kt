@@ -6,6 +6,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.runtime.*
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.github.mikephil.charting.data.BarEntry
 import com.mj.blogger.ui.main.presentation.MainPresenter
 import com.mj.blogger.ui.main.presentation.MainScreenState
 
@@ -16,7 +17,7 @@ class MainContentState(
 
     email: State<String>,
     prevWeekDays: State<List<String>>,
-    postingChartItems: State<List<PostingChartItem>>,
+    postingChartEntryItems: State<List<BarEntry>>,
     recentPostingItems: State<List<PostingItem>>,
 
     val onPageSwitch: (MainPage) -> Unit,
@@ -24,7 +25,7 @@ class MainContentState(
     val page by page
     val email by email
     val prevWeekDays by prevWeekDays
-    val postingChartItems by postingChartItems
+    val postingChartEntryItems by postingChartEntryItems
     val recentPostingItems by recentPostingItems
 }
 
@@ -36,7 +37,7 @@ fun rememberMainContentState(
     val currentPage = presenter.page.collectAsStateWithLifecycle()
     val email = presenter.email.collectAsStateWithLifecycle()
     val prevWeekDays = presenter.prevWeekDays.collectAsStateWithLifecycle()
-    val postingChartItems = presenter.postingChartItems.collectAsStateWithLifecycle()
+    val postingChartEntryItems = presenter.postingChartEntryItems.collectAsStateWithLifecycle()
     val recentPostingItems = presenter.recentPostingItems.collectAsStateWithLifecycle()
 
     return remember {
@@ -45,7 +46,7 @@ fun rememberMainContentState(
             page = currentPage,
             email = email,
             prevWeekDays = prevWeekDays,
-            postingChartItems = postingChartItems,
+            postingChartEntryItems = postingChartEntryItems,
             recentPostingItems = recentPostingItems,
             onPageSwitch = presenter::onPageSwitch,
         )

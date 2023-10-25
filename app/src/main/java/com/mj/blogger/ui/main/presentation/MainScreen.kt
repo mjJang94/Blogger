@@ -15,10 +15,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.github.mikephil.charting.data.BarEntry
 import com.mj.blogger.common.compose.foundation.Image
-import com.mj.blogger.common.compose.ktx.rememberImmutableList
 import com.mj.blogger.common.compose.theme.BloggerTheme
 import com.mj.blogger.ui.main.presentation.state.MainContentState
+import com.mj.blogger.ui.main.presentation.state.PostingItem
 import com.mj.blogger.ui.main.presentation.state.rememberMainContentState
 import com.mj.blogger.ui.main.presentation.state.MainPage as Page
 
@@ -74,12 +75,7 @@ private fun MainScreenContent(state: MainContentState) {
             userScrollEnabled = false,
         ) { pageIndex ->
             when (pages[pageIndex]) {
-                Page.HOME -> MainHomeContent(
-                    email = state.email,
-                    prevWeekDays = state.prevWeekDays,
-                    postingChartItems = state.postingChartItems,
-                    recentPostingItems = state.recentPostingItems,
-                )
+                Page.HOME -> MainHomeContent(state = state)
                 Page.SETTINGS -> MainSettingsContent()
                 else -> {}
             }
@@ -140,17 +136,63 @@ private fun BottomNavigator(
 
 @Preview
 @Composable
-fun MainScreenPreview() {
+private fun MainScreenPreview() {
+    BloggerTheme {
+        MainScreenContent(rememberPreviewMainContentState())
+    }
+}
+
+@Composable
+internal fun rememberPreviewMainContentState(): MainContentState {
+
+    val prevWeekDays = listOf(
+        "월",
+        "화",
+        "수",
+        "목",
+        "금",
+        "토",
+        "일",
+    )
+
+    val barEntry = listOf(
+        BarEntry(0f, 1f),
+        BarEntry(1f, 2f),
+        BarEntry(2f, 3f),
+        BarEntry(3f, 4f),
+        BarEntry(4f, 5f),
+        BarEntry(5f, 6f),
+        BarEntry(6f, 7f),
+    )
+
+    val recentItems = listOf(
+        PostingItem(
+            title = "안드로이드 활용법",
+            message = "안드로이드 활용법에 대해 알아봅니다.",
+            postTime = System.currentTimeMillis(),
+        ),
+        PostingItem(
+            title = "파이어베이스 활용법",
+            message = "파이어베이스 활용법에 대해 알아봅니다.",
+            postTime = System.currentTimeMillis(),
+        ),
+        PostingItem(
+            title = "갤럭시 활용법",
+            message = "갤럭시에 대해 알아봅니다.",
+            postTime = System.currentTimeMillis(),
+        )
+
+    )
+
     val state = MainContentState(
-        pagerState = rememberPagerState(initialPage = Page.HOME.ordinal),
+        pagerState = rememberPagerState(initialPage = Page.values().size),
         page = remember { mutableStateOf(Page.HOME) },
         email = remember { mutableStateOf("alswhddl10@naver.com") },
-        prevWeekDays = remember { mutableStateOf(emptyList()) },
-        postingChartItems = remember { mutableStateOf(emptyList()) },
-        recentPostingItems = remember { mutableStateOf(emptyList()) },
+        prevWeekDays = remember { mutableStateOf(prevWeekDays) },
+        postingChartEntryItems = remember { mutableStateOf(barEntry) },
+        recentPostingItems = remember { mutableStateOf(recentItems) },
         onPageSwitch = {},
     )
-    BloggerTheme {
-        MainScreenContent(state)
-    }
+
+    return remember { state }
 }

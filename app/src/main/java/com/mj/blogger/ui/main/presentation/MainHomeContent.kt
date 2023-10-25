@@ -1,10 +1,19 @@
 package com.mj.blogger.ui.main.presentation
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Card
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -14,7 +23,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
-import kotlinx.collections.immutable.toImmutableList
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.components.Description
 import com.github.mikephil.charting.components.XAxis
@@ -25,16 +33,12 @@ import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.mj.blogger.R
 import com.mj.blogger.common.compose.ktx.rememberImmutableList
 import com.mj.blogger.common.compose.theme.BloggerTheme
-import com.mj.blogger.ui.main.presentation.state.PostingChartItem
-import com.mj.blogger.ui.main.presentation.state.PostingItem
+import com.mj.blogger.ui.main.presentation.state.MainContentState
 import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 fun MainHomeContent(
-    email: String,
-    prevWeekDays: List<String>,
-    postingChartItems: List<PostingChartItem>,
-    recentPostingItems: List<PostingItem>,
+    state: MainContentState,
 ) {
     Column(
         modifier = Modifier
@@ -45,11 +49,11 @@ fun MainHomeContent(
     ) {
         WelcomeLabel()
 
-        LoginLabel(email = "alswhddl10@naver.com")
+        LoginLabel(email = state.email)
 
         PostingGraphCard(
-            prevWeekDays = rememberImmutableList(prevWeekDays),
-            postingChartItems = rememberImmutableList(postingChartItems),
+            prevWeekDayItems = rememberImmutableList(state.prevWeekDays),
+            postingChartEntryItems = rememberImmutableList(state.postingChartEntryItems),
         )
     }
 }
@@ -81,19 +85,31 @@ private fun LoginLabel(email: String) {
 
 @Composable
 private fun PostingGraphCard(
-    prevWeekDays: ImmutableList<String>,
-    postingChartItems: ImmutableList<PostingChartItem>,
+    prevWeekDayItems: ImmutableList<String>,
+    postingChartEntryItems: ImmutableList<BarEntry>,
 ) {
 
-    val barData = BarData().apply {
-        val dataSet = BarDataSet(
-            postingChartItems.mapIndexed { index, postingChartItem ->
-                BarEntry(index.toFloat(), postingChartItem.count.toFloat())
-            }, "BAR DATA"
-        )
-        addDataSet(dataSet)
-        barWidth = 0.2f
+    val data = remember(postingChartEntryItems) {
+        BarData(
+            BarDataSet(postingChartEntryItems, "")
+        ).apply {
+            barWidth = 0.5f
+        }
     }
+
+//    LaunchedEffect(postingChartEntryItems) {
+//        snapshotFlow {
+//            BarData(
+//                BarDataSet(postingChartEntryItems, "")
+//            ).apply {
+//                barWidth = 0.5f
+//            }
+//        }.collect { barData ->
+//            data = barData
+//        }
+//    }
+
+    Log.d("MainHomeContent", "${data.dataSets}")
 
     Card(
         modifier = Modifier
@@ -106,28 +122,29 @@ private fun PostingGraphCard(
                 BarChart(context).apply {
                     setTouchEnabled(false)
                     //X, Y축 숨기기
-                    xAxis.isEnabled = true
-                    axisLeft.isEnabled = false
+                    xAxis.apply {
+                        setDrawGridLines(false)
+                        isEnabled = true
+                        position = XAxis.XAxisPosition.BOTTOM
+                        valueFormatter = IndexAxisValueFormatter(prevWeekDayItems)
+                    }
+
+                    axisLeft.apply {
+                        setDrawGridLines(false)
+                        isEnabled = false
+                    }
+
                     axisRight.isEnabled = false
 
-                    //그리드 라인 제거
-                    xAxis.setDrawGridLines(false)
-                    axisLeft.setDrawGridLines(false)
-
-                    //범례 숨기기
                     legend.isEnabled = false
 
-                    //배경 비우기
-                    setBackgroundColor(android.graphics.Color.TRANSPARENT)
+                    description = Description().apply { isEnabled = false }
 
-                    //라벨 아래에 위치
-                    xAxis.position = XAxis.XAxisPosition.BOTTOM
+                    setBackgroundColor(android.graphics.Color.TRANSPARENT)
                 }
             },
             update = { barChart ->
-                barChart.data = barData
-                barChart.xAxis.valueFormatter = IndexAxisValueFormatter(prevWeekDays)
-                barChart.description = Description().apply { isEnabled = false }
+                barChart.data = data
             }
         )
     }
@@ -136,73 +153,7 @@ private fun PostingGraphCard(
 @Composable
 @Preview
 private fun MainHomeContentPreview() {
-
-    val recentItems = listOf(
-        PostingItem(
-            title = "안드로이드 활용법",
-            message = "안드로이드 활용법에 대해 알아봅니다.",
-            postTime = System.currentTimeMillis(),
-        ),
-        PostingItem(
-            title = "파이어베이스 활용법",
-            message = "파이어베이스 활용법에 대해 알아봅니다.",
-            postTime = System.currentTimeMillis(),
-        ),
-        PostingItem(
-            title = "갤럭시 활용법",
-            message = "갤럭시에 대해 알아봅니다.",
-            postTime = System.currentTimeMillis(),
-        )
-
-    )
-
-    val prevWeekDays = listOf(
-        "월",
-        "화",
-        "수",
-        "목",
-        "금",
-        "토",
-        "일",
-    )
-
-    val postingDateItems = listOf(
-        PostingChartItem(
-            day = "2023-10-18",
-            count = 1
-        ),
-        PostingChartItem(
-            day = "2023-10-19",
-            count = 1
-        ),
-        PostingChartItem(
-            day = "2023-10-20",
-            count = 2
-        ),
-        PostingChartItem(
-            day = "2023-10-21",
-            count = 9
-        ),
-        PostingChartItem(
-            day = "2023-10-22",
-            count = 2
-        ),
-        PostingChartItem(
-            day = "2023-10-23",
-            count = 5
-        ),
-        PostingChartItem(
-            day = "2023-10-24",
-            count = 10
-        ),
-    )
-
     BloggerTheme {
-        MainHomeContent(
-            email = "alswhddl10@naver.com",
-            prevWeekDays = prevWeekDays.toImmutableList(),
-            postingChartItems = postingDateItems.toImmutableList(),
-            recentPostingItems = recentItems.toImmutableList(),
-        )
+        MainHomeContent(rememberPreviewMainContentState())
     }
 }

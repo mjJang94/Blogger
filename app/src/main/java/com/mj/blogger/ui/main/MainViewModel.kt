@@ -3,6 +3,7 @@ package com.mj.blogger.ui.main
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.github.mikephil.charting.data.BarEntry
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.toObjects
 import com.mj.blogger.common.compose.ktx.invoke
@@ -16,6 +17,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -42,6 +44,8 @@ class MainViewModel @Inject constructor(
                 val collectionPath = withContext(Dispatchers.IO) {
                     repository.userIdFlow.firstOrNull() ?: throw InvalidUserException()
                 }
+
+                Log.e(TAG, "collectionPath = $collectionPath")
 
                 fireStore.collection(collectionPath)
                     .orderBy("postTime")
@@ -104,12 +108,43 @@ class MainViewModel @Inject constructor(
         initialValue = emptyList()
     )
 
-    override val postingChartItems = combine(_postingItems, _prevWeekDays) { posting, prevDay ->
-        posting.groupBy { post -> millisecondsToDateString(post.postTime) }
-            .filter { (key, _) -> prevDay.contains(key) }
-            .map { (day, list) ->
-                PostingChartItem(day = day, count = list.size)
+    //fun main() {
+    //    val originalList = mutableListOf("element1", "element2") // 2개의 요소가 있는 원래 List
+    //    val desiredSize = 7 // 원하는 List의 크기
+    //    val defaultElement = "default" // 추가할 기본 요소
+    //
+    //    // 새 List를 생성하고 기본 요소로 채웁니다.
+    //    val newList = MutableList(desiredSize) { index ->
+    //        if (index < originalList.size) {
+    //            originalList[index] // 원래 List의 요소를 추가합니다.
+    //        } else {
+    //            defaultElement // 나머지는 기본 요소를 추가합니다.
+    //        }
+    //    }
+    //
+    //    println(newList) // [element1, element2, default, default, default, default, default]
+    //}
+    override val postingChartEntryItems = _postingItems.map {posting ->
+
+        val days = getPreviousWeekDays()
+        val weekCount = 7
+
+        val postingItem = posting
+            .sortedByDescending { it.postTime }
+            .groupBy { post -> millisecondsToDateString(post.postTime) }
+            .filter { (key, _) -> days.contains(key) }
+            .map { (_, list) ->
+                list.size
             }
+
+        val newList = MutableList(weekCount) { index ->
+            if (index < postingItem.size) {
+                BarEntry(index.toFloat(), postingItem[index].toFloat())
+            } else {
+                BarEntry(index.toFloat(), 0f)
+            }
+        }
+        newList
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.Lazily,

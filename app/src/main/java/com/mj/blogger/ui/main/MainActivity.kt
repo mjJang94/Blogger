@@ -54,7 +54,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
             MainComposeDialog.show(supportFragmentManager)
         }
 
-        viewModel.postingChartItems.observe {
+        viewModel.postingChartEntryItems.observe {
             Log.d("MainActivity", "dateposting = $it")
         }
 
