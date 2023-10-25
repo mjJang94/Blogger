@@ -1,39 +1,34 @@
+@file:OptIn(ExperimentalFoundationApi::class)
+
 package com.mj.blogger.ui.main.presentation
 
-import android.util.Log
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
-import com.github.mikephil.charting.charts.BarChart
-import com.github.mikephil.charting.components.Description
-import com.github.mikephil.charting.components.XAxis
-import com.github.mikephil.charting.data.BarData
-import com.github.mikephil.charting.data.BarDataSet
-import com.github.mikephil.charting.data.BarEntry
-import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.mj.blogger.R
+import com.mj.blogger.common.compose.foundation.Image
+import com.mj.blogger.common.compose.ktx.ConvertMillisToFormattedDate
 import com.mj.blogger.common.compose.ktx.rememberImmutableList
 import com.mj.blogger.common.compose.theme.BloggerTheme
 import com.mj.blogger.ui.main.presentation.state.MainContentState
+import com.mj.blogger.ui.main.presentation.state.PostingItem
 import kotlinx.collections.immutable.ImmutableList
 
 @Composable
@@ -51,10 +46,7 @@ fun MainHomeContent(
 
         LoginLabel(email = state.email)
 
-        PostingGraphCard(
-            prevWeekDayItems = rememberImmutableList(state.prevWeekDays),
-            postingChartEntryItems = rememberImmutableList(state.postingChartEntryItems),
-        )
+        RecentPostingCard(items = rememberImmutableList(state.recentPostingItems))
     }
 }
 
@@ -76,7 +68,6 @@ private fun WelcomeLabel() {
 @Composable
 private fun LoginLabel(email: String) {
     Text(
-        modifier = Modifier.wrapContentSize(),
         text = email,
         fontSize = 12.sp,
         color = Color.Black,
@@ -84,71 +75,142 @@ private fun LoginLabel(email: String) {
 }
 
 @Composable
-private fun PostingGraphCard(
-    prevWeekDayItems: ImmutableList<String>,
-    postingChartEntryItems: ImmutableList<BarEntry>,
+private fun RecentPostingCard(
+    items: ImmutableList<PostingItem>,
 ) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
 
-    val data = remember(postingChartEntryItems) {
-        BarData(
-            BarDataSet(postingChartEntryItems, "")
-        ).apply {
-            barWidth = 0.5f
+        Text(
+            text = stringResource(R.string.main_recent_label),
+            fontSize = 14.sp,
+            color = Color.Black,
+            fontWeight = FontWeight.Bold,
+        )
+
+        LazyRow(
+            modifier = Modifier.wrapContentSize(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            items(
+                items = items,
+                key = { it.postTime },
+            ) { item ->
+                Card(
+                    modifier = Modifier
+                        .width(200.dp)
+                        .height(300.dp)
+                        .animateItemPlacement(),
+                    elevation = 4.dp,
+                    shape = RoundedCornerShape(16.dp),
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .wrapContentSize()
+                            .padding(10.dp),
+                    ) {
+                        Image(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(0.7f),
+                            painter = painterResource(id = R.drawable.ic_baseline_article)
+                        )
+                        Text(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(0.2f),
+                            text = item.title,
+                            fontSize = 14.sp,
+                            color = Color.Black,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+
+                        Text(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(0.1f),
+                            text = ConvertMillisToFormattedDate(millis = item.postTime),
+                            fontSize = 12.sp,
+                            color = Color.Gray,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
+                }
+            }
         }
     }
+}
 
-//    LaunchedEffect(postingChartEntryItems) {
-//        snapshotFlow {
-//            BarData(
-//                BarDataSet(postingChartEntryItems, "")
-//            ).apply {
-//                barWidth = 0.5f
-//            }
-//        }.collect { barData ->
-//            data = barData
+//@Composable
+//private fun PostingGraphCard(
+//    prevWeekDayItems: ImmutableList<String>,
+//    postingChartEntryItems: ImmutableList<BarEntry>,
+//) {
+//
+//    val data = remember(postingChartEntryItems) {
+//        BarData(
+//            BarDataSet(postingChartEntryItems, "")
+//        ).apply {
+//            barWidth = 0.5f
 //        }
 //    }
-
-    Log.d("MainHomeContent", "${data.dataSets}")
-
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(200.dp),
-        elevation = 4.dp,
-    ) {
-        AndroidView(
-            factory = { context ->
-                BarChart(context).apply {
-                    setTouchEnabled(false)
-                    //X, Y축 숨기기
-                    xAxis.apply {
-                        setDrawGridLines(false)
-                        isEnabled = true
-                        position = XAxis.XAxisPosition.BOTTOM
-                        valueFormatter = IndexAxisValueFormatter(prevWeekDayItems)
-                    }
-
-                    axisLeft.apply {
-                        setDrawGridLines(false)
-                        isEnabled = false
-                    }
-
-                    axisRight.isEnabled = false
-
-                    legend.isEnabled = false
-
-                    description = Description().apply { isEnabled = false }
-
-                    setBackgroundColor(android.graphics.Color.TRANSPARENT)
-                }
-            },
-            update = { barChart ->
-                barChart.data = data
-            }
-        )
-    }
-}
+//
+////    LaunchedEffect(postingChartEntryItems) {
+////        snapshotFlow {
+////            BarData(
+////                BarDataSet(postingChartEntryItems, "")
+////            ).apply {
+////                barWidth = 0.5f
+////            }
+////        }.collect { barData ->
+////            data = barData
+////        }
+////    }
+//
+//    Log.d("MainHomeContent", "${data.dataSets}")
+//
+//    Card(
+//        modifier = Modifier
+//            .fillMaxWidth()
+//            .height(200.dp),
+//        elevation = 4.dp,
+//    ) {
+//        AndroidView(
+//            factory = { context ->
+//                BarChart(context).apply {
+//                    setTouchEnabled(false)
+//                    //X, Y축 숨기기
+//                    xAxis.apply {
+//                        setDrawGridLines(false)
+//                        isEnabled = true
+//                        position = XAxis.XAxisPosition.BOTTOM
+//                        valueFormatter = IndexAxisValueFormatter(prevWeekDayItems)
+//                    }
+//
+//                    axisLeft.apply {
+//                        setDrawGridLines(false)
+//                        isEnabled = false
+//                    }
+//
+//                    axisRight.isEnabled = false
+//
+//                    legend.isEnabled = false
+//
+//                    description = Description().apply { isEnabled = false }
+//
+//                    setBackgroundColor(android.graphics.Color.TRANSPARENT)
+//                }
+//            },
+//            update = { barChart ->
+//                barChart.data = data
+//            }
+//        )
+//    }
+//}
 
 @Composable
 @Preview

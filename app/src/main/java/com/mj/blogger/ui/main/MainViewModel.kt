@@ -48,7 +48,6 @@ class MainViewModel @Inject constructor(
                 Log.e(TAG, "collectionPath = $collectionPath")
 
                 fireStore.collection(collectionPath)
-                    .orderBy("postTime")
                     .addSnapshotListener { documents, exception ->
                         when {
                             exception != null -> {
@@ -188,12 +187,20 @@ class MainViewModel @Inject constructor(
 
     override val recentPostingItems = _postingItems
         .take(MAXIMUM_LAST_POST_COUNT)
+        .map { it.reversed() }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.Lazily,
             initialValue = emptyList(),
         )
 
+    override val allPostingItems = _postingItems
+        .map { it.reversed() }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Lazily,
+            initialValue = emptyList(),
+        )
 
     private val _loadErrorEvent = MutableSharedFlow<Throwable>()
     val loadErrorEvent = _loadErrorEvent.asSharedFlow()

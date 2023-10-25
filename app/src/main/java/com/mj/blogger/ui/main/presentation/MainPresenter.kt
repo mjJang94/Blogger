@@ -12,7 +12,9 @@ interface MainPresenter {
     val email: StateFlow<String>
     val prevWeekDays: StateFlow<List<String>>
     val postingChartEntryItems: StateFlow<List<BarEntry>>
+
     val recentPostingItems : StateFlow<List<PostingItem>>
+    val allPostingItems : StateFlow<List<PostingItem>>
 
     fun onPageSwitch(page: MainPage)
 }

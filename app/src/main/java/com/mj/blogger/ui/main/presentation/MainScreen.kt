@@ -3,6 +3,7 @@
 package com.mj.blogger.ui.main.presentation
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
@@ -76,7 +77,8 @@ private fun MainScreenContent(state: MainContentState) {
         ) { pageIndex ->
             when (pages[pageIndex]) {
                 Page.HOME -> MainHomeContent(state = state)
-                Page.SETTINGS -> MainSettingsContent()
+                Page.BLOG -> MainBlogContent(state = state)
+                Page.SETTING -> MainSettingsContent()
                 else -> {}
             }
         }
@@ -117,7 +119,8 @@ private fun BottomNavigator(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(56.dp),
+                        .height(56.dp)
+                        .background(Color.White),
                     contentAlignment = Alignment.Center,
                 ) {
                     Image(
@@ -169,17 +172,17 @@ internal fun rememberPreviewMainContentState(): MainContentState {
         PostingItem(
             title = "안드로이드 활용법",
             message = "안드로이드 활용법에 대해 알아봅니다.",
-            postTime = System.currentTimeMillis(),
+            postTime = System.currentTimeMillis() + 1,
         ),
         PostingItem(
             title = "파이어베이스 활용법",
             message = "파이어베이스 활용법에 대해 알아봅니다.",
-            postTime = System.currentTimeMillis(),
+            postTime = System.currentTimeMillis() + 2,
         ),
         PostingItem(
             title = "갤럭시 활용법",
             message = "갤럭시에 대해 알아봅니다.",
-            postTime = System.currentTimeMillis(),
+            postTime = System.currentTimeMillis() + 3,
         )
 
     )
@@ -191,6 +194,7 @@ internal fun rememberPreviewMainContentState(): MainContentState {
         prevWeekDays = remember { mutableStateOf(prevWeekDays) },
         postingChartEntryItems = remember { mutableStateOf(barEntry) },
         recentPostingItems = remember { mutableStateOf(recentItems) },
+        allPostingItems = remember { mutableStateOf(recentItems) },
         onPageSwitch = {},
     )
 

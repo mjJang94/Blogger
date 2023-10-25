@@ -19,6 +19,7 @@ class MainContentState(
     prevWeekDays: State<List<String>>,
     postingChartEntryItems: State<List<BarEntry>>,
     recentPostingItems: State<List<PostingItem>>,
+    allPostingItems: State<List<PostingItem>>,
 
     val onPageSwitch: (MainPage) -> Unit,
 ) {
@@ -27,6 +28,7 @@ class MainContentState(
     val prevWeekDays by prevWeekDays
     val postingChartEntryItems by postingChartEntryItems
     val recentPostingItems by recentPostingItems
+    val allPostingItems by allPostingItems
 }
 
 @Composable
@@ -39,6 +41,7 @@ fun rememberMainContentState(
     val prevWeekDays = presenter.prevWeekDays.collectAsStateWithLifecycle()
     val postingChartEntryItems = presenter.postingChartEntryItems.collectAsStateWithLifecycle()
     val recentPostingItems = presenter.recentPostingItems.collectAsStateWithLifecycle()
+    val allPostingItems = presenter.allPostingItems.collectAsStateWithLifecycle()
 
     return remember {
         MainContentState(
@@ -48,6 +51,7 @@ fun rememberMainContentState(
             prevWeekDays = prevWeekDays,
             postingChartEntryItems = postingChartEntryItems,
             recentPostingItems = recentPostingItems,
+            allPostingItems = allPostingItems,
             onPageSwitch = presenter::onPageSwitch,
         )
     }
