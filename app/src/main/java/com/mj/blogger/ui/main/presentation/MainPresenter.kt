@@ -17,4 +17,5 @@ interface MainPresenter {
     val allPostingItems : StateFlow<List<PostingItem>>
 
     fun onPageSwitch(page: MainPage)
+    fun openDetail(postId: String)
 }

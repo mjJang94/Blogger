@@ -4,6 +4,7 @@ package com.mj.blogger.ui.main.presentation
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -13,6 +14,7 @@ import androidx.compose.material.Card
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -46,7 +48,10 @@ fun MainHomeContent(
 
         LoginLabel(email = state.email)
 
-        RecentPostingCard(items = rememberImmutableList(state.recentPostingItems))
+        RecentPostingCard(
+            items = rememberImmutableList(state.recentPostingItems),
+            onClick = state.openDetail,
+        )
     }
 }
 
@@ -77,6 +82,7 @@ private fun LoginLabel(email: String) {
 @Composable
 private fun RecentPostingCard(
     items: ImmutableList<PostingItem>,
+    onClick: (String) -> Unit,
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -92,6 +98,7 @@ private fun RecentPostingCard(
 
         LazyRow(
             modifier = Modifier.wrapContentSize(),
+            contentPadding = PaddingValues(horizontal = 5.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             items(
@@ -101,7 +108,7 @@ private fun RecentPostingCard(
                 Card(
                     modifier = Modifier
                         .width(200.dp)
-                        .height(300.dp)
+                        .height(250.dp)
                         .animateItemPlacement(),
                     elevation = 4.dp,
                     shape = RoundedCornerShape(16.dp),
@@ -109,6 +116,7 @@ private fun RecentPostingCard(
                     Column(
                         modifier = Modifier
                             .wrapContentSize()
+                            .clickable { onClick(item.postId) }
                             .padding(10.dp),
                     ) {
                         Image(

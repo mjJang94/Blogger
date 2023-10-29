@@ -170,16 +170,19 @@ internal fun rememberPreviewMainContentState(): MainContentState {
 
     val recentItems = listOf(
         PostingItem(
+            postId = "",
             title = "안드로이드 활용법",
             message = "안드로이드 활용법에 대해 알아봅니다.",
             postTime = System.currentTimeMillis() + 1,
         ),
         PostingItem(
+            postId = "",
             title = "파이어베이스 활용법",
             message = "파이어베이스 활용법에 대해 알아봅니다.",
             postTime = System.currentTimeMillis() + 2,
         ),
         PostingItem(
+            postId = "",
             title = "갤럭시 활용법",
             message = "갤럭시에 대해 알아봅니다.",
             postTime = System.currentTimeMillis() + 3,
@@ -196,6 +199,7 @@ internal fun rememberPreviewMainContentState(): MainContentState {
         recentPostingItems = remember { mutableStateOf(recentItems) },
         allPostingItems = remember { mutableStateOf(recentItems) },
         onPageSwitch = {},
+        openDetail = {},
     )
 
     return remember { state }

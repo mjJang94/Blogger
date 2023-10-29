@@ -6,7 +6,7 @@ import com.mj.blogger.ui.login.presentation.LoginPresenter
 import com.mj.blogger.ui.login.presentation.SignType
 
 @Stable
-class LoginContentState(
+class LoginState(
     email: State<String>,
     password: State<String>,
     enabled: State<Boolean>,
@@ -21,16 +21,16 @@ class LoginContentState(
 }
 
 @Composable
-fun rememberLoginContentState(
+fun rememberLoginState(
     presenter: LoginPresenter,
-): LoginContentState {
+): LoginState {
 
     val email = presenter.email.collectAsStateWithLifecycle()
     val password = presenter.password.collectAsStateWithLifecycle()
     val enabled = presenter.enabled.collectAsStateWithLifecycle()
 
     return remember {
-        LoginContentState(
+        LoginState(
             email = email,
             password = password,
             enabled = enabled,

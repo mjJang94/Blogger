@@ -17,17 +17,17 @@ import com.mj.blogger.common.compose.foundation.Image
 import com.mj.blogger.common.compose.foundation.PageButton
 import com.mj.blogger.common.compose.foundation.TextField
 import com.mj.blogger.common.compose.theme.BloggerTheme
-import com.mj.blogger.ui.login.presentation.state.LoginContentState
-import com.mj.blogger.ui.login.presentation.state.rememberLoginContentState
+import com.mj.blogger.ui.login.presentation.state.LoginState
+import com.mj.blogger.ui.login.presentation.state.rememberLoginState
 import com.mj.blogger.ui.login.presentation.SignType as Type
 
 @Composable
 fun LoginScreen(presenter: LoginPresenter) {
-    LoginScreenContent(rememberLoginContentState(presenter = presenter))
+    LoginScreenContent(rememberLoginState(presenter = presenter))
 }
 
 @Composable
-private fun LoginScreenContent(state: LoginContentState) {
+private fun LoginScreenContent(state: LoginState) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -164,7 +164,7 @@ private fun LoginTextField(
 @Preview
 @Composable
 fun LoginScreenPreview() {
-    val state = LoginContentState(
+    val state = LoginState(
         email = remember { mutableStateOf("") },
         password = remember { mutableStateOf("") },
         enabled = remember { mutableStateOf(false) },

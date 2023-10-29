@@ -8,22 +8,18 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.Composable
-import androidx.lifecycle.lifecycleScope
 import com.google.firebase.firestore.FirebaseFirestore
 import com.mj.blogger.common.compose.theme.BloggerTheme
 import com.mj.blogger.common.ktx.observe
 import com.mj.blogger.ui.login.LoginActivity
-import com.mj.blogger.ui.main.MainViewModel.*
+import com.mj.blogger.ui.main.MainViewModel.InvalidUserException
 import com.mj.blogger.ui.main.presentation.MainScreen
+import com.mj.blogger.ui.post.PostDetailActivity
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
 import javax.inject.Inject
-import kotlin.coroutines.CoroutineContext
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity(), CoroutineScope {
-
-    override val coroutineContext: CoroutineContext = lifecycleScope.coroutineContext
+class MainActivity : AppCompatActivity() {
 
     @Inject
     lateinit var fireStore: FirebaseFirestore
@@ -51,6 +47,10 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
     private fun MainScreen() {
         viewModel.composeEvent.observe {
             MainComposeDialog.show(supportFragmentManager)
+        }
+
+        viewModel.openDetail.observe { postId ->
+            PostDetailActivity.start(this, postId)
         }
 
         viewModel.loadErrorEvent.observe { tr ->

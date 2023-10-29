@@ -11,13 +11,11 @@ import com.mj.blogger.common.firebase.vo.Posting
 import com.mj.blogger.repo.di.Repository
 import com.mj.blogger.ui.main.presentation.MainPresenter
 import com.mj.blogger.ui.main.presentation.state.MainPage
-import com.mj.blogger.ui.main.presentation.state.PostingChartItem
 import com.mj.blogger.ui.main.presentation.state.PostingItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -41,13 +39,13 @@ class MainViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             runCatching {
-                val collectionPath = withContext(Dispatchers.IO) {
+                val userId = withContext(Dispatchers.IO) {
                     repository.userIdFlow.firstOrNull() ?: throw InvalidUserException()
                 }
 
-                Log.e(TAG, "collectionPath = $collectionPath")
+                Log.e(TAG, "collectionPath = $userId")
 
-                fireStore.collection(collectionPath)
+                fireStore.collection(userId)
                     .addSnapshotListener { documents, exception ->
                         when {
                             exception != null -> {
@@ -60,8 +58,6 @@ class MainViewModel @Inject constructor(
                                 val postings =
                                     documents?.toObjects<Posting>()?.map { it.translate() }
                                         ?: emptyList()
-                                Log.d(TAG, "posting = $postings")
-
                                 setPostingItems(postings)
                             }
                         }
@@ -72,6 +68,13 @@ class MainViewModel @Inject constructor(
             }
         }
     }
+
+    private fun Posting.translate() = PostingItem(
+        postId = this.postId,
+        title = this.title,
+        message = this.message,
+        postTime = this.postTime,
+    )
 
     private val _page = MutableStateFlow(MainPage.HOME)
     override val page = _page.asStateFlow()
@@ -92,6 +95,7 @@ class MainViewModel @Inject constructor(
 
     private val _postingItems = MutableStateFlow<List<PostingItem>>(emptyList())
     private fun setPostingItems(items: List<PostingItem>) {
+        Log.d(TAG, "setPostingItems = $items")
         viewModelScope.launch {
             _postingItems.emit(items)
         }
@@ -123,7 +127,7 @@ class MainViewModel @Inject constructor(
     //
     //    println(newList) // [element1, element2, default, default, default, default, default]
     //}
-    override val postingChartEntryItems = _postingItems.map {posting ->
+    override val postingChartEntryItems = _postingItems.map { posting ->
 
         val days = getPreviousWeekDays()
         val weekCount = 7
@@ -213,9 +217,11 @@ class MainViewModel @Inject constructor(
     private val _composeEvent = MutableSharedFlow<Unit>()
     val composeEvent = _composeEvent.asSharedFlow()
 
-    private fun Posting.translate() = PostingItem(
-        title = this.title,
-        message = this.message,
-        postTime = this.postTime,
-    )
+    private val _openDetailEvent = MutableSharedFlow<String>()
+    val openDetail = _openDetailEvent.asSharedFlow()
+    override fun openDetail(postId: String) {
+        viewModelScope.launch {
+            _openDetailEvent.emit(postId)
+        }
+    }
 }

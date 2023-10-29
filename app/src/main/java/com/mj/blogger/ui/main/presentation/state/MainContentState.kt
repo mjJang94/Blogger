@@ -22,6 +22,7 @@ class MainContentState(
     allPostingItems: State<List<PostingItem>>,
 
     val onPageSwitch: (MainPage) -> Unit,
+    val openDetail: (String) -> Unit,
 ) {
     val page by page
     val email by email
@@ -53,6 +54,7 @@ fun rememberMainContentState(
             recentPostingItems = recentPostingItems,
             allPostingItems = allPostingItems,
             onPageSwitch = presenter::onPageSwitch,
+            openDetail = presenter::openDetail,
         )
     }
 }
