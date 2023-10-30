@@ -10,16 +10,28 @@
     <string name="login_failed">"Login failed"</string>
     <string name="title_activity_login">LoginActivity</string>
 
+    <string name="login_check_user_info">정보를 확인중입니다</string>
+    <string name="login_sign_up">회원가입</string>
+    <string name="login_sign_in">로그인</string>
+    <string name="login_email_hint">이메일 주소</string>
+    <string name="login_password_hint">비밀번호</string>
+
     <string name="home_title">홈</string>
     <string name="home_create">글 작성</string>
     <string name="home_settings">설정</string>
+
     <string name="main_greeting_label">내 블로그를\n더욱 멋지게\n블로거</string>
-    <string name="compose_complete">완료</string>
-    <string name="compose_title">제목</string>
-    <string name="compose_message">내용을 입력해주세요</string>
-    <string name="posting_complete">글이 등록되었습니다</string>
     <string name="main_recent_label">최근글</string>
     <string name="main_all_label">전체글</string>
     <string name="main_category_label">목록</string>
+
+    <string name="compose_complete">완료</string>
+    <string name="compose_title">제목</string>
+    <string name="compose_message">내용을 입력해주세요</string>
+    <string name="compose_posting_complete">글이 등록되었습니다</string>
+
+
     <string name="detail_not_exist_posting">존재하지 않는 포스팅입니다.</string>
+
+
 </resources>

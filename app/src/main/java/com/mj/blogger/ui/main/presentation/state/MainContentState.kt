@@ -16,8 +16,6 @@ class MainContentState(
     page: State<MainPage>,
 
     email: State<String>,
-    prevWeekDays: State<List<String>>,
-    postingChartEntryItems: State<List<BarEntry>>,
     recentPostingItems: State<List<PostingItem>>,
     allPostingItems: State<List<PostingItem>>,
 
@@ -26,8 +24,6 @@ class MainContentState(
 ) {
     val page by page
     val email by email
-    val prevWeekDays by prevWeekDays
-    val postingChartEntryItems by postingChartEntryItems
     val recentPostingItems by recentPostingItems
     val allPostingItems by allPostingItems
 }
@@ -39,8 +35,6 @@ fun rememberMainContentState(
 ): MainContentState {
     val currentPage = presenter.page.collectAsStateWithLifecycle()
     val email = presenter.email.collectAsStateWithLifecycle()
-    val prevWeekDays = presenter.prevWeekDays.collectAsStateWithLifecycle()
-    val postingChartEntryItems = presenter.postingChartEntryItems.collectAsStateWithLifecycle()
     val recentPostingItems = presenter.recentPostingItems.collectAsStateWithLifecycle()
     val allPostingItems = presenter.allPostingItems.collectAsStateWithLifecycle()
 
@@ -49,8 +43,6 @@ fun rememberMainContentState(
             pagerState = screenState.pagerState,
             page = currentPage,
             email = email,
-            prevWeekDays = prevWeekDays,
-            postingChartEntryItems = postingChartEntryItems,
             recentPostingItems = recentPostingItems,
             allPostingItems = allPostingItems,
             onPageSwitch = presenter::onPageSwitch,

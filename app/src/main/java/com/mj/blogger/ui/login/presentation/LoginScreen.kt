@@ -9,6 +9,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -80,7 +81,7 @@ private fun SignInButton(
             .fillMaxWidth()
             .wrapContentHeight()
             .padding(horizontal = 30.dp),
-        text = "로그인",
+        text = stringResource(R.string.login_sign_in),
         textColor = Color.White,
         textSize = 16.sp,
         enabled = enabled,
@@ -98,7 +99,7 @@ private fun SignUpButton(
             .fillMaxWidth()
             .wrapContentHeight()
             .padding(horizontal = 30.dp),
-        text = "회원가입",
+        text = stringResource(R.string.login_sign_up),
         textColor = Color.White,
         textSize = 16.sp,
         enabled = enabled,
@@ -133,7 +134,7 @@ private fun LoginTextField(
                     .padding(horizontal = 10.dp, vertical = 10.dp),
                 insert = email,
                 onInsertChanged = onEmailChanged,
-                hint = "이메일 주소",
+                hint = stringResource(R.string.login_email_hint),
                 hintColor = Color.Gray,
             )
         }
@@ -154,7 +155,7 @@ private fun LoginTextField(
                     .padding(horizontal = 10.dp, vertical = 10.dp),
                 insert = password,
                 onInsertChanged = onPasswordChanged,
-                hint = "비밀번호",
+                hint = stringResource(R.string.login_password_hint),
                 hintColor = Color.Gray,
             )
         }

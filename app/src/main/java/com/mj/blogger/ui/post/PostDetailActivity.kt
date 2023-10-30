@@ -9,24 +9,15 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.Composable
-import com.google.firebase.firestore.FirebaseFirestore
 import com.mj.blogger.R
 import com.mj.blogger.common.compose.theme.BloggerTheme
 import com.mj.blogger.common.ktx.observe
-import com.mj.blogger.repo.di.Repository
 import com.mj.blogger.ui.post.PostDetailViewModel.PostDocumentEmptyException
 import com.mj.blogger.ui.post.presenter.PostDetailScreen
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class PostDetailActivity : AppCompatActivity() {
-
-    @Inject
-    lateinit var fireStore: FirebaseFirestore
-
-    @Inject
-    lateinit var repo: Repository
 
     private val viewModel: PostDetailViewModel by viewModels()
 

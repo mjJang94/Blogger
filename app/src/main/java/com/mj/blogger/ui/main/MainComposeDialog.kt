@@ -53,7 +53,7 @@ class MainComposeDialog : AppCompatDialogFragment() {
         }
 
         viewModel.completeEvent.observe {
-            Toast.makeText(requireContext(), R.string.posting_complete, Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), R.string.compose_posting_complete, Toast.LENGTH_SHORT).show()
             dismissAllowingStateLoss()
         }
 

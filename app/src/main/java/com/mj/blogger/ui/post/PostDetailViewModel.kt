@@ -8,7 +8,7 @@ import com.google.firebase.firestore.ktx.toObject
 import com.mj.blogger.common.firebase.vo.Posting
 import com.mj.blogger.repo.di.Repository
 import com.mj.blogger.ui.post.presenter.PostDetailPresenter
-import com.mj.blogger.ui.post.presenter.state.Post
+import com.mj.blogger.ui.post.presenter.state.PostDetail
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -56,7 +56,7 @@ class PostDetailViewModel @Inject constructor(
         initialValue = null
     )
 
-    private fun Posting.translate() = Post(
+    private fun Posting.translate() = PostDetail(
         title = this.title,
         message = this.message,
         postTime = this.postTime,

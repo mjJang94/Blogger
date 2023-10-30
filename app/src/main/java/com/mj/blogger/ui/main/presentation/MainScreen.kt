@@ -194,8 +194,6 @@ internal fun rememberPreviewMainContentState(): MainContentState {
         pagerState = rememberPagerState(initialPage = Page.values().size),
         page = remember { mutableStateOf(Page.HOME) },
         email = remember { mutableStateOf("alswhddl10@naver.com") },
-        prevWeekDays = remember { mutableStateOf(prevWeekDays) },
-        postingChartEntryItems = remember { mutableStateOf(barEntry) },
         recentPostingItems = remember { mutableStateOf(recentItems) },
         allPostingItems = remember { mutableStateOf(recentItems) },
         onPageSwitch = {},
