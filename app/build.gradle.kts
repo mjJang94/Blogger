@@ -74,6 +74,8 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
 
+    implementation("io.coil-kt:coil-compose:2.5.0")
+
     //kotlin
     implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.6")
 

@@ -34,7 +34,9 @@ fun rememberMainScreenState(
     initialPage: Page = Page.HOME,
 ): MainScreenState {
     val pages = Page.values()
-    val pagerState = rememberPagerState(initialPage = initialPage.ordinal.coerceIn(pages.indices))
+    val pagerState = rememberPagerState(initialPage = initialPage.ordinal.coerceIn(pages.indices)){
+        pages.size
+    }
 
     return MainScreenState(
         pagerState = pagerState
@@ -71,7 +73,7 @@ private fun MainScreenContent(state: MainContentState) {
         HorizontalPager(
             modifier = Modifier.weight(1f),
             state = state.pagerState,
-            pageCount = pages.size,
+//            pageCount = pages.size,
             key = { it },
             userScrollEnabled = false,
         ) { pageIndex ->
@@ -191,7 +193,9 @@ internal fun rememberPreviewMainContentState(): MainContentState {
     )
 
     val state = MainContentState(
-        pagerState = rememberPagerState(initialPage = Page.values().size),
+        pagerState = rememberPagerState(initialPage = Page.HOME.ordinal.coerceIn(Page.values().indices)){
+            Page.values().size
+        },
         page = remember { mutableStateOf(Page.HOME) },
         email = remember { mutableStateOf("alswhddl10@naver.com") },
         recentPostingItems = remember { mutableStateOf(recentItems) },

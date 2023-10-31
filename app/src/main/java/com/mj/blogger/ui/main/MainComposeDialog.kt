@@ -1,10 +1,18 @@
 package com.mj.blogger.ui.main
 
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContract
 import androidx.appcompat.app.AppCompatDialogFragment
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.ComposeView
@@ -48,6 +56,10 @@ class MainComposeDialog : AppCompatDialogFragment() {
     @Composable
     private fun MainComposeScreen() {
 
+        viewModel.pickImageEvent.observe {
+            pickGalleryImage.launch(Unit)
+        }
+
         viewModel.closeEvent.observe {
             dismissAllowingStateLoss()
         }
@@ -58,5 +70,46 @@ class MainComposeDialog : AppCompatDialogFragment() {
         }
 
         MainComposeScreen(presenter = viewModel)
+    }
+
+    private val pickGalleryImage = registerForActivityResult(
+        object : ActivityResultContract<Unit, List<Uri>>() {
+            override fun createIntent(context: Context, input: Unit): Intent =
+                Intent(Intent.ACTION_GET_CONTENT).apply {
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+                    addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+                    putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+                    setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*")
+                }
+
+            override fun parseResult(resultCode: Int, intent: Intent?): List<Uri> {
+                val resultIntent = intent.takeIf { resultCode == Activity.RESULT_OK }
+                val images = mutableListOf<Uri>()
+                resultIntent?.let { result ->
+
+                    when (val clip = result.clipData) {
+                        null -> {
+                            val data = result.data ?: return@let
+                            images.add(data)
+                        }
+                        else -> {
+                            for (i in 0 until clip.itemCount) {
+                                images.add(clip.getItemAt(i).uri)
+                            }
+                        }
+                    }
+                }
+                return images
+            }
+        }
+    ) { images ->
+        if (images.isEmpty()) return@registerForActivityResult
+        viewModel.imagePicked(images)
+//        runCatching {
+//            requireContext().contentResolver.takePersistableUriPermission(
+//                uri, Intent.FLAG_GRANT_READ_URI_PERMISSION
+//            )
+//        }
     }
 }

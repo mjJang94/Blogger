@@ -16,8 +16,8 @@ enum class MainPage(
         selectedIconRes = R.drawable.ic_baseline_compose_on,
     ),
     BLOG(
-        defaultIconRes = R.drawable.ic_baseline_find_page_off,
-        selectedIconRes = R.drawable.ic_baseline_find_page_on,
+        defaultIconRes = R.drawable.ic_baseline_find_in_page_off,
+        selectedIconRes = R.drawable.ic_baseline_find_in_page_on,
     ),
     SETTING(
         defaultIconRes = R.drawable.ic_baseline_settings_off,

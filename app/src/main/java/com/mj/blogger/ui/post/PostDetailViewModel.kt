@@ -39,7 +39,7 @@ class PostDetailViewModel @Inject constructor(
 
     class PostDocumentEmptyException : Exception()
 
-    val post = combine(
+    override val post = combine(
         repository.userIdFlow,
         _postId
     ) { userId, postId ->

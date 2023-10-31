@@ -1,5 +1,6 @@
 package com.mj.blogger.ui.main.presentation
 
+import android.net.Uri
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -47,11 +48,12 @@ fun MainComposeContent(state: MainComposeState) {
         )
         TitleField(
             title = state.title,
-            titleChanged = state.onTitleChanged
+            titleChanged = state.onTitleChanged,
         )
         ContentField(
             message = state.message,
-            messageChanged = state.onMessageChanged
+            messageChanged = state.onMessageChanged,
+            onPickImage = state.onPickImage,
         )
     }
 }
@@ -59,7 +61,7 @@ fun MainComposeContent(state: MainComposeState) {
 @Composable
 private fun ComposeToolbar(
     close: () -> Unit,
-    action: () -> Unit
+    action: () -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -132,20 +134,39 @@ private fun TitleField(
 @Composable
 private fun ContentField(
     message: String,
-    messageChanged: (String) -> Unit
+    messageChanged: (String) -> Unit,
+    onPickImage: () -> Unit,
 ) {
-    TextField(
+    Column(
         modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-            .padding(horizontal = 20.dp),
-        insert = message,
-        hint = stringResource(R.string.compose_message),
-        onInsertChanged = messageChanged,
-        textColor = Color.Black,
-        hintColor = Color.Gray,
-        textSize = 16.sp,
-    )
+            .wrapContentSize()
+            .padding(horizontal = 20.dp)
+    ) {
+        TextField(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f),
+            insert = message,
+            hint = stringResource(R.string.compose_message),
+            onInsertChanged = messageChanged,
+            textColor = Color.Black,
+            hintColor = Color.Gray,
+            textSize = 16.sp,
+        )
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+        ) {
+            Image(
+                modifier = Modifier
+                    .wrapContentSize()
+                    .clickable(onClick = onPickImage),
+                painter = painterResource(id = R.drawable.ic_outline_image)
+            )
+        }
+    }
 }
 
 @Composable
@@ -154,8 +175,11 @@ private fun MainComposeScreenPreview() {
     val state = MainComposeState(
         title = remember { mutableStateOf("") },
         message = remember { mutableStateOf("") },
+        images = remember { mutableStateOf(listOf(Uri.parse(""))) },
+        imagePosition = remember{ mutableStateOf(0 to Uri.parse("")) },
         onTitleChanged = {},
         onMessageChanged = {},
+        onPickImage = {},
         onPost = {},
         onClose = {},
     )
