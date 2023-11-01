@@ -26,12 +26,15 @@
     <string name="main_category_label">목록</string>
 
     <string name="compose_complete">완료</string>
+    <string name="compose_image">이미지</string>
+    <string name="compose_images">이미지 %d</string>
     <string name="compose_title">제목</string>
     <string name="compose_message">내용을 입력해주세요</string>
     <string name="compose_posting_complete">글이 등록되었습니다</string>
 
 
     <string name="detail_not_exist_posting">존재하지 않는 포스팅입니다.</string>
+    <string name="compose_posting_image_full">이미지는 최대 3개까지 선택 가능합니다.</string>
 
 
 </resources>

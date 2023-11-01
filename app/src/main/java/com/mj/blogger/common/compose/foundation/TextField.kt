@@ -1,7 +1,5 @@
 package com.mj.blogger.common.compose.foundation
 
-import android.net.Uri
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -62,16 +60,6 @@ fun TextField(
                             hintSize = textSize,
                         )
                     }
-
-                    val imageUriPattern = Regex("""content://\S+""")
-                    val images = imageUriPattern.findAll(insert)
-
-                    for (path in images) {
-                        Log.d("images", "path = ${path.value}")
-                        Image(uri = Uri.parse(path.value))
-                    }
-
-                    innerTextField()
                     innerTextField()
                 }
             }

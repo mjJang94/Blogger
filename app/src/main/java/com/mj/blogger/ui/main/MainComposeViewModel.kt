@@ -24,7 +24,10 @@ class MainComposeViewModel @Inject constructor(
     private val repository: Repository,
 ) : ViewModel(), MainComposePresenter {
 
-    private val tag = this::class.java.simpleName
+    companion object {
+        private val TAG = this::class.java.simpleName
+        private const val MAX_IMAGE_COUNT = 3
+    }
 
     private val _title = MutableStateFlow("")
     override val title: StateFlow<String> = _title.asStateFlow()
@@ -50,7 +53,7 @@ class MainComposeViewModel @Inject constructor(
             val title = _title.firstOrNull() ?: return@launch
             val message = _message.firstOrNull() ?: return@launch
             val images = _images.firstOrNull() ?: return@launch
-            Log.d(tag, "onPost() : userId = $userId, title = $title, message = $message, images = $images")
+            Log.d(TAG, "onPost() : userId = $userId, title = $title, message = $message, images = $images")
 
             val post = Posting(
                 title = title,
@@ -62,7 +65,7 @@ class MainComposeViewModel @Inject constructor(
                 .add(post)
                 .addOnSuccessListener { documentReference ->
                     val documentId = documentReference.id
-                    Log.d(tag, "DocumentSnapshot added with ID: $documentId")
+                    Log.d(TAG, "DocumentSnapshot added with ID: $documentId")
                     if (images.isEmpty()) {
                         complete()
                     } else {
@@ -70,7 +73,7 @@ class MainComposeViewModel @Inject constructor(
                     }
                 }
                 .addOnFailureListener { tr ->
-                    Log.w(tag, "Error adding document", tr)
+                    Log.w(TAG, "Error adding document", tr)
                 }
         }
     }
@@ -84,13 +87,13 @@ class MainComposeViewModel @Inject constructor(
                     uploadCount++
                 }
                 .addOnFailureListener { tr ->
-                    Log.w(tag, "Error uploading image", tr)
+                    Log.w(TAG, "Error uploading image", tr)
                 }
         }
         if (uploadCount == images.size) {
             complete()
         } else {
-            Log.w(tag, "Some image not uploaded")
+            Log.w(TAG, "Some image not uploaded")
         }
     }
 
@@ -101,29 +104,35 @@ class MainComposeViewModel @Inject constructor(
     override val images = _images.asStateFlow()
     fun imagePicked(images: List<Uri>) {
         viewModelScope.launch {
-            Log.d(tag, "imagePicked(): $images")
-
-            val cursorPosition = _messageCursorPosition.firstOrNull() ?: 0
-//            images.forEach { uri ->
-//                _imageWithPosition.emit(cursorPosition to uri)
-//            }
-
-            val prevMessage = _message.firstOrNull()
-            val nextText = StringBuilder(prevMessage).apply {
-                images.forEach { uri ->
-                    insert(cursorPosition, "\n + $uri")
+            Log.d(TAG, "imagePicked(): $images")
+            when (images.size <= MAX_IMAGE_COUNT) {
+                true -> {
+                    val lastImages = _images.firstOrNull() ?: emptyList()
+                    val tmp = lastImages.toMutableList()
+                    for (uri in images) {
+                        tmp.add(uri)
+                    }
+                    _images.emit(tmp)
                 }
+                else -> _maxImageEvent()
             }
-            _message.emit(nextText.toString())
-            _images.emit(images)
         }
     }
 
     private val _pickImageEvent = MutableSharedFlow<Unit>()
     val pickImageEvent = _pickImageEvent.asSharedFlow()
     override fun onPickImage() {
-        viewModelScope.launch { _pickImageEvent() }
+        viewModelScope.launch {
+            val images = _images.firstOrNull()
+            when {
+                images == null || images.size < MAX_IMAGE_COUNT -> _pickImageEvent()
+                else -> _maxImageEvent()
+            }
+        }
     }
+
+    private val _maxImageEvent = MutableSharedFlow<Unit>()
+    val maxImageEvent = _maxImageEvent.asSharedFlow()
 
     private val _completeEvent = MutableSharedFlow<Unit>()
     val completeEvent = _completeEvent.asSharedFlow()
