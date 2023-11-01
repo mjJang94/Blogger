@@ -1,29 +1,19 @@
 package com.mj.blogger.ui.main
 
-import android.Manifest.permission.READ_EXTERNAL_STORAGE
 import android.app.Activity
-import android.app.Dialog
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
 import android.widget.Toast
-import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContract
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatDialogFragment
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.res.stringResource
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.viewModels
 import com.mj.blogger.R
@@ -48,11 +38,6 @@ class MainComposeDialog : AppCompatDialogFragment() {
         super.onCreate(savedInstanceState)
         setStyle(STYLE_NO_FRAME, R.style.Theme_Blogger)
     }
-
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog =
-        super.onCreateDialog(savedInstanceState).apply {
-            window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
-        }
 
     override fun onCreateView(
         inflater: LayoutInflater,
