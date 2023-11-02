@@ -14,11 +14,13 @@ import androidx.activity.result.contract.ActivityResultContract
 import androidx.appcompat.app.AppCompatDialogFragment
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.res.stringResource
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.viewModels
 import com.mj.blogger.R
 import com.mj.blogger.common.compose.theme.BloggerTheme
 import com.mj.blogger.common.ktx.observe
+import com.mj.blogger.ui.main.MainComposeViewModel.*
 import com.mj.blogger.ui.main.presentation.MainComposeScreen
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -56,6 +58,14 @@ class MainComposeDialog : AppCompatDialogFragment() {
 
         viewModel.pickImageEvent.observe {
             pickGalleryImage.launch(Unit)
+        }
+
+        viewModel.uploadFailEvent.observe { tr ->
+            val msg = when (tr) {
+                is ImageUploadFailException -> getString(R.string.compose_posting_only_text_complete)
+                else -> tr.message
+            }
+            Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
         }
 
         viewModel.maxImageEvent.observe {

@@ -11,12 +11,7 @@ import com.mj.blogger.common.firebase.vo.Posting
 import com.mj.blogger.repo.di.Repository
 import com.mj.blogger.ui.main.presentation.MainComposePresenter
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -50,59 +45,6 @@ class MainComposeViewModel @Inject constructor(
         }
     }
 
-    override fun onPost() {
-        viewModelScope.launch {
-            val userId = repository.userIdFlow.firstOrNull() ?: return@launch
-            val title = _title.firstOrNull() ?: return@launch
-            val message = _message.firstOrNull() ?: return@launch
-            val images = _images.firstOrNull() ?: return@launch
-            Log.d(TAG, "onPost() : userId = $userId, title = $title, message = $message, images = $images")
-
-            val post = Posting(
-                title = title,
-                message = message,
-                postTime = System.currentTimeMillis(),
-            )
-
-            fireStore.collection(userId)
-                .add(post)
-                .addOnSuccessListener { documentReference ->
-                    val documentId = documentReference.id
-                    Log.d(TAG, "DocumentSnapshot added with ID: $documentId")
-                    if (images.isEmpty()) {
-                        complete()
-                    } else {
-                        uploadImage(documentId, images)
-                    }
-                }
-                .addOnFailureListener { tr ->
-                    Log.w(TAG, "Error adding document", tr)
-                }
-        }
-    }
-
-    private fun uploadImage(documentId: String, images: List<Uri>) {
-        var uploadCount = 0
-        for ((index, imageUri) in images.withIndex()) {
-            storage.reference.child("images/$documentId/image$index.jpg")
-                .putFile(imageUri)
-                .addOnSuccessListener {
-                    uploadCount++
-                }
-                .addOnFailureListener { tr ->
-                    Log.w(TAG, "Error uploading image", tr)
-                }
-        }
-        if (uploadCount == images.size) {
-            complete()
-        } else {
-            Log.w(TAG, "Some image not uploaded")
-        }
-    }
-
-    private val _imageWithPosition = MutableStateFlow<Pair<Int, Uri>?>(null)
-    override val imageWithPosition = _imageWithPosition.asStateFlow()
-
     private val _images = MutableStateFlow<List<Uri>>(emptyList())
     override val images = _images.asStateFlow()
     fun imagePicked(images: List<Uri>) {
@@ -122,6 +64,63 @@ class MainComposeViewModel @Inject constructor(
         }
     }
 
+    override fun onPost() {
+        viewModelScope.launch {
+            val userId = repository.userIdFlow.firstOrNull() ?: return@launch
+            val title = _title.firstOrNull() ?: return@launch
+            val message = _message.firstOrNull() ?: return@launch
+            val images = _images.firstOrNull() ?: return@launch
+            Log.d(TAG, "onPost() : userId = $userId, title = $title, message = $message, images = $images")
+
+            val post = Posting(
+                title = title,
+                message = message,
+                postTime = System.currentTimeMillis(),
+            )
+
+            fireStore.collection(userId)
+                .add(post)
+                .addOnSuccessListener { documentReference ->
+                    val postId = documentReference.id
+                    Log.d(TAG, "document uploaded: $postId")
+                    if (images.isEmpty()) {
+                        complete()
+                    } else {
+                        uploadImage(postId, images)
+                    }
+                }
+                .addOnFailureListener { tr ->
+                    Log.w(TAG, "Error uploading document", tr)
+                    uploadFail(tr)
+                }
+        }
+    }
+
+    class ImageUploadFailException : Exception()
+
+    private fun uploadImage(postId: String, images: List<Uri>) {
+        for ((index, imageUri) in images.withIndex()) {
+            storage.reference.child("images/$postId/image$index.jpg")
+                .putFile(imageUri)
+                .addOnSuccessListener { snapShot ->
+                    Log.w(TAG, "upload complete = $index, size = ${snapShot.totalByteCount}, uri = ${snapShot.uploadSessionUri}")
+                }
+                .addOnFailureListener { tr ->
+                    Log.w(TAG, "Error uploading image", tr)
+                    uploadFail(ImageUploadFailException())
+                }
+        }
+        complete()
+    }
+
+    override val imagesCount = _images.map {
+        it.size
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Lazily,
+        initialValue = 0,
+    )
+
     private val _pickImageEvent = MutableSharedFlow<Unit>()
     val pickImageEvent = _pickImageEvent.asSharedFlow()
     override fun onPickImage() {
@@ -132,6 +131,22 @@ class MainComposeViewModel @Inject constructor(
                 else -> _maxImageEvent()
             }
         }
+    }
+
+    override fun onImageCancel(index: Int) {
+        viewModelScope.launch {
+            val lastImages = _images.firstOrNull() ?: emptyList()
+            val removeImages = lastImages.toMutableList().apply {
+                removeAt(index)
+            }
+            _images.emit(removeImages)
+        }
+    }
+
+    private val _uploadFailEvent = MutableSharedFlow<Throwable>()
+    val uploadFailEvent = _uploadFailEvent.asSharedFlow()
+    private fun uploadFail(tr: Throwable) {
+        viewModelScope.launch { _uploadFailEvent.emit(tr) }
     }
 
     private val _maxImageEvent = MutableSharedFlow<Unit>()

@@ -6,15 +6,16 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -36,7 +37,13 @@ import kotlinx.collections.immutable.ImmutableList
 @Composable
 fun MainHomeContent(
     state: MainContentState,
+    listState: LazyListState = rememberLazyListState(),
 ) {
+
+    LaunchedEffect(state.recentPostingItems) {
+        listState.animateScrollToItem(0)
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -49,6 +56,7 @@ fun MainHomeContent(
         LoginLabel(email = state.email)
 
         RecentPostingCard(
+            listState = listState,
             items = rememberImmutableList(state.recentPostingItems),
             onClick = state.openDetail,
         )
@@ -81,6 +89,7 @@ private fun LoginLabel(email: String) {
 
 @Composable
 private fun RecentPostingCard(
+    listState: LazyListState,
     items: ImmutableList<PostingItem>,
     onClick: (String) -> Unit,
 ) {
@@ -98,12 +107,13 @@ private fun RecentPostingCard(
 
         LazyRow(
             modifier = Modifier.wrapContentSize(),
+            state = listState,
             contentPadding = PaddingValues(horizontal = 5.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             items(
                 items = items,
-                key = { it.postTime },
+                key = { it.postId },
             ) { item ->
                 Card(
                     modifier = Modifier
@@ -153,77 +163,13 @@ private fun RecentPostingCard(
     }
 }
 
-//@Composable
-//private fun PostingGraphCard(
-//    prevWeekDayItems: ImmutableList<String>,
-//    postingChartEntryItems: ImmutableList<BarEntry>,
-//) {
-//
-//    val data = remember(postingChartEntryItems) {
-//        BarData(
-//            BarDataSet(postingChartEntryItems, "")
-//        ).apply {
-//            barWidth = 0.5f
-//        }
-//    }
-//
-////    LaunchedEffect(postingChartEntryItems) {
-////        snapshotFlow {
-////            BarData(
-////                BarDataSet(postingChartEntryItems, "")
-////            ).apply {
-////                barWidth = 0.5f
-////            }
-////        }.collect { barData ->
-////            data = barData
-////        }
-////    }
-//
-//    Log.d("MainHomeContent", "${data.dataSets}")
-//
-//    Card(
-//        modifier = Modifier
-//            .fillMaxWidth()
-//            .height(200.dp),
-//        elevation = 4.dp,
-//    ) {
-//        AndroidView(
-//            factory = { context ->
-//                BarChart(context).apply {
-//                    setTouchEnabled(false)
-//                    //X, Y축 숨기기
-//                    xAxis.apply {
-//                        setDrawGridLines(false)
-//                        isEnabled = true
-//                        position = XAxis.XAxisPosition.BOTTOM
-//                        valueFormatter = IndexAxisValueFormatter(prevWeekDayItems)
-//                    }
-//
-//                    axisLeft.apply {
-//                        setDrawGridLines(false)
-//                        isEnabled = false
-//                    }
-//
-//                    axisRight.isEnabled = false
-//
-//                    legend.isEnabled = false
-//
-//                    description = Description().apply { isEnabled = false }
-//
-//                    setBackgroundColor(android.graphics.Color.TRANSPARENT)
-//                }
-//            },
-//            update = { barChart ->
-//                barChart.data = data
-//            }
-//        )
-//    }
-//}
-
 @Composable
 @Preview
 private fun MainHomeContentPreview() {
     BloggerTheme {
-        MainHomeContent(rememberPreviewMainContentState())
+        MainHomeContent(
+            state = rememberPreviewMainContentState(),
+            listState = rememberLazyListState(),
+        )
     }
 }

@@ -1,36 +1,24 @@
+@file:OptIn(ExperimentalFoundationApi::class)
+
 package com.mj.blogger.ui.main.presentation
 
 import android.net.Uri
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.*
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.material.Card
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -39,9 +27,11 @@ import androidx.compose.ui.unit.sp
 import com.mj.blogger.R
 import com.mj.blogger.common.compose.foundation.Image
 import com.mj.blogger.common.compose.foundation.TextField
+import com.mj.blogger.common.compose.ktx.rememberImmutableList
 import com.mj.blogger.common.compose.theme.BloggerTheme
 import com.mj.blogger.ui.main.presentation.state.MainComposeState
 import com.mj.blogger.ui.main.presentation.state.rememberMainComposeState
+import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 fun MainComposeScreen(presenter: MainComposePresenter) {
@@ -52,6 +42,12 @@ fun MainComposeScreen(presenter: MainComposePresenter) {
 
 @Composable
 fun MainComposeContent(state: MainComposeState) {
+
+    val allowCompose by remember {
+        derivedStateOf {
+            state.title.isNotBlank() && (state.message.isNotBlank() || state.images.isNotEmpty())
+        }
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -59,29 +55,35 @@ fun MainComposeContent(state: MainComposeState) {
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
         ComposeToolbar(
+            allowCompose = allowCompose,
+            imageCount = state.imagesCount,
             close = state.onClose,
-            action = state.onPost,
+            post = state.onPost,
             pickImage = state.onPickImage,
-            images = state.images,
         )
         TitleField(
             title = state.title,
             titleChanged = state.onTitleChanged,
         )
         ContentField(
-            images = state.images,
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f),
+            images = rememberImmutableList(state.images),
             message = state.message,
             messageChanged = state.onMessageChanged,
+            imageCancel = state.onImageCancel,
         )
     }
 }
 
 @Composable
 private fun ComposeToolbar(
+    allowCompose: Boolean,
+    imageCount: Int,
     close: () -> Unit,
-    action: () -> Unit,
+    post: () -> Unit,
     pickImage: () -> Unit,
-    images: List<Uri>,
 ) {
     Column(
         modifier = Modifier
@@ -109,16 +111,18 @@ private fun ComposeToolbar(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
 
+                val imagePickButtonColor = when (imageCount > 0) {
+                    true -> Color.Red
+                    else -> Color.Black
+                }
+
                 Text(
                     modifier = Modifier
                         .wrapContentSize()
                         .border(
                             border = BorderStroke(
                                 width = 1.dp,
-                                color = when (images.isEmpty()) {
-                                    true -> Color.LightGray
-                                    else -> Color.Red
-                                }
+                                color = imagePickButtonColor,
                             ),
                             shape = RoundedCornerShape(16.dp)
                         )
@@ -127,32 +131,37 @@ private fun ComposeToolbar(
                         .then(
                             Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
                         ),
-                    text = when (images.isEmpty()) {
-                        true -> stringResource(R.string.compose_image)
-                        else -> stringResource(R.string.compose_images, images.size)
+                    text = when (imageCount > 0) {
+                        true -> stringResource(R.string.compose_images, imageCount)
+                        else -> stringResource(R.string.compose_image)
                     },
-                    color = when (images.isEmpty()) {
-                        true -> Color.Black
-                        else -> Color.Red
-                    },
+                    color = imagePickButtonColor,
                     fontSize = 12.sp,
                 )
 
+                val composeButtonColor = when (allowCompose) {
+                    true -> Color.Black
+                    else -> Color.LightGray
+
+                }
                 Text(
                     modifier = Modifier
                         .wrapContentSize()
                         .padding(end = 12.dp)
                         .border(
-                            border = BorderStroke(1.dp, Color.LightGray),
+                            border = BorderStroke(1.dp, composeButtonColor),
                             shape = RoundedCornerShape(16.dp)
                         )
                         .clip(RoundedCornerShape(16.dp))
-                        .clickable(onClick = action)
+                        .clickable(
+                            enabled = allowCompose,
+                            onClick = post
+                        )
                         .then(
                             Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
                         ),
                     text = stringResource(R.string.compose_complete),
-                    color = Color.Black,
+                    color = composeButtonColor,
                     fontSize = 12.sp,
                 )
             }
@@ -181,69 +190,73 @@ private fun TitleField(
         onInsertChanged = titleChanged,
         textColor = Color.Black,
         hintColor = Color.Gray,
-        textSize = 20.sp,
+        textSize = 24.sp,
     )
 }
 
 @Composable
 private fun ContentField(
-    images: List<Uri>,
+    modifier: Modifier,
+    images: ImmutableList<Uri>,
     message: String,
     messageChanged: (String) -> Unit,
+    imageCancel: (Int) -> Unit,
 ) {
     Column(
-        modifier = Modifier
-            .wrapContentSize()
-            .padding(horizontal = 20.dp)
+        modifier = modifier
+            .verticalScroll(rememberScrollState())
+            .padding(start = 20.dp, end = 20.dp, bottom = 20.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         if (images.isNotEmpty()) {
             LazyRow(
                 modifier = Modifier.wrapContentSize(),
                 state = rememberLazyListState(),
+                contentPadding = PaddingValues(horizontal = 5.dp),
+                horizontalArrangement = Arrangement.spacedBy(5.dp),
             ) {
-                items(
+                itemsIndexed(
                     items = images,
-                    key = { it },
-                ) { uri ->
-                    Box(
+                    key = { _, uri -> uri },
+                ) { index, uri ->
+                    Card(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .height(150.dp)
+                            .size(150.dp)
+                            .animateItemPlacement(),
+                        elevation = 2.dp,
+                        shape = RoundedCornerShape(16.dp),
                     ) {
-                        Image(
-                            modifier = Modifier.size(150.dp),
-                            uri = uri,
-                        )
+                        Box {
+                            Image(
+                                modifier = Modifier.fillMaxSize(),
+                                uri = uri,
+                                scale = ContentScale.Crop
+                            )
 
-                        Image(
-                            modifier = Modifier
-                                .wrapContentSize()
-                                .align(Alignment.TopEnd)
-                                .padding(top = 10.dp, end = 10.dp),
-                            painter = painterResource(id = R.drawable.ic_baseline_cancel)
-                        )
+                            Image(
+                                modifier = Modifier
+                                    .wrapContentSize()
+                                    .align(Alignment.TopEnd)
+                                    .clickable { imageCancel.invoke(index) }
+                                    .then(
+                                        Modifier.padding(top = 10.dp, end = 10.dp)
+                                    ),
+                                painter = painterResource(id = R.drawable.ic_baseline_cancel)
+                            )
+                        }
                     }
                 }
             }
         }
-
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
-                .verticalScroll(rememberScrollState()),
-        ) {
-
-            TextField(
-                modifier = Modifier.wrapContentSize(),
-                insert = message,
-                hint = stringResource(R.string.compose_message),
-                onInsertChanged = messageChanged,
-                textColor = Color.Black,
-                hintColor = Color.Gray,
-                textSize = 16.sp,
-            )
-        }
+        TextField(
+            modifier = Modifier.wrapContentSize(),
+            insert = message,
+            hint = stringResource(R.string.compose_message),
+            onInsertChanged = messageChanged,
+            textColor = Color.Black,
+            hintColor = Color.Gray,
+            textSize = 16.sp,
+        )
     }
 }
 
@@ -254,9 +267,10 @@ private fun MainComposeScreenPreview() {
         title = remember { mutableStateOf("") },
         message = remember { mutableStateOf("") },
         images = remember { mutableStateOf(emptyList()) },
-        imagePosition = remember { mutableStateOf(0 to Uri.parse("")) },
+        imagesCount = remember { mutableIntStateOf(0) },
         onTitleChanged = {},
         onMessageChanged = {},
+        onImageCancel = {},
         onPickImage = {},
         onPost = {},
         onClose = {},

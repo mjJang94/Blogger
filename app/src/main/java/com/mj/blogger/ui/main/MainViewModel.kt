@@ -39,6 +39,7 @@ class MainViewModel @Inject constructor(
                 }
 
                 fireStore.collection(userId)
+                    .orderBy("postTime")
                     .addSnapshotListener { documents, exception ->
                         when {
                             exception != null -> {

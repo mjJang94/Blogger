@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.toObject
+import com.google.firebase.storage.FirebaseStorage
 import com.mj.blogger.common.firebase.vo.Posting
 import com.mj.blogger.repo.di.Repository
 import com.mj.blogger.ui.post.presenter.PostDetailPresenter
@@ -23,6 +24,7 @@ import javax.inject.Inject
 @HiltViewModel
 class PostDetailViewModel @Inject constructor(
     private val fireStore: FirebaseFirestore,
+    private val storage: FirebaseStorage,
     private val repository: Repository,
 ) : ViewModel(), PostDetailPresenter {
 
@@ -46,6 +48,8 @@ class PostDetailViewModel @Inject constructor(
         runCatching {
             val document = fireStore.collection(userId).document(postId).get().await()
             document.toObject<Posting>()?.translate() ?: throw PostDocumentEmptyException()
+
+            storage.reference.child()
         }.onFailure { tr ->
             Log.e(TAG, "$tr")
             _loadErrorEvent.emit(tr)

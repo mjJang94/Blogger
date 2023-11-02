@@ -7,11 +7,12 @@ interface MainComposePresenter {
     val title: StateFlow<String>
     val message: StateFlow<String>
     val images: StateFlow<List<Uri>>
-    val imageWithPosition: StateFlow<Pair<Int, Uri>?>
+    val imagesCount: StateFlow<Int>
 
     fun onTitleChanged(insert: String)
     fun onMessageChanged(insert: String)
     fun onPickImage()
+    fun onImageCancel(index: Int)
     fun onPost()
     fun onClose()
 }
