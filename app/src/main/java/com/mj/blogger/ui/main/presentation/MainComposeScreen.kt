@@ -267,7 +267,7 @@ private fun MainComposeScreenPreview() {
         title = remember { mutableStateOf("") },
         message = remember { mutableStateOf("") },
         images = remember { mutableStateOf(emptyList()) },
-        imagesCount = remember { mutableIntStateOf(0) },
+        imagesCount = remember { mutableStateOf(0) },
         onTitleChanged = {},
         onMessageChanged = {},
         onImageCancel = {},
