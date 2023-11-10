@@ -66,6 +66,7 @@ dependencies {
     implementation("androidx.annotation:annotation:1.7.0")
     implementation("androidx.viewpager2:viewpager2:1.0.0")
     implementation("androidx.room:room-runtime:2.5.2")
+    implementation("androidx.compose.animation:animation-graphics-android:1.5.4")
     annotationProcessor("androidx.room:room-compiler:2.5.2")
 
     implementation(platform("androidx.compose:compose-bom:2023.03.00"))
@@ -74,7 +75,9 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
 
-    implementation("io.coil-kt:coil-compose:2.5.0")
+
+    //glide
+    implementation("com.github.bumptech.glide:compose:1.0.0-beta01")
 
     //kotlin
     implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.6")
