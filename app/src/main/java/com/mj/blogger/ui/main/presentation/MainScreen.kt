@@ -17,10 +17,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.github.mikephil.charting.data.BarEntry
 import com.mj.blogger.common.compose.foundation.Image
 import com.mj.blogger.common.compose.theme.BloggerTheme
 import com.mj.blogger.ui.main.presentation.state.MainContentState
@@ -77,7 +75,6 @@ private fun MainScreenContent(state: MainContentState) {
         HorizontalPager(
             modifier = Modifier.weight(1f),
             state = state.pagerState,
-//            pageCount = pages.size,
             key = { it },
             userScrollEnabled = false,
         ) { pageIndex ->
@@ -136,12 +133,6 @@ private fun BottomNavigator(
                             ),
                             atEnd = selectedPage == page
                         )
-//                                painterResource(
-//                            id = when (selectedPage == page) {
-//                                true -> page.selectedIconRes
-//                                false -> page.defaultIconRes
-//                            }
-//                        )
                     )
                 }
             }
@@ -159,27 +150,6 @@ private fun MainScreenPreview() {
 
 @Composable
 internal fun rememberPreviewMainContentState(): MainContentState {
-
-    val prevWeekDays = listOf(
-        "월",
-        "화",
-        "수",
-        "목",
-        "금",
-        "토",
-        "일",
-    )
-
-    val barEntry = listOf(
-        BarEntry(0f, 1f),
-        BarEntry(1f, 2f),
-        BarEntry(2f, 3f),
-        BarEntry(3f, 4f),
-        BarEntry(4f, 5f),
-        BarEntry(5f, 6f),
-        BarEntry(6f, 7f),
-    )
-
     val recentItems = listOf(
         PostingItem(
             postId = "",

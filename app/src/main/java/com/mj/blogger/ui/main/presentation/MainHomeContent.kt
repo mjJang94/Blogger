@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalFoundationApi::class, ExperimentalAnimationGraphicsApi::class)
+@file:OptIn(ExperimentalFoundationApi::class)
 
 package com.mj.blogger.ui.main.presentation
 
@@ -121,14 +121,6 @@ private fun RecentPostingCard(
                 onClick = onClick,
             )
         }
-
-//        if (allItems.isEmpty()) {
-//            EmptyAllPosting()
-//        } else {
-//            AllPostingList(
-//                items = rememberImmutableList(list = allItems)
-//            )
-//        }
     }
 }
 
@@ -143,7 +135,8 @@ private fun EmptyRecentList() {
         shape = RoundedCornerShape(16.dp),
     ) {
         Text(
-            text = "작성한 글이 없습니다.",
+            modifier = Modifier.fillMaxSize(),
+            text = stringResource(R.string.main_empty_recent_posting),
             fontSize = 12.sp,
             color = Color.Black,
         )
@@ -273,86 +266,6 @@ private fun RecentPostingList(
         }
     }
 }
-
-//@Composable
-//private fun EmptyAllPosting() {
-//    Column(
-//        modifier = Modifier
-//            .fillMaxWidth()
-//            .padding(top = 10.dp),
-//    ) {
-//        Text(
-//            text = "작성한 글이 없습니다.",
-//            fontSize = 12.sp,
-//            color = Color.Black,
-//        )
-//    }
-//}
-//@Composable
-//private fun AllPostingList(
-//    items: ImmutableList<PostingItem>,
-//) {
-//    Column(
-//        modifier = Modifier
-//            .fillMaxWidth()
-//            .padding(top = 10.dp),
-//        verticalArrangement = Arrangement.spacedBy(12.dp),
-//    ) {
-//
-//        Text(
-//            text = stringResource(R.string.main_category_label),
-//            fontSize = 14.sp,
-//            color = Color.Black,
-//            fontWeight = FontWeight.Bold,
-//        )
-//
-//        LazyColumn(
-//            modifier = Modifier.wrapContentSize(),
-//            state = rememberLazyListState(),
-//            verticalArrangement = Arrangement.spacedBy(8.dp),
-//        ) {
-//            items(
-//                items = items,
-//                key = { it.postTime },
-//            ) { item ->
-//                Row(
-//                    modifier = Modifier
-//                        .fillMaxWidth()
-//                        .height(80.dp),
-//                    verticalAlignment = Alignment.CenterVertically
-//                ) {
-//                    Column(
-//                        modifier = Modifier
-//                            .fillMaxWidth()
-//                            .weight(1f),
-//                        verticalArrangement = Arrangement.spacedBy(5.dp)
-//                    ) {
-//                        Text(
-//                            text = item.title,
-//                            fontSize = 14.sp,
-//                            color = Color.Black,
-//                            maxLines = 2,
-//                            overflow = TextOverflow.Ellipsis,
-//                        )
-//
-//                        Text(
-//                            text = ConvertMillisToFormattedDate(millis = item.postTime),
-//                            fontSize = 12.sp,
-//                            color = Color.Gray,
-//                            maxLines = 1,
-//                            overflow = TextOverflow.Ellipsis,
-//                        )
-//                    }
-//
-//                    Image(
-//                        modifier = Modifier.size(50.dp),
-//                        painter = painterResource(id = R.drawable.ic_baseline_article)
-//                    )
-//                }
-//            }
-//        }
-//    }
-//}
 
 @Composable
 @Preview
