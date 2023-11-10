@@ -1,5 +1,6 @@
 package com.mj.blogger.ui.post
 
+import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -46,10 +47,16 @@ class PostDetailViewModel @Inject constructor(
         _postId
     ) { userId, postId ->
         runCatching {
+            //load from fire-store
             val document = fireStore.collection(userId).document(postId).get().await()
-            document.toObject<Posting>()?.translate() ?: throw PostDocumentEmptyException()
-
-            storage.reference.child()
+            //load from storage
+            val storageResult = storage.reference.child("images/$postId").listAll().await()
+            //collect all images from storage
+            val images = storageResult.items.map { imageRef ->
+                imageRef.downloadUrl.await()
+            }
+            //combine data
+            document.toObject<Posting>()?.translate(images) ?: throw PostDocumentEmptyException()
         }.onFailure { tr ->
             Log.e(TAG, "$tr")
             _loadErrorEvent.emit(tr)
@@ -60,10 +67,11 @@ class PostDetailViewModel @Inject constructor(
         initialValue = null
     )
 
-    private fun Posting.translate() = PostDetail(
-        title = this.title,
-        message = this.message,
-        postTime = this.postTime,
+    private fun Posting.translate(images: List<Uri>) = PostDetail(
+        title = title,
+        message = message,
+        postTime = postTime,
+        images = images
     )
 
     private val _loadErrorEvent = MutableSharedFlow<Throwable>()

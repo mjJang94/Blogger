@@ -1,10 +1,14 @@
 package com.mj.blogger.ui.main
 
+import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.ktx.toObjects
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.FirebaseStorage
 import com.mj.blogger.common.compose.ktx.invoke
 import com.mj.blogger.common.firebase.vo.Posting
 import com.mj.blogger.repo.di.Repository
@@ -15,12 +19,14 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val fireStore: FirebaseFirestore,
+    private val storage: FirebaseStorage,
     private val repository: Repository,
 ) : ViewModel(), MainPresenter {
 
@@ -37,7 +43,7 @@ class MainViewModel @Inject constructor(
                 val userId = withContext(Dispatchers.IO) {
                     repository.userIdFlow.firstOrNull() ?: throw InvalidUserException()
                 }
-
+                fireStore.collection(userId).document()
                 fireStore.collection(userId)
                     .orderBy("postTime")
                     .addSnapshotListener { documents, exception ->
@@ -49,9 +55,7 @@ class MainViewModel @Inject constructor(
                             }
 
                             else -> {
-                                val postings = documents?.toObjects<Posting>()?.map { it.translate() } ?: emptyList()
-                                Log.d(TAG, "postings = $postings")
-                                setPostingItems(postings)
+                                combinePostingItems(documents)
                             }
                         }
                     }
@@ -62,11 +66,12 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    private fun Posting.translate() = PostingItem(
-        postId = this.postId,
-        title = this.title,
-        message = this.message,
-        postTime = this.postTime,
+    private fun Posting.translate(image: Uri?) = PostingItem(
+        postId = postId,
+        title = title,
+        message = message,
+        postTime = postTime,
+        image = image,
     )
 
     private val _page = MutableStateFlow(MainPage.HOME)
@@ -87,9 +92,17 @@ class MainViewModel @Inject constructor(
     )
 
     private val _postingItems = MutableStateFlow<List<PostingItem>>(emptyList())
-    private fun setPostingItems(items: List<PostingItem>) {
+    private fun combinePostingItems(documents: QuerySnapshot?) {
         viewModelScope.launch {
-            _postingItems.emit(items)
+            val postings = documents?.toObjects<Posting>() ?: emptyList()
+            Log.d(TAG, "postings = $postings")
+            val combineContents = postings.map {
+                val imageRef = storage.reference.child("images/${it.postId}").listAll().await()
+                val image = imageRef.items.firstOrNull()?.downloadUrl?.await()
+                Log.d(TAG, "posting image = $image")
+                it.translate(image)
+            }
+            _postingItems.emit(combineContents)
         }
     }
 

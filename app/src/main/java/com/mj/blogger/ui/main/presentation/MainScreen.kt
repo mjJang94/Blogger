@@ -1,7 +1,11 @@
-@file:OptIn(ExperimentalFoundationApi::class)
+@file:OptIn(ExperimentalFoundationApi::class, ExperimentalAnimationGraphicsApi::class)
 
 package com.mj.blogger.ui.main.presentation
 
+import androidx.compose.animation.graphics.ExperimentalAnimationGraphicsApi
+import androidx.compose.animation.graphics.res.animatedVectorResource
+import androidx.compose.animation.graphics.res.rememberAnimatedVectorPainter
+import androidx.compose.animation.graphics.vector.AnimatedImageVector
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -126,12 +130,18 @@ private fun BottomNavigator(
                     contentAlignment = Alignment.Center,
                 ) {
                     Image(
-                        painter = painterResource(
-                            id = when (selectedPage == page) {
-                                true -> page.selectedIconRes
-                                false -> page.defaultIconRes
-                            }
+                        painter = rememberAnimatedVectorPainter(
+                            animatedImageVector = AnimatedImageVector.animatedVectorResource(
+                                id = page.animationRes,
+                            ),
+                            atEnd = selectedPage == page
                         )
+//                                painterResource(
+//                            id = when (selectedPage == page) {
+//                                true -> page.selectedIconRes
+//                                false -> page.defaultIconRes
+//                            }
+//                        )
                     )
                 }
             }
@@ -176,18 +186,21 @@ internal fun rememberPreviewMainContentState(): MainContentState {
             title = "안드로이드 활용법",
             message = "안드로이드 활용법에 대해 알아봅니다.",
             postTime = System.currentTimeMillis() + 1,
+            image = null,
         ),
         PostingItem(
             postId = "",
             title = "파이어베이스 활용법",
             message = "파이어베이스 활용법에 대해 알아봅니다.",
             postTime = System.currentTimeMillis() + 2,
+            image = null,
         ),
         PostingItem(
             postId = "",
             title = "갤럭시 활용법",
             message = "갤럭시에 대해 알아봅니다.",
             postTime = System.currentTimeMillis() + 3,
+            image = null,
         )
 
     )

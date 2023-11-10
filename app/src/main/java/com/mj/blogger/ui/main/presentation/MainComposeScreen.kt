@@ -6,7 +6,6 @@ import android.net.Uri
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -25,6 +24,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mj.blogger.R
+import com.mj.blogger.common.compose.foundation.GlideImage
 import com.mj.blogger.common.compose.foundation.Image
 import com.mj.blogger.common.compose.foundation.TextField
 import com.mj.blogger.common.compose.ktx.rememberImmutableList
@@ -227,7 +227,7 @@ private fun ContentField(
                         shape = RoundedCornerShape(16.dp),
                     ) {
                         Box {
-                            Image(
+                            GlideImage(
                                 modifier = Modifier.fillMaxSize(),
                                 uri = uri,
                                 scale = ContentScale.Crop

@@ -4,23 +4,10 @@ import androidx.annotation.DrawableRes
 import com.mj.blogger.R
 
 enum class MainPage(
-    @DrawableRes val defaultIconRes: Int,
-    @DrawableRes val selectedIconRes: Int,
+    @DrawableRes val animationRes: Int,
 ) {
-    HOME(
-        defaultIconRes = R.drawable.ic_baseline_home_off,
-        selectedIconRes = R.drawable.ic_baseline_home_on,
-    ),
-    COMPOSE(
-        defaultIconRes = R.drawable.ic_baseline_compose_off,
-        selectedIconRes = R.drawable.ic_baseline_compose_on,
-    ),
-    BLOG(
-        defaultIconRes = R.drawable.ic_baseline_find_in_page_off,
-        selectedIconRes = R.drawable.ic_baseline_find_in_page_on,
-    ),
-    SETTING(
-        defaultIconRes = R.drawable.ic_baseline_settings_off,
-        selectedIconRes = R.drawable.ic_baseline_settings_on,
-    )
+    HOME(animationRes = R.drawable.anim_main_home,),
+    COMPOSE(animationRes = R.drawable.anim_main_compose,),
+    BLOG(animationRes = R.drawable.anim_main_blog,),
+    SETTING(animationRes = R.drawable.anim_main_setting,)
 }

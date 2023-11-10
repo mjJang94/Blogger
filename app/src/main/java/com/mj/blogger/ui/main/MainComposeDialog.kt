@@ -62,7 +62,7 @@ class MainComposeDialog : AppCompatDialogFragment() {
 
         viewModel.uploadFailEvent.observe { tr ->
             val msg = when (tr) {
-                is ImageUploadFailException -> getString(R.string.compose_posting_only_text_complete)
+                is ImageUploadFailException -> getString(R.string.compose_fail)
                 else -> tr.message
             }
             Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
