@@ -4,7 +4,6 @@ package com.mj.blogger.ui.main.presentation
 
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.*
-import androidx.compose.animation.graphics.ExperimentalAnimationGraphicsApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -64,6 +63,7 @@ fun MainHomeContent(
 
         RecentPostingCard(
             listState = listState,
+            postingLoaded = state.postingLoaded,
             recentItems = state.recentPostingItems,
             onClick = state.openDetail,
         )
@@ -97,8 +97,9 @@ private fun LoginLabel(email: String) {
 @Composable
 private fun RecentPostingCard(
     listState: LazyListState,
+    postingLoaded: Boolean,
     recentItems: List<PostingItem>,
-    onClick: (String) -> Unit,
+    onClick: (PostingItem) -> Unit,
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -111,15 +112,18 @@ private fun RecentPostingCard(
             color = Color.Black,
             fontWeight = FontWeight.Bold,
         )
-
-        if (recentItems.isEmpty()) {
-            EmptyRecentList()
-        } else {
-            RecentPostingList(
-                listState = listState,
-                items = rememberImmutableList(list = recentItems),
-                onClick = onClick,
-            )
+        if (!postingLoaded){
+            RecentPlaceholder()
+        }else {
+            if (recentItems.isEmpty()) {
+                EmptyRecentList()
+            } else {
+                RecentPostingList(
+                    listState = listState,
+                    items = rememberImmutableList(list = recentItems),
+                    onClick = onClick,
+                )
+            }
         }
     }
 }
@@ -139,6 +143,7 @@ private fun EmptyRecentList() {
             text = stringResource(R.string.main_empty_recent_posting),
             fontSize = 12.sp,
             color = Color.Black,
+            textAlign = TextAlign.Center,
         )
     }
 }
@@ -190,7 +195,7 @@ private fun RecentPlaceholder() {
 private fun RecentPostingList(
     listState: LazyListState,
     items: ImmutableList<PostingItem>,
-    onClick: (String) -> Unit,
+    onClick: (PostingItem) -> Unit,
 ) {
     LazyRow(
         modifier = Modifier.wrapContentSize(),
@@ -213,7 +218,7 @@ private fun RecentPostingList(
                 Column(
                     modifier = Modifier
                         .wrapContentSize()
-                        .clickable { onClick(item.postId) }
+                        .clickable { onClick(item) }
                 ) {
                     Box(
                         modifier = Modifier
@@ -221,7 +226,7 @@ private fun RecentPostingList(
                             .weight(0.7f)
                             .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
                     ) {
-                        if (item.image == null) {
+                        if (item.thumbnail == null) {
                             Image(
                                 modifier = Modifier.fillMaxSize(),
                                 painter = painterResource(id = R.drawable.ic_baseline_article),
@@ -229,7 +234,7 @@ private fun RecentPostingList(
                         } else {
                             GlideImage(
                                 modifier = Modifier.fillMaxSize(),
-                                uri = item.image,
+                                uri = item.thumbnail,
                                 scale = ContentScale.Crop,
                             )
                         }

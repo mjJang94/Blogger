@@ -34,7 +34,7 @@
     <string name="compose_fail">글 업로드에 실패했습니다. 잠시후 다시 시도해 주세요.</string>
 
 
-    <string name="detail_not_exist_posting">존재하지 않는 포스팅입니다.</string>
+    <string name="detail_not_exist_posting">존재하지 않는 글입니다.</string>
     <string name="compose_posting_image_full">이미지는 최대 3개까지 선택 가능합니다.</string>
     <string name="main_empty_recent_posting">작성한 글이 없습니다.</string>
 

@@ -8,6 +8,7 @@ import androidx.compose.animation.graphics.res.rememberAnimatedVectorPainter
 import androidx.compose.animation.graphics.vector.AnimatedImageVector
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
@@ -96,7 +97,7 @@ private fun MainScreenContent(state: MainContentState) {
             modifier = Modifier.fillMaxWidth(),
             pages = pages,
             selectedPage = state.page,
-            onPageSwitch = state.onPageSwitch,
+            onPageSwitch = state.pageSwitch,
         )
     }
 }
@@ -118,6 +119,7 @@ private fun BottomNavigator(
             Tab(
                 selected = selectedPage == page,
                 onClick = { onPageSwitch(page) },
+                interactionSource = remember { MutableInteractionSource() }
             ) {
                 Box(
                     modifier = Modifier
@@ -156,21 +158,24 @@ internal fun rememberPreviewMainContentState(): MainContentState {
             title = "안드로이드 활용법",
             message = "안드로이드 활용법에 대해 알아봅니다.",
             postTime = System.currentTimeMillis() + 1,
-            image = null,
+            thumbnail = null,
+            images = emptyList(),
         ),
         PostingItem(
             postId = "",
             title = "파이어베이스 활용법",
             message = "파이어베이스 활용법에 대해 알아봅니다.",
             postTime = System.currentTimeMillis() + 2,
-            image = null,
+            thumbnail = null,
+            images = emptyList(),
         ),
         PostingItem(
             postId = "",
             title = "갤럭시 활용법",
             message = "갤럭시에 대해 알아봅니다.",
             postTime = System.currentTimeMillis() + 3,
-            image = null,
+            thumbnail = null,
+            images = emptyList(),
         )
 
     )
@@ -180,10 +185,11 @@ internal fun rememberPreviewMainContentState(): MainContentState {
             Page.values().size
         },
         page = remember { mutableStateOf(Page.HOME) },
+        postingLoaded = remember { mutableStateOf(true) },
         email = remember { mutableStateOf("alswhddl10@naver.com") },
         recentPostingItems = remember { mutableStateOf(recentItems) },
         allPostingItems = remember { mutableStateOf(recentItems) },
-        onPageSwitch = {},
+        pageSwitch = {},
         openDetail = {},
     )
 

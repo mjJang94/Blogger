@@ -49,8 +49,8 @@ class MainActivity : AppCompatActivity() {
             MainComposeDialog.show(supportFragmentManager)
         }
 
-        viewModel.openDetail.observe { postId ->
-            PostDetailActivity.start(this, postId)
+        viewModel.openDetailEvent.observe { item ->
+            PostDetailActivity.start(this, item)
         }
 
         viewModel.loadErrorEvent.observe { tr ->

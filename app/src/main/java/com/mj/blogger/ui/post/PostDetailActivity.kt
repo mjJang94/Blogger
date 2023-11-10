@@ -10,10 +10,14 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.Composable
 import com.mj.blogger.R
+import com.mj.blogger.common.base.ConfigurationEmptyException
+import com.mj.blogger.common.base.PostDocumentEmptyException
 import com.mj.blogger.common.compose.theme.BloggerTheme
 import com.mj.blogger.common.ktx.observe
-import com.mj.blogger.ui.post.PostDetailViewModel.PostDocumentEmptyException
+import com.mj.blogger.common.ktx.parcelable
+import com.mj.blogger.ui.main.presentation.state.PostingItem
 import com.mj.blogger.ui.post.presenter.PostDetailScreen
+import com.mj.blogger.ui.post.presenter.state.PostDetail
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -23,11 +27,11 @@ class PostDetailActivity : AppCompatActivity() {
 
     companion object {
 
-        private const val EXTRA_POST_ID = "EXTRA_POST_ID"
+        private const val EXTRA_POST_DETAIL_ITEM = "EXTRA_POSTING_ITEM"
 
-        fun start(context: Context, postId: String) {
+        fun start(context: Context, item: PostDetail) {
             val intent = Intent(context, PostDetailActivity::class.java).apply {
-                putExtra(EXTRA_POST_ID, postId)
+                putExtra(EXTRA_POST_DETAIL_ITEM, item)
             }
             context.startActivity(intent)
         }
@@ -36,7 +40,7 @@ class PostDetailActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val data = intent.getStringExtra(EXTRA_POST_ID) ?: return finish()
+        val data = intent.parcelable<PostDetail>(EXTRA_POST_DETAIL_ITEM) ?: return finish()
         viewModel.configure(data)
 
         setContent {
@@ -49,16 +53,22 @@ class PostDetailActivity : AppCompatActivity() {
     @Composable
     private fun PostDetailScreen() {
 
-        viewModel.post.observe { post ->
+        viewModel.postItem.observe { post ->
             Log.d(this::class.java.simpleName, "$post")
         }
 
         viewModel.loadErrorEvent.observe { tr ->
+            if (tr is ConfigurationEmptyException) finish()
+
             val errorMsg = when (tr) {
                 is PostDocumentEmptyException -> getString(R.string.detail_not_exist_posting)
                 else -> tr.message
             }
             Toast.makeText(this, errorMsg, Toast.LENGTH_SHORT).show()
+        }
+
+        viewModel.backEvent.observe {
+            finish()
         }
 
         PostDetailScreen(presenter = viewModel)

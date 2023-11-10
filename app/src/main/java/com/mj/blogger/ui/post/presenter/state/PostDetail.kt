@@ -1,10 +1,13 @@
 package com.mj.blogger.ui.post.presenter.state
 
 import android.net.Uri
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 
+@Parcelize
 data class PostDetail(
     val title: String,
     val message: String,
     val postTime: Long,
-    val images: List<Uri>,
-)
+    val images: List<Uri?>,
+) : Parcelable

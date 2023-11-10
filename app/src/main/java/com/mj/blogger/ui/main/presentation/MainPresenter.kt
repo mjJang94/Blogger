@@ -8,11 +8,12 @@ import com.mj.blogger.ui.main.presentation.state.MainPage as Page
 interface MainPresenter {
     val page: StateFlow<Page>
 
+    val postingLoaded: StateFlow<Boolean>
     val email: StateFlow<String>
 
     val recentPostingItems : StateFlow<List<PostingItem>>
     val allPostingItems : StateFlow<List<PostingItem>>
 
     fun onPageSwitch(page: MainPage)
-    fun openDetail(postId: String)
+    fun openDetail(item: PostingItem)
 }

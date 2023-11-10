@@ -7,17 +7,16 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.storage.FirebaseStorage
+import com.mj.blogger.common.base.ConfigurationEmptyException
+import com.mj.blogger.common.base.PostDocumentEmptyException
+import com.mj.blogger.common.compose.ktx.invoke
 import com.mj.blogger.common.firebase.vo.Posting
 import com.mj.blogger.repo.di.Repository
+import com.mj.blogger.ui.main.presentation.state.PostingItem
 import com.mj.blogger.ui.post.presenter.PostDetailPresenter
 import com.mj.blogger.ui.post.presenter.state.PostDetail
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
@@ -33,39 +32,43 @@ class PostDetailViewModel @Inject constructor(
         private val TAG = this::class.java.simpleName
     }
 
-    private val _postId = MutableStateFlow("")
-    fun configure(postId: String) {
+    private val _configuration = MutableStateFlow<PostDetail?>(null)
+    fun configure(data: PostDetail) {
         viewModelScope.launch {
-            _postId.emit(postId)
+            _configuration.emit(data)
         }
     }
 
-    class PostDocumentEmptyException : Exception()
-
-    override val post = combine(
-        repository.userIdFlow,
-        _postId
-    ) { userId, postId ->
-        runCatching {
-            //load from fire-store
-            val document = fireStore.collection(userId).document(postId).get().await()
-            //load from storage
-            val storageResult = storage.reference.child("images/$postId").listAll().await()
-            //collect all images from storage
-            val images = storageResult.items.map { imageRef ->
-                imageRef.downloadUrl.await()
-            }
-            //combine data
-            document.toObject<Posting>()?.translate(images) ?: throw PostDocumentEmptyException()
-        }.onFailure { tr ->
-            Log.e(TAG, "$tr")
-            _loadErrorEvent.emit(tr)
-        }.getOrNull()
-    }.stateIn(
+    override val postItem = _configuration.stateIn(
         scope = viewModelScope,
         started = SharingStarted.Lazily,
-        initialValue = null
+        initialValue = null,
     )
+//    override val postItem = combine(
+//        repository.userIdFlow,
+//        _configuration
+//    ) { userId, item ->
+//        runCatching {
+//            val postId = item? ?: throw ConfigurationEmptyException()
+//            //load from fire-store
+//            val document = fireStore.collection(userId).document(postId).get().await()
+//            //load from storage
+//            val storageResult = storage.reference.child("images/$postId").listAll().await()
+//            //collect all images from storage
+//            val images = storageResult.items.map { imageRef ->
+//                imageRef.downloadUrl.await()
+//            }
+//            //combine data
+//            document.toObject<Posting>()?.translate(images) ?: throw PostDocumentEmptyException()
+//        }.onFailure { tr ->
+//            Log.e(TAG, "$tr")
+//            _loadErrorEvent.emit(tr)
+//        }.getOrNull()
+//    }.stateIn(
+//        scope = viewModelScope,
+//        started = SharingStarted.Lazily,
+//        initialValue = null
+//    )
 
     private fun Posting.translate(images: List<Uri>) = PostDetail(
         title = title,
@@ -76,4 +79,12 @@ class PostDetailViewModel @Inject constructor(
 
     private val _loadErrorEvent = MutableSharedFlow<Throwable>()
     val loadErrorEvent = _loadErrorEvent.asSharedFlow()
+
+    private val _backEvent = MutableSharedFlow<Unit>()
+    val backEvent = _backEvent.asSharedFlow()
+    override fun onBack() {
+        viewModelScope.launch {
+            _backEvent()
+        }
+    }
 }

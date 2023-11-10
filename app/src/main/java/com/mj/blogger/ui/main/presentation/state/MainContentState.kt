@@ -14,14 +14,16 @@ class MainContentState(
     val pagerState: PagerState,
     page: State<MainPage>,
 
+    postingLoaded: State<Boolean>,
     email: State<String>,
     recentPostingItems: State<List<PostingItem>>,
     allPostingItems: State<List<PostingItem>>,
 
-    val onPageSwitch: (MainPage) -> Unit,
-    val openDetail: (String) -> Unit,
+    val pageSwitch: (MainPage) -> Unit,
+    val openDetail: (PostingItem) -> Unit,
 ) {
     val page by page
+    val postingLoaded by postingLoaded
     val email by email
     val recentPostingItems by recentPostingItems
     val allPostingItems by allPostingItems
@@ -33,6 +35,7 @@ fun rememberMainContentState(
     presenter: MainPresenter,
 ): MainContentState {
     val currentPage = presenter.page.collectAsStateWithLifecycle()
+    val postingLoaded = presenter.postingLoaded.collectAsStateWithLifecycle()
     val email = presenter.email.collectAsStateWithLifecycle()
     val recentPostingItems = presenter.recentPostingItems.collectAsStateWithLifecycle()
     val allPostingItems = presenter.allPostingItems.collectAsStateWithLifecycle()
@@ -41,10 +44,11 @@ fun rememberMainContentState(
         MainContentState(
             pagerState = screenState.pagerState,
             page = currentPage,
+            postingLoaded = postingLoaded,
             email = email,
             recentPostingItems = recentPostingItems,
             allPostingItems = allPostingItems,
-            onPageSwitch = presenter::onPageSwitch,
+            pageSwitch = presenter::onPageSwitch,
             openDetail = presenter::openDetail,
         )
     }

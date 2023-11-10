@@ -7,7 +7,6 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.ktx.toObjects
-import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.mj.blogger.common.compose.ktx.invoke
 import com.mj.blogger.common.firebase.vo.Posting
@@ -15,6 +14,7 @@ import com.mj.blogger.repo.di.Repository
 import com.mj.blogger.ui.main.presentation.MainPresenter
 import com.mj.blogger.ui.main.presentation.state.MainPage
 import com.mj.blogger.ui.main.presentation.state.PostingItem
+import com.mj.blogger.ui.post.presenter.state.PostDetail
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
@@ -66,13 +66,17 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    private fun Posting.translate(image: Uri?) = PostingItem(
+    private fun Posting.translate(images: List<Uri>) = PostingItem(
         postId = postId,
         title = title,
         message = message,
         postTime = postTime,
-        image = image,
+        thumbnail = images.firstOrNull(),
+        images = images,
     )
+
+    private val _postingLoaded = MutableStateFlow(false)
+    override val postingLoaded = _postingLoaded.asStateFlow()
 
     private val _page = MutableStateFlow(MainPage.HOME)
     override val page = _page.asStateFlow()
@@ -98,11 +102,12 @@ class MainViewModel @Inject constructor(
             Log.d(TAG, "postings = $postings")
             val combineContents = postings.map {
                 val imageRef = storage.reference.child("images/${it.postId}").listAll().await()
-                val image = imageRef.items.firstOrNull()?.downloadUrl?.await()
-                Log.d(TAG, "posting image = $image")
-                it.translate(image)
+                val images = imageRef.items.map { ref -> ref.downloadUrl.await() }
+                Log.d(TAG, "posting images = $images")
+                it.translate(images)
             }
             _postingItems.emit(combineContents)
+            _postingLoaded.emit(true)
         }
     }
 
@@ -134,11 +139,17 @@ class MainViewModel @Inject constructor(
     private val _composeEvent = MutableSharedFlow<Unit>()
     val composeEvent = _composeEvent.asSharedFlow()
 
-    private val _openDetailEvent = MutableSharedFlow<String>()
-    val openDetail = _openDetailEvent.asSharedFlow()
-    override fun openDetail(postId: String) {
+    private val _openDetailEvent = MutableSharedFlow<PostDetail>()
+    val openDetailEvent = _openDetailEvent.asSharedFlow()
+    override fun openDetail(item: PostingItem) {
         viewModelScope.launch {
-            _openDetailEvent.emit(postId)
+            val data = PostDetail(
+                title = item.title,
+                message = item.message,
+                postTime = item.postTime,
+                images = item.images,
+            )
+            _openDetailEvent.emit(data)
         }
     }
 }
