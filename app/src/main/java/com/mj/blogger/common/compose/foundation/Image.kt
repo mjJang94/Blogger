@@ -31,7 +31,7 @@ fun Image(
 @Composable
 fun GlideImage(
     modifier: Modifier = Modifier,
-    uri: Uri,
+    uri: Uri?,
     scale: ContentScale = ContentScale.Fit,
     contentDescription: String? = null,
 ) {

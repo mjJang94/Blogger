@@ -39,6 +39,15 @@ class PostDetailViewModel @Inject constructor(
         }
     }
 
+    override val postImages = _configuration
+        .filterNotNull()
+        .map { it.images }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Lazily,
+            initialValue = emptyList(),
+        )
+
     override val postItem = _configuration.stateIn(
         scope = viewModelScope,
         started = SharingStarted.Lazily,
