@@ -6,6 +6,7 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class PostDetail(
+    val postId: String,
     val title: String,
     val message: String,
     val postTime: Long,

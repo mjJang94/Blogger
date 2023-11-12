@@ -12,6 +12,8 @@ class PostDetailState(
     postDetail: State<PostDetail?>,
 
     val back: () -> Unit,
+    val modify: () -> Unit,
+    val delete: () -> Unit,
 ) {
     val postImages by postImages
     val postDetail by postDetail
@@ -29,7 +31,9 @@ fun rememberPostDetailState(
         PostDetailState(
             postImages = postImages,
             postDetail = postDetail,
-            back = presenter::onBack
+            back = presenter::onBack,
+            modify = presenter::onModify,
+            delete = presenter::onDelete,
         )
     }
 }

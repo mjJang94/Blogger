@@ -187,6 +187,7 @@ private fun TitleField(
             .padding(horizontal = 20.dp),
         insert = title,
         hint = stringResource(R.string.compose_title),
+        singleLine = true,
         onInsertChanged = titleChanged,
         textColor = Color.Black,
         hintColor = Color.Gray,

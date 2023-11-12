@@ -30,6 +30,7 @@ fun TextField(
     modifier: Modifier,
     insert: String,
     hint: String = "",
+    singleLine: Boolean = false,
     onInsertChanged: (String) -> Unit,
     textSize: TextUnit = 16.sp,
     textColor: Color = LocalTextStyle.current.color,
@@ -46,6 +47,7 @@ fun TextField(
                 fontSize = textSize,
                 color = textColor
             ),
+            singleLine = singleLine,
             cursorBrush = SolidColor(cursorColor),
             decorationBox = { innerTextField ->
                 Box(

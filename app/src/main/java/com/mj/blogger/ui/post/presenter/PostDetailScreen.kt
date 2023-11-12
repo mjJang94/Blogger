@@ -9,21 +9,29 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.BottomNavigation
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.mj.blogger.R
 import com.mj.blogger.common.compose.foundation.GlideImage
 import com.mj.blogger.common.compose.foundation.Image
+import com.mj.blogger.common.compose.ktx.ConvertMillisToFormattedDate
 import com.mj.blogger.common.compose.ktx.rememberImmutableList
 import com.mj.blogger.ui.post.presenter.state.PostDetail
 import com.mj.blogger.ui.post.presenter.state.PostDetailState
@@ -36,44 +44,136 @@ fun PostDetailScreen(presenter: PostDetailPresenter) {
 }
 
 @Composable
-private fun PostDetailContent(state: PostDetailState) {
+private fun PostDetailContent(
+    state: PostDetailState
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White),
+            .background(Color.White)
+            .verticalScroll(rememberScrollState()),
     ) {
-        DetailToolbar(
-            onClick = state.back
+        DetailToolbar(onBack = state.back)
+
+        PostContent(
+            modifier = Modifier.weight(1f),
+            postImages = state.postImages,
+            postDetail = state.postDetail,
         )
 
-        ImageContent(
-            items = rememberImmutableList(list = state.postImages)
-        )
+        BottomNavigation(
+            backgroundColor = Color.White,
+            elevation = 12.dp
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxSize(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(CircleShape)
+                        .clickable(onClick = state.modify),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Image(painter = painterResource(id = R.drawable.ic_baseline_modify),)
+                }
 
+                Box(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(CircleShape)
+                        .clickable(onClick = state.delete),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Image(painter = painterResource(id = R.drawable.ic_outline_delete))
+                }
+            }
+        }
     }
 }
 
 @Composable
 private fun DetailToolbar(
-    onClick: () -> Unit,
+    onBack: () -> Unit,
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .height(56.dp),
-        verticalAlignment = Alignment.CenterVertically
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        Image(
+        Box(
             modifier = Modifier
-                .size(40.dp)
-                .clickable(onClick = onClick),
-            painter = painterResource(id = R.drawable.ic_baseline_chevron_left)
-        )
+                .size(48.dp)
+                .clip(CircleShape)
+                .clickable(onClick = onBack),
+            contentAlignment = Alignment.Center,
+        ) {
+            Image(painter = painterResource(id = R.drawable.ic_baseline_chevron_left))
+        }
+    }
+}
+
+@Composable
+private fun PostContent(
+    modifier: Modifier,
+    postImages: List<Uri?>,
+    postDetail: PostDetail?,
+) {
+    if (postDetail != null) {
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(horizontal = 20.dp),
+            verticalArrangement = Arrangement.Top,
+        ) {
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight(),
+                text = postDetail.title,
+                color = Color.Black,
+                fontSize = 24.sp,
+            )
+
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .padding(bottom = 20.dp),
+                text = ConvertMillisToFormattedDate(postDetail.postTime),
+                color = Color.Gray,
+                fontSize = 14.sp,
+                textAlign = TextAlign.End,
+            )
+
+            ImageContent(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(400.dp)
+                    .padding(bottom = 20.dp),
+                items = rememberImmutableList(list = postImages)
+            )
+
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .padding(bottom = 20.dp),
+                text = postDetail.message,
+                color = Color.Black,
+                fontSize = 16.sp,
+            )
+        }
     }
 }
 
 @Composable
 private fun ImageContent(
+    modifier: Modifier,
     items: ImmutableList<Uri?>,
 ) {
     if (items.isNotEmpty()) {
@@ -81,9 +181,7 @@ private fun ImageContent(
         val pagerState = rememberPagerState { items.size }
 
         Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(400.dp),
+            modifier = modifier,
             contentAlignment = Alignment.BottomCenter,
         ) {
             HorizontalPager(
@@ -106,7 +204,7 @@ private fun ImageContent(
 }
 
 @Composable
-fun PagerIndicator(
+private fun PagerIndicator(
     modifier: Modifier = Modifier,
     pageCount: Int,
     currentPage: Int,
@@ -135,10 +233,20 @@ fun PagerIndicator(
 @Preview
 @Composable
 private fun PostDetailContentPreview() {
+
+    val postDetail = PostDetail(
+        postId = "",
+        title = "안드로이드 Compose에 대해 알아봅시다.",
+        message = "포스팅 내용.",
+        postTime = 1L,
+        images = emptyList(),
+    )
     val state = PostDetailState(
         postImages = remember { mutableStateOf(emptyList()) },
-        postDetail = remember { mutableStateOf(null) },
-        back = {}
+        postDetail = remember { mutableStateOf(postDetail) },
+        back = {},
+        modify = {},
+        delete = {},
     )
     PostDetailContent(state)
 }

@@ -67,8 +67,21 @@ class PostDetailActivity : AppCompatActivity() {
             Toast.makeText(this, errorMsg, Toast.LENGTH_SHORT).show()
         }
 
+        viewModel.deleteErrorEvent.observe {
+            Toast.makeText(this, getString(R.string.detail_delete_failure), Toast.LENGTH_SHORT).show()
+        }
+
         viewModel.backEvent.observe {
             finish()
+        }
+
+        viewModel.deleteEvent.observe {
+            Toast.makeText(this, getString(R.string.detail_delete_complete), Toast.LENGTH_SHORT).show()
+            finish()
+        }
+
+        viewModel.modifyEvent.observe {
+
         }
 
         PostDetailScreen(presenter = viewModel)

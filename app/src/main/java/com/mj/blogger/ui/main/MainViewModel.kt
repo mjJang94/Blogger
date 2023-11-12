@@ -144,6 +144,7 @@ class MainViewModel @Inject constructor(
     override fun openDetail(item: PostingItem) {
         viewModelScope.launch {
             val data = PostDetail(
+                postId = item.postId,
                 title = item.title,
                 message = item.message,
                 postTime = item.postTime,

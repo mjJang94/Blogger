@@ -32,6 +32,12 @@ class PostDetailViewModel @Inject constructor(
         private val TAG = this::class.java.simpleName
     }
 
+    private val _userId = repository.userIdFlow.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Lazily,
+        initialValue = "",
+    )
+
     private val _configuration = MutableStateFlow<PostDetail?>(null)
     fun configure(data: PostDetail) {
         viewModelScope.launch {
@@ -53,41 +59,46 @@ class PostDetailViewModel @Inject constructor(
         started = SharingStarted.Lazily,
         initialValue = null,
     )
-//    override val postItem = combine(
-//        repository.userIdFlow,
-//        _configuration
-//    ) { userId, item ->
-//        runCatching {
-//            val postId = item? ?: throw ConfigurationEmptyException()
-//            //load from fire-store
-//            val document = fireStore.collection(userId).document(postId).get().await()
-//            //load from storage
-//            val storageResult = storage.reference.child("images/$postId").listAll().await()
-//            //collect all images from storage
-//            val images = storageResult.items.map { imageRef ->
-//                imageRef.downloadUrl.await()
-//            }
-//            //combine data
-//            document.toObject<Posting>()?.translate(images) ?: throw PostDocumentEmptyException()
-//        }.onFailure { tr ->
-//            Log.e(TAG, "$tr")
-//            _loadErrorEvent.emit(tr)
-//        }.getOrNull()
-//    }.stateIn(
-//        scope = viewModelScope,
-//        started = SharingStarted.Lazily,
-//        initialValue = null
-//    )
-
-    private fun Posting.translate(images: List<Uri>) = PostDetail(
-        title = title,
-        message = message,
-        postTime = postTime,
-        images = images
-    )
 
     private val _loadErrorEvent = MutableSharedFlow<Throwable>()
     val loadErrorEvent = _loadErrorEvent.asSharedFlow()
+
+    private val _deleteErrorEvent = MutableSharedFlow<Throwable>()
+    val deleteErrorEvent = _deleteErrorEvent.asSharedFlow()
+
+    private val _modifyEvent = MutableSharedFlow<Unit>()
+    val modifyEvent = _modifyEvent.asSharedFlow()
+    override fun onModify() {
+        viewModelScope.launch {
+            _modifyEvent()
+        }
+    }
+
+    private val _deleteEvent = MutableSharedFlow<Unit>()
+    val deleteEvent = _deleteEvent.asSharedFlow()
+    override fun onDelete() {
+        viewModelScope.launch {
+            runCatching {
+                val userId = repository.userIdFlow.firstOrNull() ?: return@launch
+                val postId = _configuration.firstOrNull()?.postId ?: return@launch
+                Log.d(TAG, "userId = $userId")
+                Log.d(TAG, "postId = $postId")
+                fireStore.collection(userId).document(postId).delete().await()
+                val imagesResult = storage.reference.child("images/$postId").listAll().await()
+                Log.d(TAG, "imageResult = $imagesResult")
+                imagesResult.items.let { items ->
+                    for(item in items){
+                        item.delete().await()
+                    }
+                }
+            }.onSuccess {
+                _deleteEvent()
+            }.onFailure { tr ->
+                Log.w(TAG, tr)
+                _deleteErrorEvent.emit(tr)
+            }
+        }
+    }
 
     private val _backEvent = MutableSharedFlow<Unit>()
     val backEvent = _backEvent.asSharedFlow()

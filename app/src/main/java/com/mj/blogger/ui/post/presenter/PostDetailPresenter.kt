@@ -10,4 +10,6 @@ interface PostDetailPresenter {
     val postItem: StateFlow<PostDetail?>
 
     fun onBack()
+    fun onModify()
+    fun onDelete()
 }
