@@ -13,6 +13,7 @@ import com.mj.blogger.ui.main.presentation.MainComposePresenter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 @HiltViewModel
@@ -26,6 +27,20 @@ class MainComposeViewModel @Inject constructor(
         private val TAG = this::class.java.simpleName
         private const val MAX_IMAGE_COUNT = 3
     }
+
+    private val _isModify = MutableStateFlow(false)
+    override val isModify = _isModify.asStateFlow()
+    fun configure(postId: String, title: String, message: String, images: List<Uri>) {
+        viewModelScope.launch {
+            _isModify.emit(true)
+            _postId.emit(postId)
+            _title.emit(title)
+            _message.emit(message)
+            _images.emit(images)
+        }
+    }
+
+    private val _postId = MutableStateFlow("")
 
     private val _title = MutableStateFlow("")
     override val title: StateFlow<String> = _title.asStateFlow()
@@ -61,6 +76,34 @@ class MainComposeViewModel @Inject constructor(
                 }
                 else -> _maxImageEvent()
             }
+        }
+    }
+
+    override fun onModify() {
+        viewModelScope.launch {
+            val userId = repository.userIdFlow.firstOrNull() ?: return@launch
+            val postId = _postId.firstOrNull() ?: return@launch
+            val title = _title.firstOrNull() ?: return@launch
+            val message = _message.firstOrNull() ?: return@launch
+            val images = _images.firstOrNull() ?: return@launch
+
+            val post = Posting(
+                postId = postId,
+                title = title,
+                message = message,
+                postTime = System.currentTimeMillis(),
+            )
+
+            fireStore.collection(userId)
+                .document(postId)
+                .set(post)
+                .addOnSuccessListener { _ ->
+                    if (images.isEmpty()){
+                        complete()
+                    }else {
+                        uploadImage(postId, images)
+                    }
+                }
         }
     }
 
@@ -112,6 +155,13 @@ class MainComposeViewModel @Inject constructor(
         }
         complete()
     }
+
+//    private fun modifyImage(postId: String, images: List<Uri>) {
+//        for ((index, imageUri) in images.withIndex()) {
+//            storage.reference.child("images/$postId")
+//                .
+//        }
+//    }
 
     override val imagesCount = _images.map {
         it.size

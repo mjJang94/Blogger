@@ -4,6 +4,7 @@ import android.net.Uri
 import kotlinx.coroutines.flow.StateFlow
 
 interface MainComposePresenter {
+    val isModify: StateFlow<Boolean>
     val title: StateFlow<String>
     val message: StateFlow<String>
     val images: StateFlow<List<Uri>>
@@ -13,6 +14,7 @@ interface MainComposePresenter {
     fun onMessageChanged(insert: String)
     fun onPickImage()
     fun onImageCancel(index: Int)
+    fun onModify()
     fun onPost()
     fun onClose()
 }

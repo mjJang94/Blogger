@@ -10,5 +10,5 @@ data class PostDetail(
     val title: String,
     val message: String,
     val postTime: Long,
-    val images: List<Uri?>,
+    val images: List<Uri>,
 ) : Parcelable

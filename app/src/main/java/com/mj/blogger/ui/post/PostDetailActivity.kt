@@ -10,12 +10,14 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.Composable
 import com.mj.blogger.R
-import com.mj.blogger.common.base.ConfigurationEmptyException
-import com.mj.blogger.common.base.PostDocumentEmptyException
 import com.mj.blogger.common.compose.theme.BloggerTheme
 import com.mj.blogger.common.ktx.observe
 import com.mj.blogger.common.ktx.parcelable
-import com.mj.blogger.ui.main.presentation.state.PostingItem
+import com.mj.blogger.ui.main.MainComposeDialog
+import com.mj.blogger.ui.post.PostDetailViewModel.PostDetailEvent.Back
+import com.mj.blogger.ui.post.PostDetailViewModel.PostDetailEvent.DeleteComplete
+import com.mj.blogger.ui.post.PostDetailViewModel.PostDetailEvent.DeleteError
+import com.mj.blogger.ui.post.PostDetailViewModel.PostDetailEvent.Modify
 import com.mj.blogger.ui.post.presenter.PostDetailScreen
 import com.mj.blogger.ui.post.presenter.state.PostDetail
 import dagger.hilt.android.AndroidEntryPoint
@@ -57,31 +59,29 @@ class PostDetailActivity : AppCompatActivity() {
             Log.d(this::class.java.simpleName, "$post")
         }
 
-        viewModel.loadErrorEvent.observe { tr ->
-            if (tr is ConfigurationEmptyException) finish()
+        viewModel.postDetailEvent.observe { event ->
+            when (event) {
+                is Modify -> {
+                    val modify = MainComposeDialog.Modify(
+                        postId = event.postId,
+                        title = event.title,
+                        message = event.message,
+                        images = event.images,
+                    )
+                    MainComposeDialog.show(supportFragmentManager, modify)
+                }
 
-            val errorMsg = when (tr) {
-                is PostDocumentEmptyException -> getString(R.string.detail_not_exist_posting)
-                else -> tr.message
+                is DeleteError -> {
+                    Toast.makeText(this, getString(R.string.detail_delete_failure), Toast.LENGTH_SHORT).show()
+                }
+
+                is DeleteComplete -> {
+                    Toast.makeText(this, getString(R.string.detail_delete_complete), Toast.LENGTH_SHORT).show()
+                    finish()
+                }
+
+                is Back -> finish()
             }
-            Toast.makeText(this, errorMsg, Toast.LENGTH_SHORT).show()
-        }
-
-        viewModel.deleteErrorEvent.observe {
-            Toast.makeText(this, getString(R.string.detail_delete_failure), Toast.LENGTH_SHORT).show()
-        }
-
-        viewModel.backEvent.observe {
-            finish()
-        }
-
-        viewModel.deleteEvent.observe {
-            Toast.makeText(this, getString(R.string.detail_delete_complete), Toast.LENGTH_SHORT).show()
-            finish()
-        }
-
-        viewModel.modifyEvent.observe {
-
         }
 
         PostDetailScreen(presenter = viewModel)

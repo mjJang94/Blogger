@@ -9,9 +9,9 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Card
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
-import androidx.compose.material.Card
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -58,7 +58,10 @@ fun MainComposeContent(state: MainComposeState) {
             allowCompose = allowCompose,
             imageCount = state.imagesCount,
             close = state.onClose,
-            post = state.onPost,
+            post = when (state.isModify) {
+                true -> state.onModify
+                else -> state.onPost
+            },
             pickImage = state.onPickImage,
         )
         TitleField(
@@ -265,6 +268,7 @@ private fun ContentField(
 @Preview
 private fun MainComposeScreenPreview() {
     val state = MainComposeState(
+        isModify = remember { mutableStateOf(false) },
         title = remember { mutableStateOf("") },
         message = remember { mutableStateOf("") },
         images = remember { mutableStateOf(emptyList()) },
@@ -274,6 +278,7 @@ private fun MainComposeScreenPreview() {
         onImageCancel = {},
         onPickImage = {},
         onPost = {},
+        onModify = {},
         onClose = {},
     )
 

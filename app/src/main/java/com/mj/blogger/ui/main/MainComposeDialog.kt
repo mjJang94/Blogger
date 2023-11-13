@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.os.Parcelable
 import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
@@ -20,17 +21,33 @@ import androidx.fragment.app.viewModels
 import com.mj.blogger.R
 import com.mj.blogger.common.compose.theme.BloggerTheme
 import com.mj.blogger.common.ktx.observe
+import com.mj.blogger.common.ktx.parcelable
 import com.mj.blogger.ui.main.MainComposeViewModel.*
 import com.mj.blogger.ui.main.presentation.MainComposeScreen
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.parcelize.Parcelize
 
 @AndroidEntryPoint
 class MainComposeDialog : AppCompatDialogFragment() {
 
+    @Parcelize
+    data class Modify(
+        val postId: String,
+        val title: String,
+        val message: String,
+        val images: List<Uri>,
+    ) : Parcelable
+
     companion object {
-        fun show(fragmentManager: FragmentManager) {
-            MainComposeDialog()
-                .show(fragmentManager, MainComposeDialog::class.simpleName)
+        private const val EXTRA_POST_MODIFY = "EXTRA_POST_MODIFY"
+
+        fun show(fragmentManager: FragmentManager, data: Modify? = null) {
+            val args = Bundle().apply {
+                putParcelable(EXTRA_POST_MODIFY, data)
+            }
+            MainComposeDialog().apply {
+                arguments = args
+            }.show(fragmentManager, MainComposeDialog::class.simpleName)
         }
     }
 
@@ -50,6 +67,19 @@ class MainComposeDialog : AppCompatDialogFragment() {
             BloggerTheme {
                 MainComposeScreen()
             }
+        }
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        arguments?.parcelable<Modify>(EXTRA_POST_MODIFY)?.let { data ->
+            viewModel.configure(
+                postId = data.postId,
+                title = data.title,
+                message = data.message,
+                images = data.images,
+            )
         }
     }
 
@@ -105,6 +135,7 @@ class MainComposeDialog : AppCompatDialogFragment() {
                             val data = result.data ?: return@let
                             images.add(data)
                         }
+
                         else -> {
                             for (i in 0 until clip.itemCount) {
                                 images.add(clip.getItemAt(i).uri)

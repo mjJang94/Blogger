@@ -5,18 +5,19 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.storage.FirebaseStorage
-import com.mj.blogger.common.base.ConfigurationEmptyException
-import com.mj.blogger.common.base.PostDocumentEmptyException
-import com.mj.blogger.common.compose.ktx.invoke
-import com.mj.blogger.common.firebase.vo.Posting
 import com.mj.blogger.repo.di.Repository
-import com.mj.blogger.ui.main.presentation.state.PostingItem
 import com.mj.blogger.ui.post.presenter.PostDetailPresenter
 import com.mj.blogger.ui.post.presenter.state.PostDetail
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
@@ -32,11 +33,18 @@ class PostDetailViewModel @Inject constructor(
         private val TAG = this::class.java.simpleName
     }
 
-    private val _userId = repository.userIdFlow.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.Lazily,
-        initialValue = "",
-    )
+    sealed interface PostDetailEvent {
+        data class Modify(
+            val postId: String,
+            val title: String,
+            val message: String,
+            val images: List<Uri>,
+        ) : PostDetailEvent
+
+        object DeleteError : PostDetailEvent
+        object DeleteComplete : PostDetailEvent
+        object Back : PostDetailEvent
+    }
 
     private val _configuration = MutableStateFlow<PostDetail?>(null)
     fun configure(data: PostDetail) {
@@ -60,22 +68,23 @@ class PostDetailViewModel @Inject constructor(
         initialValue = null,
     )
 
-    private val _loadErrorEvent = MutableSharedFlow<Throwable>()
-    val loadErrorEvent = _loadErrorEvent.asSharedFlow()
+    private val _postDetailEvent = MutableSharedFlow<PostDetailEvent>()
+    val postDetailEvent = _postDetailEvent.asSharedFlow()
 
-    private val _deleteErrorEvent = MutableSharedFlow<Throwable>()
-    val deleteErrorEvent = _deleteErrorEvent.asSharedFlow()
-
-    private val _modifyEvent = MutableSharedFlow<Unit>()
-    val modifyEvent = _modifyEvent.asSharedFlow()
     override fun onModify() {
         viewModelScope.launch {
-            _modifyEvent()
+            val item = _configuration.firstOrNull() ?: return@launch
+            _postDetailEvent.emit(
+                PostDetailEvent.Modify(
+                    postId = item.postId,
+                    title = item.title,
+                    message = item.message,
+                    images = item.images,
+                )
+            )
         }
     }
 
-    private val _deleteEvent = MutableSharedFlow<Unit>()
-    val deleteEvent = _deleteEvent.asSharedFlow()
     override fun onDelete() {
         viewModelScope.launch {
             runCatching {
@@ -87,24 +96,22 @@ class PostDetailViewModel @Inject constructor(
                 val imagesResult = storage.reference.child("images/$postId").listAll().await()
                 Log.d(TAG, "imageResult = $imagesResult")
                 imagesResult.items.let { items ->
-                    for(item in items){
+                    for (item in items) {
                         item.delete().await()
                     }
                 }
             }.onSuccess {
-                _deleteEvent()
+                _postDetailEvent.emit(PostDetailEvent.DeleteComplete)
             }.onFailure { tr ->
                 Log.w(TAG, tr)
-                _deleteErrorEvent.emit(tr)
+                _postDetailEvent.emit(PostDetailEvent.DeleteError)
             }
         }
     }
 
-    private val _backEvent = MutableSharedFlow<Unit>()
-    val backEvent = _backEvent.asSharedFlow()
     override fun onBack() {
         viewModelScope.launch {
-            _backEvent()
+            _postDetailEvent.emit(PostDetailEvent.Back)
         }
     }
 }
