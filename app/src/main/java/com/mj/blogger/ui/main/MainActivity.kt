@@ -46,7 +46,7 @@ class MainActivity : AppCompatActivity() {
     @Composable
     private fun MainScreen() {
         viewModel.composeEvent.observe {
-            MainComposeDialog.show(supportFragmentManager)
+            MainComposeActivity.start(this)
         }
 
         viewModel.openDetailEvent.observe { item ->

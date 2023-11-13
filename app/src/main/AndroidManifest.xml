@@ -49,6 +49,11 @@
             android:name=".ui.post.PostDetailActivity"
             android:exported="false"
             android:screenOrientation="portrait"/>
+
+        <activity
+            android:name=".ui.main.MainComposeActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"/>
     </application>
 
 </manifest>

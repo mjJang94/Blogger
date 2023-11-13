@@ -7,28 +7,23 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Parcelable
 import android.provider.MediaStore
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContract
-import androidx.appcompat.app.AppCompatDialogFragment
+import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.res.stringResource
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.viewModels
 import com.mj.blogger.R
 import com.mj.blogger.common.compose.theme.BloggerTheme
 import com.mj.blogger.common.ktx.observe
 import com.mj.blogger.common.ktx.parcelable
-import com.mj.blogger.ui.main.MainComposeViewModel.*
+import com.mj.blogger.ui.main.MainComposeViewModel.ImageUploadFailException
 import com.mj.blogger.ui.main.presentation.MainComposeScreen
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.parcelize.Parcelize
 
 @AndroidEntryPoint
-class MainComposeDialog : AppCompatDialogFragment() {
+class MainComposeActivity : AppCompatActivity() {
 
     @Parcelize
     data class Modify(
@@ -41,13 +36,11 @@ class MainComposeDialog : AppCompatDialogFragment() {
     companion object {
         private const val EXTRA_POST_MODIFY = "EXTRA_POST_MODIFY"
 
-        fun show(fragmentManager: FragmentManager, data: Modify? = null) {
-            val args = Bundle().apply {
-                putParcelable(EXTRA_POST_MODIFY, data)
+        fun start(context: Context, item: Modify? = null) {
+            val intent = Intent(context, MainComposeActivity::class.java).apply {
+                putExtra(EXTRA_POST_MODIFY, item)
             }
-            MainComposeDialog().apply {
-                arguments = args
-            }.show(fragmentManager, MainComposeDialog::class.simpleName)
+            context.startActivity(intent)
         }
     }
 
@@ -55,31 +48,20 @@ class MainComposeDialog : AppCompatDialogFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setStyle(STYLE_NO_FRAME, R.style.Theme_Blogger)
-    }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?,
-    ): View = ComposeView(requireContext()).apply {
-        setContent {
-            BloggerTheme {
-                MainComposeScreen()
-            }
-        }
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        arguments?.parcelable<Modify>(EXTRA_POST_MODIFY)?.let { data ->
+        intent.parcelable<Modify>(EXTRA_POST_MODIFY)?.let { data ->
             viewModel.configure(
                 postId = data.postId,
                 title = data.title,
                 message = data.message,
                 images = data.images,
             )
+        }
+
+        setContent {
+            BloggerTheme {
+                MainComposeScreen()
+            }
         }
     }
 
@@ -95,20 +77,24 @@ class MainComposeDialog : AppCompatDialogFragment() {
                 is ImageUploadFailException -> getString(R.string.compose_fail)
                 else -> tr.message
             }
-            Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
         }
 
         viewModel.maxImageEvent.observe {
-            Toast.makeText(requireContext(), R.string.compose_posting_image_full, Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, R.string.compose_posting_image_full, Toast.LENGTH_SHORT).show()
         }
 
         viewModel.closeEvent.observe {
-            dismissAllowingStateLoss()
+            finish()
         }
 
-        viewModel.completeEvent.observe {
-            Toast.makeText(requireContext(), R.string.compose_posting_complete, Toast.LENGTH_SHORT).show()
-            dismissAllowingStateLoss()
+        viewModel.completeEvent.observe { modify ->
+            val msg = when (modify) {
+                true -> R.string.compose_posting_modify
+                false -> R.string.compose_posting_complete
+            }
+            Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+            finish()
         }
 
         MainComposeScreen(presenter = viewModel)

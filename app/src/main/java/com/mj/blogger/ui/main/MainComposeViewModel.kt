@@ -99,9 +99,9 @@ class MainComposeViewModel @Inject constructor(
                 .set(post)
                 .addOnSuccessListener { _ ->
                     if (images.isEmpty()){
-                        complete()
+                        complete(true)
                     }else {
-                        uploadImage(postId, images)
+                        uploadImage(true, postId, images)
                     }
                 }
         }
@@ -127,9 +127,9 @@ class MainComposeViewModel @Inject constructor(
                     val postId = documentReference.id
                     Log.d(TAG, "document uploaded: $postId")
                     if (images.isEmpty()) {
-                        complete()
+                        complete(false)
                     } else {
-                        uploadImage(postId, images)
+                        uploadImage(false, postId, images)
                     }
                 }
                 .addOnFailureListener { tr ->
@@ -141,7 +141,7 @@ class MainComposeViewModel @Inject constructor(
 
     class ImageUploadFailException : Exception()
 
-    private fun uploadImage(postId: String, images: List<Uri>) {
+    private fun uploadImage(isModify: Boolean, postId: String, images: List<Uri>) {
         for ((index, imageUri) in images.withIndex()) {
             storage.reference.child("images/$postId/image$index.jpg")
                 .putFile(imageUri)
@@ -153,7 +153,7 @@ class MainComposeViewModel @Inject constructor(
                     uploadFail(ImageUploadFailException())
                 }
         }
-        complete()
+        complete(isModify)
     }
 
 //    private fun modifyImage(postId: String, images: List<Uri>) {
@@ -202,10 +202,12 @@ class MainComposeViewModel @Inject constructor(
     private val _maxImageEvent = MutableSharedFlow<Unit>()
     val maxImageEvent = _maxImageEvent.asSharedFlow()
 
-    private val _completeEvent = MutableSharedFlow<Unit>()
+    private val _completeEvent = MutableSharedFlow<Boolean>()
     val completeEvent = _completeEvent.asSharedFlow()
-    private fun complete() {
-        viewModelScope.launch { _completeEvent() }
+    private fun complete(isModify: Boolean) {
+        viewModelScope.launch {
+            _completeEvent.emit(isModify)
+        }
     }
 
     private val _closeEvent = MutableSharedFlow<Unit>()

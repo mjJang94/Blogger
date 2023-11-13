@@ -13,7 +13,7 @@ import com.mj.blogger.R
 import com.mj.blogger.common.compose.theme.BloggerTheme
 import com.mj.blogger.common.ktx.observe
 import com.mj.blogger.common.ktx.parcelable
-import com.mj.blogger.ui.main.MainComposeDialog
+import com.mj.blogger.ui.main.MainComposeActivity
 import com.mj.blogger.ui.post.PostDetailViewModel.PostDetailEvent.Back
 import com.mj.blogger.ui.post.PostDetailViewModel.PostDetailEvent.DeleteComplete
 import com.mj.blogger.ui.post.PostDetailViewModel.PostDetailEvent.DeleteError
@@ -62,13 +62,14 @@ class PostDetailActivity : AppCompatActivity() {
         viewModel.postDetailEvent.observe { event ->
             when (event) {
                 is Modify -> {
-                    val modify = MainComposeDialog.Modify(
+                    val modify = MainComposeActivity.Modify(
                         postId = event.postId,
                         title = event.title,
                         message = event.message,
                         images = event.images,
                     )
-                    MainComposeDialog.show(supportFragmentManager, modify)
+                    MainComposeActivity.start(this, modify)
+                    finish()
                 }
 
                 is DeleteError -> {
