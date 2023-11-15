@@ -109,4 +109,7 @@ dependencies {
     //MP Chart
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 
+    //Timber
+    implementation("com.jakewharton.timber:timber:4.7.1")
+
 }
