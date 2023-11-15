@@ -1,25 +1,27 @@
 package com.mj.blogger.ui.post
 
 import android.net.Uri
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.mj.blogger.repo.di.Repository
-import com.mj.blogger.ui.post.presenter.PostDetailPresenter
-import com.mj.blogger.ui.post.presenter.state.PostDetail
+import com.mj.blogger.ui.post.presentation.PostDetailPresenter
+import com.mj.blogger.ui.post.presentation.state.PostDetail
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -28,10 +30,6 @@ class PostDetailViewModel @Inject constructor(
     private val storage: FirebaseStorage,
     private val repository: Repository,
 ) : ViewModel(), PostDetailPresenter {
-
-    companion object {
-        private val TAG = this::class.java.simpleName
-    }
 
     sealed interface PostDetailEvent {
         data class Modify(
@@ -52,6 +50,9 @@ class PostDetailViewModel @Inject constructor(
             _configuration.emit(data)
         }
     }
+
+    private val _progressing = MutableStateFlow(false)
+    override val progressing = _progressing.asStateFlow()
 
     override val postImages = _configuration
         .filterNotNull()
@@ -90,20 +91,23 @@ class PostDetailViewModel @Inject constructor(
             runCatching {
                 val userId = repository.userIdFlow.firstOrNull() ?: return@launch
                 val postId = _configuration.firstOrNull()?.postId ?: return@launch
-                Log.d(TAG, "userId = $userId")
-                Log.d(TAG, "postId = $postId")
-                fireStore.collection(userId).document(postId).delete().await()
-                val imagesResult = storage.reference.child("images/$postId").listAll().await()
-                Log.d(TAG, "imageResult = $imagesResult")
-                imagesResult.items.let { items ->
-                    for (item in items) {
-                        item.delete().await()
+
+                _progressing.emit(true)
+
+                launch(Dispatchers.IO) {
+                    fireStore.collection(userId).document(postId).delete().await()
+                    val imagesResult = storage.reference.child("images/$postId").listAll().await()
+                    imagesResult.items.forEach {
+                        it.delete().await()
                     }
-                }
+                }.join()
+
             }.onSuccess {
+                _progressing.emit(false)
                 _postDetailEvent.emit(PostDetailEvent.DeleteComplete)
             }.onFailure { tr ->
-                Log.w(TAG, tr)
+                Timber.e(tr)
+                _progressing.emit(false)
                 _postDetailEvent.emit(PostDetailEvent.DeleteError)
             }
         }

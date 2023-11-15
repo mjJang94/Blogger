@@ -1,4 +1,4 @@
-package com.mj.blogger.ui.main.presentation
+package com.mj.blogger.ui.compose.presentation
 
 import android.net.Uri
 import kotlinx.coroutines.flow.StateFlow
@@ -9,6 +9,7 @@ interface MainComposePresenter {
     val message: StateFlow<String>
     val images: StateFlow<List<Uri>>
     val imagesCount: StateFlow<Int>
+    val progressing: StateFlow<Boolean>
 
     fun onTitleChanged(insert: String)
     fun onMessageChanged(insert: String)

@@ -1,4 +1,4 @@
-package com.mj.blogger.ui.main
+package com.mj.blogger.ui.compose
 
 import android.app.Activity
 import android.content.Context
@@ -14,11 +14,11 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.Composable
 import com.mj.blogger.R
+import com.mj.blogger.common.base.ImageUploadFailException
 import com.mj.blogger.common.compose.theme.BloggerTheme
 import com.mj.blogger.common.ktx.observe
 import com.mj.blogger.common.ktx.parcelable
-import com.mj.blogger.ui.main.MainComposeViewModel.ImageUploadFailException
-import com.mj.blogger.ui.main.presentation.MainComposeScreen
+import com.mj.blogger.ui.compose.presentation.MainComposeScreen
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.parcelize.Parcelize
 
@@ -88,12 +88,8 @@ class MainComposeActivity : AppCompatActivity() {
             finish()
         }
 
-        viewModel.completeEvent.observe { modify ->
-            val msg = when (modify) {
-                true -> R.string.compose_posting_modify
-                false -> R.string.compose_posting_complete
-            }
-            Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+        viewModel.completeEvent.observe {
+            Toast.makeText(this, R.string.compose_posting_complete, Toast.LENGTH_SHORT).show()
             finish()
         }
 
@@ -115,7 +111,6 @@ class MainComposeActivity : AppCompatActivity() {
                 val resultIntent = intent.takeIf { resultCode == Activity.RESULT_OK }
                 val images = mutableListOf<Uri>()
                 resultIntent?.let { result ->
-
                     when (val clip = result.clipData) {
                         null -> {
                             val data = result.data ?: return@let

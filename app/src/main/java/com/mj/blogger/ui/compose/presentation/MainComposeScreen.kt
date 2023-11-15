@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalFoundationApi::class)
 
-package com.mj.blogger.ui.main.presentation
+package com.mj.blogger.ui.compose.presentation
 
 import android.net.Uri
 import androidx.compose.foundation.*
@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -18,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -29,8 +31,8 @@ import com.mj.blogger.common.compose.foundation.Image
 import com.mj.blogger.common.compose.foundation.TextField
 import com.mj.blogger.common.compose.ktx.rememberImmutableList
 import com.mj.blogger.common.compose.theme.BloggerTheme
-import com.mj.blogger.ui.main.presentation.state.MainComposeState
-import com.mj.blogger.ui.main.presentation.state.rememberMainComposeState
+import com.mj.blogger.ui.compose.presentation.state.MainComposeState
+import com.mj.blogger.ui.compose.presentation.state.rememberMainComposeState
 import kotlinx.collections.immutable.ImmutableList
 
 @Composable
@@ -48,35 +50,48 @@ fun MainComposeContent(state: MainComposeState) {
             state.title.isNotBlank() && (state.message.isNotBlank() || state.images.isNotEmpty())
         }
     }
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White),
-        verticalArrangement = Arrangement.spacedBy(20.dp)
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center,
     ) {
-        ComposeToolbar(
-            allowCompose = allowCompose,
-            imageCount = state.imagesCount,
-            close = state.onClose,
-            post = when (state.isModify) {
-                true -> state.onModify
-                else -> state.onPost
-            },
-            pickImage = state.onPickImage,
-        )
-        TitleField(
-            title = state.title,
-            titleChanged = state.onTitleChanged,
-        )
-        ContentField(
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),
-            images = rememberImmutableList(state.images),
-            message = state.message,
-            messageChanged = state.onMessageChanged,
-            imageCancel = state.onImageCancel,
-        )
+                .fillMaxSize()
+                .background(Color.White),
+            verticalArrangement = Arrangement.spacedBy(20.dp)
+        ) {
+
+            ComposeToolbar(
+                allowCompose = allowCompose,
+                imageCount = state.imagesCount,
+                close = state.onClose,
+                post = when (state.isModify) {
+                    true -> state.onModify
+                    else -> state.onPost
+                },
+                pickImage = state.onPickImage,
+            )
+            TitleField(
+                title = state.title,
+                titleChanged = state.onTitleChanged,
+            )
+            ContentField(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                images = rememberImmutableList(state.images),
+                message = state.message,
+                messageChanged = state.onMessageChanged,
+                imageCancel = state.onImageCancel,
+            )
+        }
+
+        if (state.progressing) {
+            CircularProgressIndicator(
+                color = colorResource(id = R.color.purple_200),
+                strokeWidth = 2.dp
+            )
+        }
     }
 }
 
@@ -268,11 +283,12 @@ private fun ContentField(
 @Preview
 private fun MainComposeScreenPreview() {
     val state = MainComposeState(
+        progressing = remember { mutableStateOf(true) },
         isModify = remember { mutableStateOf(false) },
         title = remember { mutableStateOf("") },
         message = remember { mutableStateOf("") },
         images = remember { mutableStateOf(emptyList()) },
-        imagesCount = remember { mutableStateOf(0) },
+        imagesCount = remember { mutableIntStateOf(0) },
         onTitleChanged = {},
         onMessageChanged = {},
         onImageCancel = {},

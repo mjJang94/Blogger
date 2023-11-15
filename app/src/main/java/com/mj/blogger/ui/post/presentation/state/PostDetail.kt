@@ -1,4 +1,4 @@
-package com.mj.blogger.ui.post.presenter.state
+package com.mj.blogger.ui.post.presentation.state
 
 import android.net.Uri
 import android.os.Parcelable

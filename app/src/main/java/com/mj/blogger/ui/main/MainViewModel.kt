@@ -1,7 +1,6 @@
 package com.mj.blogger.ui.main
 
 import android.net.Uri
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.firestore.FirebaseFirestore
@@ -14,13 +13,22 @@ import com.mj.blogger.repo.di.Repository
 import com.mj.blogger.ui.main.presentation.MainPresenter
 import com.mj.blogger.ui.main.presentation.state.MainPage
 import com.mj.blogger.ui.main.presentation.state.PostingItem
-import com.mj.blogger.ui.post.presenter.state.PostDetail
+import com.mj.blogger.ui.post.presentation.state.PostDetail
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -31,7 +39,6 @@ class MainViewModel @Inject constructor(
 ) : ViewModel(), MainPresenter {
 
     companion object {
-        private val TAG = this::class.java.simpleName
         private const val MAXIMUM_LAST_POST_COUNT = 10
     }
 
@@ -43,15 +50,14 @@ class MainViewModel @Inject constructor(
                 val userId = withContext(Dispatchers.IO) {
                     repository.userIdFlow.firstOrNull() ?: throw InvalidUserException()
                 }
-                fireStore.collection(userId).document()
+//                fireStore.collection(userId).document()
                 fireStore.collection(userId)
                     .orderBy("postTime")
                     .addSnapshotListener { documents, exception ->
                         when {
                             exception != null -> {
-                                Log.e(TAG, "$exception")
-                                loadError(exception)
-                                return@addSnapshotListener
+                                Timber.e("$exception")
+                                return@addSnapshotListener loadError(exception)
                             }
 
                             else -> {
@@ -60,7 +66,7 @@ class MainViewModel @Inject constructor(
                         }
                     }
             }.getOrElse { tr ->
-                Log.e(TAG, "$tr")
+                Timber.e("Snapshot load failure : $tr")
                 loadError(tr)
             }
         }
@@ -99,13 +105,13 @@ class MainViewModel @Inject constructor(
     private fun combinePostingItems(documents: QuerySnapshot?) {
         viewModelScope.launch {
             val postings = documents?.toObjects<Posting>() ?: emptyList()
-            Log.d(TAG, "postings = $postings")
             val combineContents = postings.map {
                 val imageRef = storage.reference.child("images/${it.postId}").listAll().await()
+                //android firebase storage permission denied 403
                 val images = imageRef.items.map { ref -> ref.downloadUrl.await() }
-                Log.d(TAG, "posting images = $images")
                 it.translate(images)
             }
+            Timber.d("combineContents = $combineContents")
             _postingItems.emit(combineContents)
             _postingLoaded.emit(true)
         }

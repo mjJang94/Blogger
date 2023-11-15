@@ -3,7 +3,6 @@ package com.mj.blogger.ui.post
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -13,13 +12,13 @@ import com.mj.blogger.R
 import com.mj.blogger.common.compose.theme.BloggerTheme
 import com.mj.blogger.common.ktx.observe
 import com.mj.blogger.common.ktx.parcelable
-import com.mj.blogger.ui.main.MainComposeActivity
+import com.mj.blogger.ui.compose.MainComposeActivity
 import com.mj.blogger.ui.post.PostDetailViewModel.PostDetailEvent.Back
 import com.mj.blogger.ui.post.PostDetailViewModel.PostDetailEvent.DeleteComplete
 import com.mj.blogger.ui.post.PostDetailViewModel.PostDetailEvent.DeleteError
 import com.mj.blogger.ui.post.PostDetailViewModel.PostDetailEvent.Modify
-import com.mj.blogger.ui.post.presenter.PostDetailScreen
-import com.mj.blogger.ui.post.presenter.state.PostDetail
+import com.mj.blogger.ui.post.presentation.PostDetailScreen
+import com.mj.blogger.ui.post.presentation.state.PostDetail
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -54,10 +53,6 @@ class PostDetailActivity : AppCompatActivity() {
 
     @Composable
     private fun PostDetailScreen() {
-
-        viewModel.postItem.observe { post ->
-            Log.d(this::class.java.simpleName, "$post")
-        }
 
         viewModel.postDetailEvent.observe { event ->
             when (event) {

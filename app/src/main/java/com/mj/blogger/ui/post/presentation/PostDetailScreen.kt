@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalFoundationApi::class)
 
-package com.mj.blogger.ui.post.presenter
+package com.mj.blogger.ui.post.presentation
 
 import android.net.Uri
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -13,6 +13,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.BottomNavigation
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -33,9 +34,9 @@ import com.mj.blogger.common.compose.foundation.GlideImage
 import com.mj.blogger.common.compose.foundation.Image
 import com.mj.blogger.common.compose.ktx.ConvertMillisToFormattedDate
 import com.mj.blogger.common.compose.ktx.rememberImmutableList
-import com.mj.blogger.ui.post.presenter.state.PostDetail
-import com.mj.blogger.ui.post.presenter.state.PostDetailState
-import com.mj.blogger.ui.post.presenter.state.rememberPostDetailState
+import com.mj.blogger.ui.post.presentation.state.PostDetail
+import com.mj.blogger.ui.post.presentation.state.PostDetailState
+import com.mj.blogger.ui.post.presentation.state.rememberPostDetailState
 import kotlinx.collections.immutable.ImmutableList
 
 @Composable
@@ -45,51 +46,63 @@ fun PostDetailScreen(presenter: PostDetailPresenter) {
 
 @Composable
 private fun PostDetailContent(
-    state: PostDetailState
+    state: PostDetailState,
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
-            .verticalScroll(rememberScrollState()),
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center,
     ) {
-        DetailToolbar(onBack = state.back)
-
-        PostContent(
-            modifier = Modifier.weight(1f),
-            postImages = state.postImages,
-            postDetail = state.postDetail,
-        )
-
-        BottomNavigation(
-            backgroundColor = Color.White,
-            elevation = 12.dp
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.White)
+                .verticalScroll(rememberScrollState()),
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxSize(),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(48.dp)
-                        .clip(CircleShape)
-                        .clickable(onClick = state.modify),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Image(painter = painterResource(id = R.drawable.ic_baseline_modify),)
-                }
+            DetailToolbar(onBack = state.back)
 
-                Box(
+            PostContent(
+                modifier = Modifier.weight(1f),
+                postImages = state.postImages,
+                postDetail = state.postDetail,
+            )
+
+            BottomNavigation(
+                backgroundColor = Color.White,
+                elevation = 12.dp
+            ) {
+                Row(
                     modifier = Modifier
-                        .size(48.dp)
-                        .clip(CircleShape)
-                        .clickable(onClick = state.delete),
-                    contentAlignment = Alignment.Center,
+                        .fillMaxSize(),
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Image(painter = painterResource(id = R.drawable.ic_outline_delete))
+                    Box(
+                        modifier = Modifier
+                            .size(48.dp)
+                            .clip(CircleShape)
+                            .clickable(onClick = state.modify),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Image(painter = painterResource(id = R.drawable.ic_baseline_modify))
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .size(48.dp)
+                            .clip(CircleShape)
+                            .clickable(onClick = state.delete),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Image(painter = painterResource(id = R.drawable.ic_outline_delete))
+                    }
                 }
             }
+        }
+
+        if (state.progressing) {
+            CircularProgressIndicator(
+                color = colorResource(id = R.color.purple_200),
+                strokeWidth = 2.dp
+            )
         }
     }
 }
@@ -242,6 +255,7 @@ private fun PostDetailContentPreview() {
         images = emptyList(),
     )
     val state = PostDetailState(
+        progressing = remember { mutableStateOf(true) },
         postImages = remember { mutableStateOf(emptyList()) },
         postDetail = remember { mutableStateOf(postDetail) },
         back = {},

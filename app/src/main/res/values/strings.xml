@@ -30,8 +30,7 @@
     <string name="compose_images">이미지 %d</string>
     <string name="compose_title">제목</string>
     <string name="compose_message">내용을 입력해주세요</string>
-    <string name="compose_posting_modify">글이 수정되었습니다</string>
-    <string name="compose_posting_complete">글이 등록되었습니다</string>
+    <string name="compose_posting_complete">글이 저장되었습니다.</string>
     <string name="compose_fail">글 업로드에 실패했습니다. 잠시후 다시 시도해 주세요.</string>
 
     <string name="detail_modify">수정</string>

@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import com.google.firebase.firestore.FirebaseFirestore
 import com.mj.blogger.common.compose.theme.BloggerTheme
 import com.mj.blogger.common.ktx.observe
+import com.mj.blogger.ui.compose.MainComposeActivity
 import com.mj.blogger.ui.login.LoginActivity
 import com.mj.blogger.ui.main.MainViewModel.InvalidUserException
 import com.mj.blogger.ui.main.presentation.MainScreen
