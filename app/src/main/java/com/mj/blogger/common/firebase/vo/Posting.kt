@@ -7,4 +7,5 @@ data class Posting(
     val title: String = "",
     val message: String = "",
     val postTime: Long = 0L,
+    val hits: Int = 0,
 )

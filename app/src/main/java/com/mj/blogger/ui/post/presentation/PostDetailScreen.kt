@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
@@ -156,21 +157,20 @@ private fun PostContent(
             Text(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .wrapContentHeight(),
+                    .wrapContentHeight()
+                    .padding(bottom = 10.dp),
                 text = postDetail.title,
                 color = Color.Black,
                 fontSize = 24.sp,
             )
 
-            Text(
+            ContentInformation(
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentHeight()
                     .padding(bottom = 20.dp),
-                text = ConvertMillisToFormattedDate(postDetail.postTime),
-                color = Color.Gray,
-                fontSize = 14.sp,
-                textAlign = TextAlign.End,
+                hits = postDetail.hits,
+                postTime = postDetail.postTime,
             )
 
             ImageContent(
@@ -191,6 +191,41 @@ private fun PostContent(
                 fontSize = 16.sp,
             )
         }
+    }
+}
+
+@Composable
+private fun ContentInformation(
+    modifier: Modifier,
+    hits: Int,
+    postTime: Long,
+) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+
+        Row(
+            modifier = Modifier.wrapContentSize(),
+            horizontalArrangement = Arrangement.spacedBy(5.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Image(painter = painterResource(id = R.drawable.ic_baseline_hits))
+
+            Text(
+                text = hits.toString(),
+                color = Color.Gray,
+                fontSize = 14.sp,
+                textAlign = TextAlign.End,
+            )
+        }
+        Text(
+            text = ConvertMillisToFormattedDate(postTime),
+            color = Color.Gray,
+            fontSize = 14.sp,
+            textAlign = TextAlign.End,
+        )
     }
 }
 
@@ -262,6 +297,7 @@ private fun PostDetailContentPreview() {
         title = "안드로이드 Compose에 대해 알아봅시다.",
         message = "포스팅 내용.",
         postTime = 1L,
+        hits = 0,
         images = emptyList(),
     )
     val state = PostDetailState(

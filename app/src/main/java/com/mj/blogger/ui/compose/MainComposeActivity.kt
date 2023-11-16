@@ -30,6 +30,7 @@ class MainComposeActivity : AppCompatActivity() {
         val postId: String,
         val title: String,
         val message: String,
+        val hits: Int,
         val images: List<Uri>,
     ) : Parcelable
 
@@ -54,6 +55,7 @@ class MainComposeActivity : AppCompatActivity() {
                 postId = data.postId,
                 title = data.title,
                 message = data.message,
+                hits = data.hits,
                 images = data.images,
             )
         }

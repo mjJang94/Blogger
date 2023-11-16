@@ -62,6 +62,7 @@ class PostDetailActivity : AppCompatActivity() {
                         title = event.title,
                         message = event.message,
                         images = event.images,
+                        hits = event.hits,
                     )
                     MainComposeActivity.start(this, modify)
                     finish()

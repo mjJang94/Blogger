@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
+import com.mj.blogger.common.firebase.vo.Posting
 import com.mj.blogger.repo.di.Repository
 import com.mj.blogger.ui.post.presentation.PostDetailPresenter
 import com.mj.blogger.ui.post.presentation.state.PostDetail
@@ -21,6 +22,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -36,6 +38,7 @@ class PostDetailViewModel @Inject constructor(
             val postId: String,
             val title: String,
             val message: String,
+            val hits: Int,
             val images: List<Uri>,
         ) : PostDetailEvent
 
@@ -47,8 +50,24 @@ class PostDetailViewModel @Inject constructor(
     private val _configuration = MutableStateFlow<PostDetail?>(null)
     fun configure(data: PostDetail) {
         viewModelScope.launch {
+            val post = Posting(
+                postId = data.postId,
+                title = data.title,
+                message = data.message,
+                postTime = data.postTime,
+                hits = data.hits.plus(1),
+            )
+            updateHits(post)
             _configuration.emit(data)
         }
+    }
+
+    private suspend fun updateHits(post: Posting) {
+        val userId = repository.userIdFlow.firstOrNull() ?: return
+        fireStore.collection(userId)
+            .document(post.postId)
+            .set(post)
+            .await()
     }
 
     private val _progressing = MutableStateFlow(false)
@@ -80,6 +99,7 @@ class PostDetailViewModel @Inject constructor(
                     postId = item.postId,
                     title = item.title,
                     message = item.message,
+                    hits = item.hits,
                     images = item.images,
                 )
             )

@@ -8,5 +8,6 @@ data class PostingItem(
     val message: String,
     val postTime: Long,
     val thumbnail: Uri?,
+    val hits: Int,
     val images: List<Uri>,
 )

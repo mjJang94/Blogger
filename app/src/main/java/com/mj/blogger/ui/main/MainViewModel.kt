@@ -50,7 +50,6 @@ class MainViewModel @Inject constructor(
                 val userId = withContext(Dispatchers.IO) {
                     repository.userIdFlow.firstOrNull() ?: throw InvalidUserException()
                 }
-//                fireStore.collection(userId).document()
                 fireStore.collection(userId)
                     .orderBy("postTime")
                     .addSnapshotListener { documents, exception ->
@@ -78,6 +77,7 @@ class MainViewModel @Inject constructor(
         message = message,
         postTime = postTime,
         thumbnail = images.firstOrNull(),
+        hits = hits,
         images = images,
     )
 
@@ -107,7 +107,6 @@ class MainViewModel @Inject constructor(
             val postings = documents?.toObjects<Posting>() ?: emptyList()
             val combineContents = postings.map {
                 val imageRef = storage.reference.child("images/${it.postId}").listAll().await()
-                //android firebase storage permission denied 403
                 val images = imageRef.items.map { ref -> ref.downloadUrl.await() }
                 it.translate(images)
             }
@@ -154,6 +153,7 @@ class MainViewModel @Inject constructor(
                 title = item.title,
                 message = item.message,
                 postTime = item.postTime,
+                hits = item.hits,
                 images = item.images,
             )
             _openDetailEvent.emit(data)

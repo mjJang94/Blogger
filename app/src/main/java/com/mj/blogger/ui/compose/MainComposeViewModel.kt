@@ -47,17 +47,25 @@ class MainComposeViewModel @Inject constructor(
 
     private val _isModify = MutableStateFlow(false)
     override val isModify = _isModify.asStateFlow()
-    fun configure(postId: String, title: String, message: String, images: List<Uri>) {
+    fun configure(
+        postId: String,
+        title: String,
+        message: String,
+        hits: Int,
+        images: List<Uri>
+    ) {
         viewModelScope.launch {
             _isModify.emit(true)
             _postId.emit(postId)
             _title.emit(title)
             _message.emit(message)
+            _hits.emit(hits)
             _images.emit(images)
         }
     }
 
     private val _postId = MutableStateFlow("")
+    private val _hits = MutableStateFlow(0)
 
     private val _title = MutableStateFlow("")
     override val title: StateFlow<String> = _title.asStateFlow()
@@ -156,6 +164,7 @@ class MainComposeViewModel @Inject constructor(
             val postId = _postId.firstOrNull() ?: return@launch
             val title = _title.firstOrNull() ?: return@launch
             val message = _message.firstOrNull() ?: return@launch
+            val hits = _hits.firstOrNull() ?: return@launch
             val images = _images.firstOrNull() ?: return@launch
 
             _progressing.emit(true)
@@ -165,6 +174,7 @@ class MainComposeViewModel @Inject constructor(
                 title = title,
                 message = message,
                 postTime = System.currentTimeMillis(),
+                hits = hits,
             )
 
             fireStore.collection(userId)

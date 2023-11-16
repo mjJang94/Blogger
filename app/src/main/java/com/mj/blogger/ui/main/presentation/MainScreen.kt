@@ -159,6 +159,7 @@ internal fun rememberPreviewMainContentState(): MainContentState {
             message = "안드로이드 활용법에 대해 알아봅니다.",
             postTime = System.currentTimeMillis() + 1,
             thumbnail = null,
+            hits = 0,
             images = emptyList(),
         ),
         PostingItem(
@@ -167,6 +168,7 @@ internal fun rememberPreviewMainContentState(): MainContentState {
             message = "파이어베이스 활용법에 대해 알아봅니다.",
             postTime = System.currentTimeMillis() + 2,
             thumbnail = null,
+            hits = 0,
             images = emptyList(),
         ),
         PostingItem(
@@ -175,6 +177,7 @@ internal fun rememberPreviewMainContentState(): MainContentState {
             message = "갤럭시에 대해 알아봅니다.",
             postTime = System.currentTimeMillis() + 3,
             thumbnail = null,
+            hits = 0,
             images = emptyList(),
         )
 
