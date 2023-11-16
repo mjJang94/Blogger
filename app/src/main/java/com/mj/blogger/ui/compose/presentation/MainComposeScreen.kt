@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalFoundationApi::class)
+@file:OptIn(ExperimentalFoundationApi::class, ExperimentalGlideComposeApi::class)
 
 package com.mj.blogger.ui.compose.presentation
 
@@ -25,6 +25,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.mj.blogger.R
 import com.mj.blogger.common.compose.foundation.GlideImage
 import com.mj.blogger.common.compose.foundation.Image
@@ -249,7 +250,7 @@ private fun ContentField(
                             GlideImage(
                                 modifier = Modifier.fillMaxSize(),
                                 uri = uri,
-                                scale = ContentScale.Crop
+                                contentScale = ContentScale.Crop
                             )
 
                             Image(

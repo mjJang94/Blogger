@@ -2,19 +2,20 @@
 
 package com.mj.blogger.common.compose.foundation
 
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.DefaultAlpha
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.Placeholder
-import com.bumptech.glide.integration.compose.Transition
-import com.bumptech.glide.integration.compose.placeholder
-import com.mj.blogger.R
+import com.bumptech.glide.integration.compose.RequestBuilderTransform
 
 @Composable
 fun Image(
@@ -35,14 +36,25 @@ fun Image(
 fun GlideImage(
     modifier: Modifier = Modifier,
     uri: Uri?,
-    scale: ContentScale = ContentScale.Fit,
     contentDescription: String? = null,
+    alignment: Alignment = Alignment.Center,
+    contentScale: ContentScale = ContentScale.Fit,
+    alpha: Float = DefaultAlpha,
+    colorFilter: ColorFilter? = null,
+    loading: Placeholder? = null,
+    failure: Placeholder? = null,
+    requestBuilderTransform: RequestBuilderTransform<Drawable> = { it },
 ) {
     GlideImage(
         modifier = modifier,
         model = uri,
         contentDescription = contentDescription,
-        contentScale = scale,
-        failure = placeholder(painterResource(id = R.drawable.ic_baseline_image_not_supported)),
+        contentScale = contentScale,
+        alignment = alignment,
+        alpha = alpha,
+        colorFilter = colorFilter,
+        loading = loading,
+        failure = failure,
+        requestBuilderTransform = requestBuilderTransform,
     )
 }
