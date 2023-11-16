@@ -4,7 +4,9 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.MetadataChanges
 import com.google.firebase.firestore.QuerySnapshot
+import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.firestore.ktx.toObjects
 import com.google.firebase.storage.FirebaseStorage
 import com.mj.blogger.common.compose.ktx.invoke
@@ -52,7 +54,7 @@ class MainViewModel @Inject constructor(
                 }
                 fireStore.collection(userId)
                     .orderBy("postTime")
-                    .addSnapshotListener { documents, exception ->
+                    .addSnapshotListener(MetadataChanges.INCLUDE) { snapshot, exception ->
                         when {
                             exception != null -> {
                                 Timber.e("$exception")
@@ -60,7 +62,7 @@ class MainViewModel @Inject constructor(
                             }
 
                             else -> {
-                                combinePostingItems(documents)
+                                combinePostingItems(snapshot)
                             }
                         }
                     }
@@ -102,15 +104,14 @@ class MainViewModel @Inject constructor(
     )
 
     private val _postingItems = MutableStateFlow<List<PostingItem>>(emptyList())
-    private fun combinePostingItems(documents: QuerySnapshot?) {
+    private fun combinePostingItems(snapshot: QuerySnapshot?) {
         viewModelScope.launch {
-            val postings = documents?.toObjects<Posting>() ?: emptyList()
+            val postings = snapshot?.toObjects<Posting>() ?: emptyList()
             val combineContents = postings.map {
                 val imageRef = storage.reference.child("images/${it.postId}").listAll().await()
                 val images = imageRef.items.map { ref -> ref.downloadUrl.await() }
                 it.translate(images)
             }
-            Timber.d("combineContents = $combineContents")
             _postingItems.emit(combineContents)
             _postingLoaded.emit(true)
         }

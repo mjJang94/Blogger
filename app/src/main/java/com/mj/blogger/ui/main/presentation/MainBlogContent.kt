@@ -1,7 +1,11 @@
+@file:OptIn(ExperimentalGlideComposeApi::class)
+
 package com.mj.blogger.ui.main.presentation
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,21 +15,28 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.mj.blogger.R
+import com.mj.blogger.common.compose.foundation.CircularProgress
+import com.mj.blogger.common.compose.foundation.GlideImage
 import com.mj.blogger.common.compose.foundation.Image
 import com.mj.blogger.common.compose.ktx.ConvertMillisToFormattedDate
 import com.mj.blogger.common.compose.ktx.rememberImmutableList
@@ -38,20 +49,38 @@ import kotlinx.collections.immutable.ImmutableList
 fun MainBlogContent(
     state: MainContentState,
 ) {
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)
-            .padding(horizontal = 16.dp),
+            .background(Color.White),
+        contentAlignment = Alignment.Center,
     ) {
-        AllPostingCard(items = rememberImmutableList(state.allPostingItems))
+        if (state.postingLoaded) {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+            ) {
+                AllPostingCard(
+                    items = rememberImmutableList(state.allPostingItems),
+                    onOpenDetail = state.openDetail,
+                )
+            }
+        } else {
+            CircularProgress(true)
+        }
     }
 }
 
 @Composable
 private fun AllPostingCard(
     items: ImmutableList<PostingItem>,
+    listState: LazyListState = rememberLazyListState(),
+    onOpenDetail: (PostingItem) -> Unit,
 ) {
+
+    LaunchedEffect(items){
+        listState.animateScrollToItem(0)
+    }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -60,6 +89,9 @@ private fun AllPostingCard(
     ) {
 
         Text(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
             text = stringResource(R.string.main_category_label),
             fontSize = 14.sp,
             color = Color.Black,
@@ -68,7 +100,7 @@ private fun AllPostingCard(
 
         LazyColumn(
             modifier = Modifier.wrapContentSize(),
-            state = rememberLazyListState(),
+            state = listState,
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             items(
@@ -78,7 +110,9 @@ private fun AllPostingCard(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(80.dp),
+                        .height(80.dp)
+                        .clickable { onOpenDetail(item) }
+                        .padding(horizontal = 16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column(
@@ -104,10 +138,39 @@ private fun AllPostingCard(
                         )
                     }
 
-                    Image(
+                    Box(
                         modifier = Modifier.size(50.dp),
-                        painter = painterResource(id = R.drawable.ic_baseline_article)
-                    )
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        if (item.thumbnail == null) {
+                            Image(
+                                modifier = Modifier.fillMaxSize(),
+                                painterResource(id = R.drawable.ic_baseline_article),
+                            )
+                        } else {
+                                GlideImage(
+                                    modifier = Modifier.fillMaxSize(),
+                                    model = item.thumbnail,
+                                    contentScale = ContentScale.Crop,
+                                )
+
+                            if (item.images.size > 1){
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .background(Color(0X33000000)),
+                                    contentAlignment = Alignment.Center,
+                                ){
+                                    Text(
+                                        text = item.images.size.toString(),
+                                        color = Color.White,
+                                        textAlign = TextAlign.Center,
+                                        fontWeight = FontWeight.Bold,
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -118,6 +181,8 @@ private fun AllPostingCard(
 @Preview
 private fun MainBlogContentPreview() {
     BloggerTheme {
-        MainBlogContent(rememberPreviewMainContentState())
+        MainBlogContent(
+            state = rememberPreviewMainContentState(),
+        )
     }
 }

@@ -15,6 +15,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mj.blogger.R
+import com.mj.blogger.common.compose.foundation.CircularProgress
 import com.mj.blogger.common.compose.foundation.Image
 import com.mj.blogger.common.compose.theme.BloggerTheme
 
@@ -49,11 +50,7 @@ private fun ProgressContent(modifier: Modifier) {
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
 
-        CircularProgressIndicator(
-            modifier = Modifier.wrapContentSize(),
-            color = colorResource(id = R.color.purple_200),
-            strokeWidth = 2.dp
-        )
+        CircularProgress(loading = true)
 
         Text(
             text = stringResource(R.string.login_check_user_info),

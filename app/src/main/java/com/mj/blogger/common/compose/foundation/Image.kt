@@ -35,7 +35,7 @@ fun Image(
 @Composable
 fun GlideImage(
     modifier: Modifier = Modifier,
-    uri: Uri?,
+    model: Any?,
     contentDescription: String? = null,
     alignment: Alignment = Alignment.Center,
     contentScale: ContentScale = ContentScale.Fit,
@@ -47,7 +47,7 @@ fun GlideImage(
 ) {
     GlideImage(
         modifier = modifier,
-        model = uri,
+        model = model,
         contentDescription = contentDescription,
         contentScale = contentScale,
         alignment = alignment,

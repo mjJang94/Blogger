@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.mj.blogger.R
+import com.mj.blogger.common.compose.foundation.CircularProgress
 import com.mj.blogger.common.compose.foundation.GlideImage
 import com.mj.blogger.common.compose.foundation.Image
 import com.mj.blogger.common.compose.ktx.ConvertMillisToFormattedDate
@@ -109,12 +110,7 @@ private fun PostDetailContent(
             }
         }
 
-        if (state.progressing) {
-            CircularProgressIndicator(
-                color = colorResource(id = R.color.purple_200),
-                strokeWidth = 2.dp
-            )
-        }
+        CircularProgress(loading = state.progressing)
     }
 }
 
@@ -247,7 +243,7 @@ private fun ImageContent(
             ) { page ->
                 GlideImage(
                     modifier = Modifier.fillMaxSize(),
-                    uri = items[page],
+                    model = items[page],
                 )
             }
 

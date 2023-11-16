@@ -22,7 +22,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -57,13 +56,13 @@ class PostDetailViewModel @Inject constructor(
                 postTime = data.postTime,
                 hits = data.hits.plus(1),
             )
-            updateHits(post)
+            updateHits(post).join()
             _configuration.emit(data)
         }
     }
 
-    private suspend fun updateHits(post: Posting) {
-        val userId = repository.userIdFlow.firstOrNull() ?: return
+    private suspend fun updateHits(post: Posting) = viewModelScope.launch(Dispatchers.IO) {
+        val userId = repository.userIdFlow.firstOrNull() ?: return@launch
         fireStore.collection(userId)
             .document(post.postId)
             .set(post)

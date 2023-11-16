@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.mj.blogger.R
+import com.mj.blogger.common.compose.foundation.CircularProgress
 import com.mj.blogger.common.compose.foundation.GlideImage
 import com.mj.blogger.common.compose.foundation.Image
 import com.mj.blogger.common.compose.foundation.TextField
@@ -87,12 +88,7 @@ fun MainComposeContent(state: MainComposeState) {
             )
         }
 
-        if (state.progressing) {
-            CircularProgressIndicator(
-                color = colorResource(id = R.color.purple_200),
-                strokeWidth = 2.dp
-            )
-        }
+        CircularProgress(loading = state.progressing)
     }
 }
 
@@ -249,7 +245,7 @@ private fun ContentField(
                         Box {
                             GlideImage(
                                 modifier = Modifier.fillMaxSize(),
-                                uri = uri,
+                                model = uri,
                                 contentScale = ContentScale.Crop
                             )
 

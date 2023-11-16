@@ -235,7 +235,7 @@ private fun RecentPostingList(
                         } else {
                             GlideImage(
                                 modifier = Modifier.fillMaxSize(),
-                                uri = item.thumbnail,
+                                model = item.thumbnail,
                                 contentScale = ContentScale.Crop,
                             )
                         }
