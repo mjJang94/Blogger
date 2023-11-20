@@ -8,7 +8,10 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.Composable
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.FirebaseFirestoreException
+import com.mj.blogger.R
 import com.mj.blogger.common.compose.theme.BloggerTheme
 import com.mj.blogger.common.ktx.observe
 import com.mj.blogger.ui.compose.MainComposeActivity
@@ -23,7 +26,7 @@ import javax.inject.Inject
 class MainActivity : AppCompatActivity() {
 
     @Inject
-    lateinit var fireStore: FirebaseFirestore
+    lateinit var auth: FirebaseAuth
 
     companion object {
         fun start(context: Context) {
@@ -54,9 +57,25 @@ class MainActivity : AppCompatActivity() {
             PostDetailActivity.start(this, item)
         }
 
+        viewModel.logoutEvent.observe {
+            LoginActivity.start(this)
+            finish()
+        }
+
+        viewModel.resignEvent.observe {
+            LoginActivity.start(this)
+            finish()
+        }
+
         viewModel.loadErrorEvent.observe { tr ->
             when (tr) {
                 is InvalidUserException -> LoginActivity.start(this@MainActivity)
+                is FirebaseFirestoreException -> {
+                    if (FirebaseFirestoreException.Code.PERMISSION_DENIED == tr.code) {
+                        Toast.makeText(this, getString(R.string.setting_logout_complete), Toast.LENGTH_SHORT).show()
+                    }
+                }
+
                 else -> Toast.makeText(this, tr.message, Toast.LENGTH_SHORT).show()
             }
         }

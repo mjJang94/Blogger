@@ -13,4 +13,6 @@ class RepositoryImpl @Inject constructor(
 
     override suspend fun storeUserId(id: String) = dataStore.storeUserId(id)
     override val userIdFlow: Flow<String> = dataStore.userIdFlow
+
+    override suspend fun clearAll() = dataStore.clearAll()
 }

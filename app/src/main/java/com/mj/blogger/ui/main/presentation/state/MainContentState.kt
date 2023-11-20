@@ -22,6 +22,8 @@ class MainContentState(
 
     val pageSwitch: (MainPage) -> Unit,
     val openDetail: (PostingItem) -> Unit,
+    val logout: () -> Unit,
+    val resign: () -> Unit,
 ) {
     val page by page
     val postingLoaded by postingLoaded
@@ -54,6 +56,8 @@ fun rememberMainContentState(
             allPostingItems = allPostingItems,
             pageSwitch = presenter::onPageSwitch,
             openDetail = presenter::openDetail,
+            logout = presenter::logout,
+            resign = presenter::resign,
         )
     }
 }

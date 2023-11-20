@@ -3,6 +3,7 @@ package com.mj.blogger.ui.main
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.MetadataChanges
 import com.google.firebase.firestore.QuerySnapshot
@@ -11,6 +12,7 @@ import com.google.firebase.storage.FirebaseStorage
 import com.mj.blogger.common.compose.ktx.invoke
 import com.mj.blogger.common.firebase.vo.Posting
 import com.mj.blogger.repo.di.Repository
+import com.mj.blogger.ui.login.LoginActivity
 import com.mj.blogger.ui.main.presentation.MainPresenter
 import com.mj.blogger.ui.main.presentation.state.MainPage
 import com.mj.blogger.ui.main.presentation.state.PostingItem
@@ -33,6 +35,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
+    private val auth: FirebaseAuth,
     private val fireStore: FirebaseFirestore,
     private val storage: FirebaseStorage,
     private val repository: Repository,
@@ -40,7 +43,7 @@ class MainViewModel @Inject constructor(
 
     companion object {
         private const val MAXIMUM_LAST_POST_COUNT = 10
-        private const val MAXIMUM_HITS_POST_COUNT = 5
+        private const val MAXIMUM_HITS_POST_COUNT = 3
     }
 
     class InvalidUserException : Exception()
@@ -170,6 +173,34 @@ class MainViewModel @Inject constructor(
                 images = item.images,
             )
             _openDetailEvent.emit(data)
+        }
+    }
+
+    private val _logoutEvent = MutableSharedFlow<Unit>()
+    val logoutEvent = _logoutEvent.asSharedFlow()
+    override fun logout() {
+        clearDataStore {
+            auth.signOut()
+            _logoutEvent()
+        }
+    }
+
+    private val _resignEvent = MutableSharedFlow<Unit>()
+    val resignEvent = _resignEvent.asSharedFlow()
+    override fun resign() {
+        auth.currentUser?.delete()?.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                clearDataStore {
+                    _resignEvent()
+                }
+            }
+        }
+    }
+
+    private fun clearDataStore(action: suspend () -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.clearAll()
+            action()
         }
     }
 }

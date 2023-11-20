@@ -8,4 +8,6 @@ interface Repository {
 
     suspend fun storeUserId(id: String)
     val userIdFlow: Flow<String>
+
+    suspend fun clearAll()
 }

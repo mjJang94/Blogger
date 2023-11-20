@@ -17,4 +17,6 @@ interface MainPresenter {
 
     fun onPageSwitch(page: MainPage)
     fun openDetail(item: PostingItem)
+    fun logout()
+    fun resign()
 }

@@ -37,7 +37,7 @@ fun rememberMainScreenState(
     initialPage: Page = Page.HOME,
 ): MainScreenState {
     val pages = Page.values()
-    val pagerState = rememberPagerState(initialPage = initialPage.ordinal.coerceIn(pages.indices)){
+    val pagerState = rememberPagerState(initialPage = initialPage.ordinal.coerceIn(pages.indices)) {
         pages.size
     }
 
@@ -58,6 +58,7 @@ fun MainScreen(
         )
     )
 }
+
 @Composable
 private fun MainScreenContent(state: MainContentState) {
 
@@ -82,7 +83,7 @@ private fun MainScreenContent(state: MainContentState) {
             when (pages[pageIndex]) {
                 Page.HOME -> MainHomeContent(state = state)
                 Page.BLOG -> MainBlogContent(state = state)
-                Page.SETTING -> MainSettingsContent()
+                Page.SETTING -> MainSettingsContent(state = state)
                 else -> {}
             }
         }
@@ -154,37 +155,37 @@ private fun MainScreenPreview() {
 internal fun rememberPreviewMainContentState(): MainContentState {
     val recentItems = listOf(
         PostingItem(
-            postId = "",
+            postId = "1",
             title = "안드로이드 활용법",
             message = "안드로이드 활용법에 대해 알아봅니다.",
             postTime = System.currentTimeMillis() + 1,
             thumbnail = null,
-            hits = 0,
+            hits = 99,
             images = emptyList(),
         ),
         PostingItem(
-            postId = "",
+            postId = "2",
             title = "파이어베이스 활용법",
             message = "파이어베이스 활용법에 대해 알아봅니다.",
             postTime = System.currentTimeMillis() + 2,
             thumbnail = null,
-            hits = 0,
+            hits = 2,
             images = emptyList(),
         ),
         PostingItem(
-            postId = "",
+            postId = "3",
             title = "갤럭시 활용법",
             message = "갤럭시에 대해 알아봅니다.",
             postTime = System.currentTimeMillis() + 3,
             thumbnail = null,
-            hits = 0,
+            hits = 9,
             images = emptyList(),
         )
 
     )
 
     val state = MainContentState(
-        pagerState = rememberPagerState(initialPage = Page.HOME.ordinal.coerceIn(Page.values().indices)){
+        pagerState = rememberPagerState(initialPage = Page.HOME.ordinal.coerceIn(Page.values().indices)) {
             Page.values().size
         },
         page = remember { mutableStateOf(Page.HOME) },
@@ -195,6 +196,8 @@ internal fun rememberPreviewMainContentState(): MainContentState {
         allPostingItems = remember { mutableStateOf(recentItems) },
         pageSwitch = {},
         openDetail = {},
+        logout = {},
+        resign = {},
     )
 
     return remember { state }

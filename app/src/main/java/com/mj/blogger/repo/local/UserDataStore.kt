@@ -1,6 +1,7 @@
 package com.mj.blogger.repo.local
 
 import android.content.Context
+import androidx.datastore.dataStore
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -29,7 +30,7 @@ class UserDataStore(context: Context) {
         preferences[EMAIL] ?: ""
     }
 
-    suspend fun storeUserId(id: String){
+    suspend fun storeUserId(id: String) {
         userDataStore.edit { store ->
             store[USER_ID] = id
         }
@@ -37,5 +38,9 @@ class UserDataStore(context: Context) {
 
     var userIdFlow: Flow<String> = userDataStore.data.map { preferences ->
         preferences[USER_ID] ?: ""
+    }
+
+    suspend fun clearAll() {
+        userDataStore.edit { it.clear() }
     }
 }
