@@ -17,6 +17,7 @@ class MainContentState(
     postingLoaded: State<Boolean>,
     email: State<String>,
     recentPostingItems: State<List<PostingItem>>,
+    hitsPostingItems: State<List<PostingItem>>,
     allPostingItems: State<List<PostingItem>>,
 
     val pageSwitch: (MainPage) -> Unit,
@@ -26,6 +27,7 @@ class MainContentState(
     val postingLoaded by postingLoaded
     val email by email
     val recentPostingItems by recentPostingItems
+    val hitsPostingItems by hitsPostingItems
     val allPostingItems by allPostingItems
 }
 
@@ -38,6 +40,7 @@ fun rememberMainContentState(
     val postingLoaded = presenter.postingLoaded.collectAsStateWithLifecycle()
     val email = presenter.email.collectAsStateWithLifecycle()
     val recentPostingItems = presenter.recentPostingItems.collectAsStateWithLifecycle()
+    val hitsPostingItems = presenter.hitsPostingItems.collectAsStateWithLifecycle()
     val allPostingItems = presenter.allPostingItems.collectAsStateWithLifecycle()
 
     return remember {
@@ -47,6 +50,7 @@ fun rememberMainContentState(
             postingLoaded = postingLoaded,
             email = email,
             recentPostingItems = recentPostingItems,
+            hitsPostingItems = hitsPostingItems,
             allPostingItems = allPostingItems,
             pageSwitch = presenter::onPageSwitch,
             openDetail = presenter::openDetail,

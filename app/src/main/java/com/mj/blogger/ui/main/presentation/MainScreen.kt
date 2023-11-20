@@ -191,6 +191,7 @@ internal fun rememberPreviewMainContentState(): MainContentState {
         postingLoaded = remember { mutableStateOf(true) },
         email = remember { mutableStateOf("alswhddl10@naver.com") },
         recentPostingItems = remember { mutableStateOf(recentItems) },
+        hitsPostingItems = remember { mutableStateOf(recentItems) },
         allPostingItems = remember { mutableStateOf(recentItems) },
         pageSwitch = {},
         openDetail = {},

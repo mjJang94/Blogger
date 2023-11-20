@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.MetadataChanges
 import com.google.firebase.firestore.QuerySnapshot
-import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.firestore.ktx.toObjects
 import com.google.firebase.storage.FirebaseStorage
 import com.mj.blogger.common.compose.ktx.invoke
@@ -26,7 +25,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
@@ -42,6 +40,7 @@ class MainViewModel @Inject constructor(
 
     companion object {
         private const val MAXIMUM_LAST_POST_COUNT = 10
+        private const val MAXIMUM_HITS_POST_COUNT = 5
     }
 
     class InvalidUserException : Exception()
@@ -118,8 +117,15 @@ class MainViewModel @Inject constructor(
     }
 
     override val recentPostingItems = _postingItems
-        .take(MAXIMUM_LAST_POST_COUNT)
-        .map { it.reversed() }
+        .map { it.reversed().take(MAXIMUM_LAST_POST_COUNT) }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Lazily,
+            initialValue = emptyList(),
+        )
+
+    override val hitsPostingItems = _postingItems
+        .map { it.sortByHits() }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.Lazily,
@@ -133,6 +139,12 @@ class MainViewModel @Inject constructor(
             started = SharingStarted.Lazily,
             initialValue = emptyList(),
         )
+
+    private fun List<PostingItem>.sortByHits(): List<PostingItem> =
+        this.sortedWith(
+            compareByDescending<PostingItem> { it.hits }.thenByDescending { it.postTime }
+        ).take(MAXIMUM_HITS_POST_COUNT)
+
 
     private val _loadErrorEvent = MutableSharedFlow<Throwable>()
     val loadErrorEvent = _loadErrorEvent.asSharedFlow()

@@ -8,16 +8,20 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Card
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -32,8 +36,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.mj.blogger.R
+import com.mj.blogger.common.compose.foundation.CircularProgress
 import com.mj.blogger.common.compose.foundation.GlideImage
 import com.mj.blogger.common.compose.foundation.Image
+import com.mj.blogger.common.compose.foundation.ImageCountDim
 import com.mj.blogger.common.compose.ktx.ConvertMillisToFormattedDate
 import com.mj.blogger.common.compose.ktx.rememberImmutableList
 import com.mj.blogger.common.compose.theme.BloggerTheme
@@ -51,23 +57,37 @@ fun MainHomeContent(
         listState.animateScrollToItem(0)
     }
 
-    Column(
+    LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
             .padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
-        WelcomeLabel()
+        item {
+            WelcomeLabel()
+        }
 
-        LoginLabel(email = state.email)
+        item {
+            LoginLabel(email = state.email)
+        }
 
-        RecentPostingCard(
-            listState = listState,
-            postingLoaded = state.postingLoaded,
-            recentItems = state.recentPostingItems,
-            onClick = state.openDetail,
-        )
+        item {
+            RecentPostingCard(
+                listState = listState,
+                postingLoaded = state.postingLoaded,
+                recentItems = state.recentPostingItems,
+                onClick = state.openDetail,
+            )
+        }
+
+        item {
+            HitsPostingCard(
+                postingLoaded = state.postingLoaded,
+                recentItems = state.hitsPostingItems,
+                onClick = state.openDetail,
+            )
+        }
     }
 }
 
@@ -113,9 +133,9 @@ private fun RecentPostingCard(
             color = Color.Black,
             fontWeight = FontWeight.Bold,
         )
-        if (!postingLoaded){
+        if (!postingLoaded) {
             RecentPlaceholder()
-        }else {
+        } else {
             if (recentItems.isEmpty()) {
                 EmptyRecentList()
             } else {
@@ -238,6 +258,8 @@ private fun RecentPostingList(
                                 model = item.thumbnail,
                                 contentScale = ContentScale.Crop,
                             )
+
+                            ImageCountDim(item.images.size)
                         }
                     }
 
@@ -272,6 +294,143 @@ private fun RecentPostingList(
         }
     }
 }
+
+@Composable
+private fun HitsPostingCard(
+    postingLoaded: Boolean,
+    recentItems: List<PostingItem>,
+    onClick: (PostingItem) -> Unit,
+) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+
+        Text(
+            text = stringResource(R.string.main_hits_label),
+            fontSize = 14.sp,
+            color = Color.Black,
+            fontWeight = FontWeight.Bold,
+        )
+
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .padding(horizontal = 10.dp),
+            elevation = 4.dp,
+            shape = RoundedCornerShape(16.dp),
+        ) {
+            if (!postingLoaded) {
+                HitsPlaceholder()
+            } else {
+                if (recentItems.isEmpty()) {
+                    EmptyHitsList()
+                } else {
+                    HitsPostingCard(
+                        items = rememberImmutableList(list = recentItems),
+                        onClick = onClick,
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun HitsPlaceholder() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(250.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        CircularProgress(loading = true)
+    }
+}
+
+@Composable
+private fun EmptyHitsList() {
+    Text(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(250.dp),
+        text = stringResource(R.string.main_empty_recent_posting),
+        fontSize = 12.sp,
+        color = Color.Black,
+        textAlign = TextAlign.Center,
+    )
+}
+
+@Composable
+private fun HitsPostingCard(
+    items: ImmutableList<PostingItem>,
+    listState: LazyListState = rememberLazyListState(),
+    onClick: (PostingItem) -> Unit,
+) {
+    LazyColumn(
+        modifier = Modifier.wrapContentSize(),
+        state = listState,
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        items(
+            items = items,
+            key = { it.postTime },
+        ) { item ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(80.dp)
+                    .clickable { onClick(item) }
+                    .padding(horizontal = 16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(5.dp)
+                ) {
+                    Text(
+                        text = item.title,
+                        fontSize = 14.sp,
+                        color = Color.Black,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+
+                    Text(
+                        text = stringResource(R.string.main_hits, item.hits),
+                        fontSize = 12.sp,
+                        color = Color.Gray,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+
+                Box(
+                    modifier = Modifier.size(50.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    if (item.thumbnail == null) {
+                        Image(
+                            modifier = Modifier.fillMaxSize(),
+                            painterResource(id = R.drawable.ic_baseline_article),
+                        )
+                    } else {
+                        GlideImage(
+                            modifier = Modifier.fillMaxSize(),
+                            model = item.thumbnail,
+                            contentScale = ContentScale.Crop,
+                        )
+                        ImageCountDim(item.images.size)
+                    }
+                }
+            }
+        }
+    }
+}
+
 
 @Composable
 @Preview

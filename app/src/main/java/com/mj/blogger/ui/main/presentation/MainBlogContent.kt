@@ -28,7 +28,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -38,6 +37,7 @@ import com.mj.blogger.R
 import com.mj.blogger.common.compose.foundation.CircularProgress
 import com.mj.blogger.common.compose.foundation.GlideImage
 import com.mj.blogger.common.compose.foundation.Image
+import com.mj.blogger.common.compose.foundation.ImageCountDim
 import com.mj.blogger.common.compose.ktx.ConvertMillisToFormattedDate
 import com.mj.blogger.common.compose.ktx.rememberImmutableList
 import com.mj.blogger.common.compose.theme.BloggerTheme
@@ -77,7 +77,7 @@ private fun AllPostingCard(
     onOpenDetail: (PostingItem) -> Unit,
 ) {
 
-    LaunchedEffect(items){
+    LaunchedEffect(items) {
         listState.animateScrollToItem(0)
     }
 
@@ -148,27 +148,12 @@ private fun AllPostingCard(
                                 painterResource(id = R.drawable.ic_baseline_article),
                             )
                         } else {
-                                GlideImage(
-                                    modifier = Modifier.fillMaxSize(),
-                                    model = item.thumbnail,
-                                    contentScale = ContentScale.Crop,
-                                )
-
-                            if (item.images.size > 1){
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .background(Color(0X33000000)),
-                                    contentAlignment = Alignment.Center,
-                                ){
-                                    Text(
-                                        text = item.images.size.toString(),
-                                        color = Color.White,
-                                        textAlign = TextAlign.Center,
-                                        fontWeight = FontWeight.Bold,
-                                    )
-                                }
-                            }
+                            GlideImage(
+                                modifier = Modifier.fillMaxSize(),
+                                model = item.thumbnail,
+                                contentScale = ContentScale.Crop,
+                            )
+                            ImageCountDim(item.images.size)
                         }
                     }
                 }

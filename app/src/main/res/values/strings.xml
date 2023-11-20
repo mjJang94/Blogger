@@ -22,6 +22,8 @@
 
     <string name="main_greeting_label">내 블로그를\n더욱 멋지게\n블로거</string>
     <string name="main_recent_label">최근글</string>
+    <string name="main_hits_label">인기글</string>
+    <string name="main_hits">조회 %d</string>
     <string name="main_all_label">전체글</string>
     <string name="main_category_label">목록</string>
 
@@ -37,6 +39,7 @@
     <string name="detail_delete_complete">글이 삭제되었습니다.</string>
     <string name="detail_delete_failure">잠시 후 다시 시도해주세요.</string>
 
+    <string name="posting_images_count">+%d</string>
 
     <string name="detail_not_exist_posting">존재하지 않는 글입니다.</string>
     <string name="compose_posting_image_full">이미지는 최대 3개까지 선택 가능합니다.</string>
