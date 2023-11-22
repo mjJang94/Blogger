@@ -12,11 +12,9 @@ import com.mj.blogger.R
 import com.mj.blogger.common.compose.theme.BloggerTheme
 import com.mj.blogger.common.ktx.observe
 import com.mj.blogger.common.ktx.parcelable
+import com.mj.blogger.common.ktx.setResultAndFinish
 import com.mj.blogger.ui.compose.MainComposeActivity
-import com.mj.blogger.ui.post.PostDetailViewModel.PostDetailEvent.Back
-import com.mj.blogger.ui.post.PostDetailViewModel.PostDetailEvent.DeleteComplete
-import com.mj.blogger.ui.post.PostDetailViewModel.PostDetailEvent.DeleteError
-import com.mj.blogger.ui.post.PostDetailViewModel.PostDetailEvent.Modify
+import com.mj.blogger.ui.post.PostDetailViewModel.PostDetailEvent.*
 import com.mj.blogger.ui.post.presentation.PostDetailScreen
 import com.mj.blogger.ui.post.presentation.state.PostDetail
 import dagger.hilt.android.AndroidEntryPoint
@@ -36,6 +34,11 @@ class PostDetailActivity : AppCompatActivity() {
             }
             context.startActivity(intent)
         }
+
+        fun intent(context: Context, item: PostDetail? = null): Intent =
+            Intent(context, PostDetailActivity::class.java).apply {
+                putExtra(EXTRA_POST_DETAIL_ITEM, item)
+            }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -74,7 +77,7 @@ class PostDetailActivity : AppCompatActivity() {
 
                 is DeleteComplete -> {
                     Toast.makeText(this, getString(R.string.detail_delete_complete), Toast.LENGTH_SHORT).show()
-                    finish()
+                    setResultAndFinish(this, RESULT_OK)
                 }
 
                 is Back -> finish()

@@ -12,21 +12,14 @@ import com.google.firebase.storage.FirebaseStorage
 import com.mj.blogger.common.compose.ktx.invoke
 import com.mj.blogger.common.firebase.vo.Posting
 import com.mj.blogger.repo.di.Repository
-import com.mj.blogger.ui.login.LoginActivity
 import com.mj.blogger.ui.main.presentation.MainPresenter
 import com.mj.blogger.ui.main.presentation.state.MainPage
 import com.mj.blogger.ui.main.presentation.state.PostingItem
 import com.mj.blogger.ui.post.presentation.state.PostDetail
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
@@ -55,7 +48,6 @@ class MainViewModel @Inject constructor(
                     repository.userIdFlow.firstOrNull() ?: throw InvalidUserException()
                 }
                 fireStore.collection(userId)
-                    .orderBy("postTime")
                     .addSnapshotListener(MetadataChanges.INCLUDE) { snapshot, exception ->
                         when {
                             exception != null -> {
@@ -109,11 +101,16 @@ class MainViewModel @Inject constructor(
     private fun combinePostingItems(snapshot: QuerySnapshot?) {
         viewModelScope.launch {
             val postings = snapshot?.toObjects<Posting>() ?: emptyList()
-            val combineContents = postings.map {
-                val imageRef = storage.reference.child("images/${it.postId}").listAll().await()
-                val images = imageRef.items.map { ref -> ref.downloadUrl.await() }
-                it.translate(images)
-            }
+            val combineContents = postings
+                .sortedBy { it.postTime }
+                .map {
+                    val images = withContext(Dispatchers.IO) {
+                        val imageRef = storage.reference.child("images/").child(it.postId).listAll().await()
+                        imageRef.items.map { ref -> ref.downloadUrl.await() }
+                    }
+                    Timber.d("combinePostingItems = $images")
+                    it.translate(images)
+                }
             _postingItems.emit(combineContents)
             _postingLoaded.emit(true)
         }

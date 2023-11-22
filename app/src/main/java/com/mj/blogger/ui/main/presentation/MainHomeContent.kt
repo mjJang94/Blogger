@@ -1,39 +1,22 @@
-@file:OptIn(ExperimentalFoundationApi::class, ExperimentalGlideComposeApi::class)
+@file:OptIn(ExperimentalGlideComposeApi::class)
 
 package com.mj.blogger.ui.main.presentation
 
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.*
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Card
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -59,36 +42,39 @@ import kotlinx.collections.immutable.ImmutableList
 @Composable
 fun MainHomeContent(
     state: MainContentState,
-    listState: LazyListState = rememberLazyListState(),
+    recentScrollState: ScrollState = rememberScrollState(),
 ) {
 
     LaunchedEffect(state.recentPostingItems) {
-        listState.animateScrollToItem(0)
+        recentScrollState.animateScrollTo(0)
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
-            .padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(24.dp)
-    ) {
-        WelcomeLabel()
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .background(Color.White)
+        .verticalScroll(rememberScrollState())) {
 
-        LoginLabel(email = state.email)
+        Column(
+            modifier = Modifier.padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp)
+        ) {
+            WelcomeLabel()
 
-        RecentPostingCard(
-            listState = listState,
-            postingLoaded = state.postingLoaded,
-            recentItems = state.recentPostingItems,
-            onClick = state.openDetail,
-        )
+            LoginLabel(email = state.email)
 
-        HitsPostingCard(
-            postingLoaded = state.postingLoaded,
-            recentItems = state.hitsPostingItems,
-            onClick = state.openDetail,
-        )
+            RecentPostingCard(
+                scrollState = recentScrollState,
+                postingLoaded = state.postingLoaded,
+                recentItems = state.recentPostingItems,
+                onClick = state.openDetail,
+            )
+
+            HitsPostingCard(
+                postingLoaded = state.postingLoaded,
+                hitsItems = state.hitsPostingItems,
+                onClick = state.openDetail,
+            )
+        }
     }
 }
 
@@ -118,7 +104,7 @@ private fun LoginLabel(email: String) {
 
 @Composable
 private fun RecentPostingCard(
-    listState: LazyListState,
+    scrollState: ScrollState,
     postingLoaded: Boolean,
     recentItems: List<PostingItem>,
     onClick: (PostingItem) -> Unit,
@@ -138,11 +124,11 @@ private fun RecentPostingCard(
             RecentPlaceholder()
         } else {
             if (recentItems.isEmpty()) {
-                EmptyRecentList()
+                EmptyRecentPostingList()
             } else {
                 RecentPostingList(
-                    listState = listState,
-                    items = rememberImmutableList(list = recentItems),
+                    scrollState = scrollState,
+                    items = recentItems,
                     onClick = onClick,
                 )
             }
@@ -151,7 +137,7 @@ private fun RecentPostingCard(
 }
 
 @Composable
-private fun EmptyRecentList() {
+private fun EmptyRecentPostingList() {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -183,12 +169,13 @@ private fun RecentPlaceholder() {
         label = "animateColor"
     )
 
-    LazyRow(
-        modifier = Modifier.wrapContentSize(),
-        contentPadding = PaddingValues(horizontal = 5.dp),
+    Row(
+        modifier = Modifier
+            .horizontalScroll(rememberScrollState())
+            .padding(horizontal = 5.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        items(count = 3) {
+        repeat(3) {
             Card(
                 modifier = Modifier
                     .width(200.dp)
@@ -215,25 +202,21 @@ private fun RecentPlaceholder() {
 
 @Composable
 private fun RecentPostingList(
-    listState: LazyListState,
-    items: ImmutableList<PostingItem>,
+    scrollState: ScrollState,
+    items: List<PostingItem>,
     onClick: (PostingItem) -> Unit,
 ) {
-    LazyRow(
-        modifier = Modifier.wrapContentSize(),
-        state = listState,
+    Row(
+        modifier = Modifier
+            .horizontalScroll(scrollState)
+            .padding(horizontal = 1.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
-        contentPadding = PaddingValues(horizontal = 1.dp),
     ) {
-        items(
-            items = items,
-            key = { it.postId },
-        ) { item ->
+        items.forEach { item ->
             Card(
                 modifier = Modifier
                     .width(200.dp)
-                    .height(250.dp)
-                    .animateItemPlacement(),
+                    .height(250.dp),
                 elevation = 4.dp,
                 shape = RoundedCornerShape(16.dp),
             ) {
@@ -299,11 +282,13 @@ private fun RecentPostingList(
 @Composable
 private fun HitsPostingCard(
     postingLoaded: Boolean,
-    recentItems: List<PostingItem>,
+    hitsItems: List<PostingItem>,
     onClick: (PostingItem) -> Unit,
 ) {
     Column(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 50.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
 
@@ -322,13 +307,13 @@ private fun HitsPostingCard(
             shape = RoundedCornerShape(16.dp),
         ) {
             if (!postingLoaded) {
-                HitsPlaceholder()
+                return@Card HitsPlaceholder()
             } else {
-                if (recentItems.isEmpty()) {
+                if (hitsItems.isEmpty()) {
                     EmptyHitsList()
                 } else {
-                    HitsPostingCard(
-                        items = rememberImmutableList(list = recentItems),
+                    HitsPosting(
+                        items = hitsItems,
                         onClick = onClick,
                     )
                 }
@@ -363,28 +348,34 @@ private fun EmptyHitsList() {
 }
 
 @Composable
-private fun HitsPostingCard(
-    items: ImmutableList<PostingItem>,
-    listState: LazyListState = rememberLazyListState(),
+private fun HitsPosting(
+    items: List<PostingItem>,
     onClick: (PostingItem) -> Unit,
 ) {
-    LazyColumn(
-        modifier = Modifier.wrapContentSize(),
-        state = listState,
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        items(
-            items = items,
-            key = { it.postId },
-        ) { item ->
+    Column(modifier = Modifier.fillMaxWidth()) {
+
+        items.forEachIndexed { index, item ->
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(80.dp)
                     .clickable { onClick(item) }
                     .padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
+
+                Text(
+                    text = (index + 1).toString(),
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = when(index){
+                        0 -> Color(0XFFFFD700)
+                        1 -> Color(0XFFC0C0C0)
+                        else -> Color(0XFF88540B)
+                    }
+                )
+
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -438,7 +429,7 @@ private fun MainHomeContentPreview() {
     BloggerTheme {
         MainHomeContent(
             state = rememberPreviewMainContentState(),
-            listState = rememberLazyListState(),
+            recentScrollState = rememberScrollState(),
         )
     }
 }

@@ -1,10 +1,13 @@
 package com.mj.blogger.ui.main
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.compose.setContent
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.Composable
@@ -13,6 +16,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.mj.blogger.R
 import com.mj.blogger.common.compose.theme.BloggerTheme
+import com.mj.blogger.common.ktx.launchActivityForResult
 import com.mj.blogger.common.ktx.observe
 import com.mj.blogger.ui.compose.MainComposeActivity
 import com.mj.blogger.ui.login.LoginActivity
@@ -20,6 +24,7 @@ import com.mj.blogger.ui.main.MainViewModel.InvalidUserException
 import com.mj.blogger.ui.main.presentation.MainScreen
 import com.mj.blogger.ui.post.PostDetailActivity
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint

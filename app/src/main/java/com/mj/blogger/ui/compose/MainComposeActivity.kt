@@ -43,6 +43,11 @@ class MainComposeActivity : AppCompatActivity() {
             }
             context.startActivity(intent)
         }
+
+        fun intent(context: Context, item: Modify? = null): Intent =
+            Intent(context, MainComposeActivity::class.java).apply {
+                putExtra(EXTRA_POST_MODIFY, item)
+            }
     }
 
     private val viewModel: MainComposeViewModel by viewModels()

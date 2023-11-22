@@ -75,7 +75,9 @@ private fun MainScreenContent(state: MainContentState) {
     Column(modifier = Modifier.fillMaxSize()) {
 
         HorizontalPager(
-            modifier = Modifier.weight(1f),
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f),
             state = state.pagerState,
             key = { it },
             userScrollEnabled = false,
