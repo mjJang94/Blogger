@@ -12,7 +12,6 @@ import com.mj.blogger.R
 import com.mj.blogger.common.compose.theme.BloggerTheme
 import com.mj.blogger.common.ktx.observe
 import com.mj.blogger.common.ktx.parcelable
-import com.mj.blogger.common.ktx.setResultAndFinish
 import com.mj.blogger.ui.compose.MainComposeActivity
 import com.mj.blogger.ui.post.PostDetailViewModel.PostDetailEvent.*
 import com.mj.blogger.ui.post.presentation.PostDetailScreen
@@ -77,7 +76,7 @@ class PostDetailActivity : AppCompatActivity() {
 
                 is DeleteComplete -> {
                     Toast.makeText(this, getString(R.string.detail_delete_complete), Toast.LENGTH_SHORT).show()
-                    setResultAndFinish(this, RESULT_OK)
+                    finish()
                 }
 
                 is Back -> finish()
