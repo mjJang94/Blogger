@@ -7,13 +7,15 @@ import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.runtime.Composable
 import com.mj.blogger.R
 import com.mj.blogger.common.compose.theme.BloggerTheme
-import com.mj.blogger.common.ktx.observe
+import com.mj.blogger.common.ktx.collect
 import com.mj.blogger.common.ktx.parcelable
 import com.mj.blogger.ui.compose.MainComposeActivity
-import com.mj.blogger.ui.post.PostDetailViewModel.PostDetailEvent.*
+import com.mj.blogger.ui.post.PostDetailViewModel.PostDetailEvent.Back
+import com.mj.blogger.ui.post.PostDetailViewModel.PostDetailEvent.DeleteComplete
+import com.mj.blogger.ui.post.PostDetailViewModel.PostDetailEvent.DeleteError
+import com.mj.blogger.ui.post.PostDetailViewModel.PostDetailEvent.Modify
 import com.mj.blogger.ui.post.presentation.PostDetailScreen
 import com.mj.blogger.ui.post.presentation.state.PostDetail
 import dagger.hilt.android.AndroidEntryPoint
@@ -33,11 +35,6 @@ class PostDetailActivity : AppCompatActivity() {
             }
             context.startActivity(intent)
         }
-
-        fun intent(context: Context, item: PostDetail? = null): Intent =
-            Intent(context, PostDetailActivity::class.java).apply {
-                putExtra(EXTRA_POST_DETAIL_ITEM, item)
-            }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,17 +43,7 @@ class PostDetailActivity : AppCompatActivity() {
         val data = intent.parcelable<PostDetail>(EXTRA_POST_DETAIL_ITEM) ?: return finish()
         viewModel.configure(data)
 
-        setContent {
-            BloggerTheme {
-                PostDetailScreen()
-            }
-        }
-    }
-
-    @Composable
-    private fun PostDetailScreen() {
-
-        viewModel.postDetailEvent.observe { event ->
+        viewModel.postDetailEvent.collect(this) { event ->
             when (event) {
                 is Modify -> {
                     val modify = MainComposeActivity.Modify(
@@ -83,6 +70,10 @@ class PostDetailActivity : AppCompatActivity() {
             }
         }
 
-        PostDetailScreen(presenter = viewModel)
+        setContent {
+            BloggerTheme {
+                PostDetailScreen(presenter = viewModel)
+            }
+        }
     }
 }

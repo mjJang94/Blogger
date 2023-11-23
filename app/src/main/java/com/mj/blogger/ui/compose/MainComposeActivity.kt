@@ -12,11 +12,10 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.runtime.Composable
 import com.mj.blogger.R
 import com.mj.blogger.common.base.ImageUploadFailException
 import com.mj.blogger.common.compose.theme.BloggerTheme
-import com.mj.blogger.common.ktx.observe
+import com.mj.blogger.common.ktx.collect
 import com.mj.blogger.common.ktx.parcelable
 import com.mj.blogger.ui.compose.presentation.MainComposeScreen
 import dagger.hilt.android.AndroidEntryPoint
@@ -43,11 +42,6 @@ class MainComposeActivity : AppCompatActivity() {
             }
             context.startActivity(intent)
         }
-
-        fun intent(context: Context, item: Modify? = null): Intent =
-            Intent(context, MainComposeActivity::class.java).apply {
-                putExtra(EXTRA_POST_MODIFY, item)
-            }
     }
 
     private val viewModel: MainComposeViewModel by viewModels()
@@ -65,21 +59,11 @@ class MainComposeActivity : AppCompatActivity() {
             )
         }
 
-        setContent {
-            BloggerTheme {
-                MainComposeScreen()
-            }
-        }
-    }
-
-    @Composable
-    private fun MainComposeScreen() {
-
-        viewModel.pickImageEvent.observe {
+        viewModel.pickImageEvent.collect(this) {
             pickGalleryImage.launch(Unit)
         }
 
-        viewModel.uploadFailEvent.observe { tr ->
+        viewModel.uploadFailEvent.collect(this) { tr ->
             val msg = when (tr) {
                 is ImageUploadFailException -> getString(R.string.compose_fail)
                 else -> tr.message
@@ -87,20 +71,24 @@ class MainComposeActivity : AppCompatActivity() {
             Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
         }
 
-        viewModel.maxImageEvent.observe {
+        viewModel.maxImageEvent.collect(this) {
             Toast.makeText(this, R.string.compose_posting_image_full, Toast.LENGTH_SHORT).show()
         }
 
-        viewModel.closeEvent.observe {
+        viewModel.closeEvent.collect(this) {
             finish()
         }
 
-        viewModel.completeEvent.observe {
+        viewModel.completeEvent.collect(this) {
             Toast.makeText(this, R.string.compose_posting_complete, Toast.LENGTH_SHORT).show()
             finish()
         }
 
-        MainComposeScreen(presenter = viewModel)
+        setContent {
+            BloggerTheme {
+                MainComposeScreen(presenter = viewModel)
+            }
+        }
     }
 
     private val pickGalleryImage = registerForActivityResult(

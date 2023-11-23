@@ -71,48 +71,11 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-
         setContent {
             BloggerTheme {
-                MainScreen()
+                MainScreen(presenter = viewModel)
             }
         }
-    }
-
-    @Composable
-    private fun MainScreen() {
-//        viewModel.composeEvent.observe {
-//            MainComposeActivity.start(this)
-//        }
-//
-//        viewModel.openDetailEvent.observe { item ->
-//            PostDetailActivity.start(this, item)
-//        }
-//
-//        viewModel.logoutEvent.observe {
-//            LoginActivity.start(this)
-//            finish()
-//        }
-//
-//        viewModel.resignEvent.observe {
-//            LoginActivity.start(this)
-//            finish()
-//        }
-//
-//        viewModel.loadErrorEvent.observe { tr ->
-//            when (tr) {
-//                is InvalidUserException -> LoginActivity.start(this@MainActivity)
-//                is FirebaseFirestoreException -> {
-//                    if (FirebaseFirestoreException.Code.PERMISSION_DENIED == tr.code) {
-//                        Toast.makeText(this, getString(R.string.setting_logout_complete), Toast.LENGTH_SHORT).show()
-//                    }
-//                }
-//
-//                else -> Toast.makeText(this, tr.message, Toast.LENGTH_SHORT).show()
-//            }
-//        }
-
-        MainScreen(presenter = viewModel)
     }
 }
 
