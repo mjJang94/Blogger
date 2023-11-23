@@ -13,6 +13,7 @@ import com.mj.blogger.common.ktx.collect
 import com.mj.blogger.common.ktx.parcelable
 import com.mj.blogger.common.ktx.toast
 import com.mj.blogger.ui.compose.MainComposeActivity
+import com.mj.blogger.ui.main.MainActivity.Companion.EXTRA_MODIFY_DATA
 import com.mj.blogger.ui.post.PostDetailViewModel.PostDetailEvent.Back
 import com.mj.blogger.ui.post.PostDetailViewModel.PostDetailEvent.DeleteComplete
 import com.mj.blogger.ui.post.PostDetailViewModel.PostDetailEvent.DeleteError
@@ -36,6 +37,11 @@ class PostDetailActivity : AppCompatActivity() {
             }
             context.startActivity(intent)
         }
+
+        fun contract(context: Context, item: PostDetail): Intent =
+            Intent(context, PostDetailActivity::class.java).apply {
+                putExtra(EXTRA_POST_DETAIL_ITEM, item)
+            }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,7 +60,8 @@ class PostDetailActivity : AppCompatActivity() {
                         images = event.images,
                         hits = event.hits,
                     )
-                    MainComposeActivity.start(this, modify)
+                    val intent = Intent().apply { putExtra(EXTRA_MODIFY_DATA, modify) }
+                    setResult(RESULT_OK, intent)
                     finish()
                 }
 
@@ -64,6 +71,7 @@ class PostDetailActivity : AppCompatActivity() {
 
                 is DeleteComplete -> {
                     toast(getString(R.string.detail_delete_complete))
+                    setResult(RESULT_OK)
                     finish()
                 }
 

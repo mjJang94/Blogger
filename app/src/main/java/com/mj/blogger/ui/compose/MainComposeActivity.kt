@@ -42,6 +42,11 @@ class MainComposeActivity : AppCompatActivity() {
             }
             context.startActivity(intent)
         }
+
+        fun contract(context: Context, item: Modify? = null): Intent =
+            Intent(context, MainComposeActivity::class.java).apply {
+                putExtra(EXTRA_POST_MODIFY, item)
+            }
     }
 
     private val viewModel: MainComposeViewModel by viewModels()
@@ -81,6 +86,7 @@ class MainComposeActivity : AppCompatActivity() {
 
         viewModel.completeEvent.collect(this) {
             toast(getString(R.string.compose_posting_complete))
+            setResult(RESULT_OK)
             finish()
         }
 

@@ -2,6 +2,8 @@ package com.mj.blogger.repo.di
 
 import com.mj.blogger.repo.local.UserDataStore
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 class RepositoryImpl @Inject constructor(

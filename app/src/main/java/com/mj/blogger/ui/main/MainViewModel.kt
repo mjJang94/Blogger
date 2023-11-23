@@ -5,9 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.MetadataChanges
+import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.QuerySnapshot
-import com.google.firebase.firestore.ktx.toObjects
 import com.google.firebase.storage.FirebaseStorage
 import com.mj.blogger.common.compose.ktx.invoke
 import com.mj.blogger.common.firebase.vo.Posting
@@ -18,13 +17,20 @@ import com.mj.blogger.ui.main.presentation.state.PostingItem
 import com.mj.blogger.ui.post.presentation.state.PostDetail
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
+import com.mj.blogger.ui.main.MainViewModel.UserEvent as Event
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
@@ -39,43 +45,13 @@ class MainViewModel @Inject constructor(
         private const val MAXIMUM_HITS_POST_COUNT = 3
     }
 
-    class InvalidUserException : Exception()
-
-    init {
-        viewModelScope.launch {
-            runCatching {
-                val userId = withContext(Dispatchers.IO) {
-                    repository.userIdFlow.firstOrNull() ?: throw InvalidUserException()
-                }
-                fireStore.collection(userId)
-                    .addSnapshotListener(MetadataChanges.INCLUDE) { snapshot, exception ->
-                        when {
-                            exception != null -> {
-                                Timber.e("$exception")
-                                return@addSnapshotListener loadError(exception)
-                            }
-
-                            else -> {
-                                combinePostingItems(snapshot)
-                            }
-                        }
-                    }
-            }.getOrElse { tr ->
-                Timber.e("Snapshot load failure : $tr")
-                loadError(tr)
-            }
-        }
+    enum class UserEvent {
+        INVALIDATE, LOGOUT, RESIGN,
     }
 
-    private fun Posting.translate(images: List<Uri>) = PostingItem(
-        postId = postId,
-        title = title,
-        message = message,
-        postTime = postTime,
-        thumbnail = images.firstOrNull(),
-        hits = hits,
-        images = images,
-    )
+    init {
+        fetchPostingData()
+    }
 
     private val _postingLoaded = MutableStateFlow(false)
     override val postingLoaded = _postingLoaded.asStateFlow()
@@ -97,10 +73,33 @@ class MainViewModel @Inject constructor(
         initialValue = "",
     )
 
+    fun fetchPostingData() {
+        viewModelScope.launch {
+            val userId = repository.userIdFlow.firstOrNull()
+                ?: return@launch _invalidateEvent.emit(Event.INVALIDATE)
+            fireStore.collection(userId)
+                .get()
+                .addOnSuccessListener { snapshot ->
+                    combinePostingItems(snapshot)
+                }
+                .addOnFailureListener { exception ->
+                    Timber.e("$exception")
+                    when (exception) {
+                        is FirebaseFirestoreException -> {
+                            if (FirebaseFirestoreException.Code.PERMISSION_DENIED == exception.code) {
+                                logout()
+                            }
+                        }
+                    }
+                }
+        }
+    }
+
     private val _postingItems = MutableStateFlow<List<PostingItem>>(emptyList())
     private fun combinePostingItems(snapshot: QuerySnapshot?) {
         viewModelScope.launch {
-            val postings = snapshot?.toObjects<Posting>() ?: emptyList()
+
+            val postings = snapshot?.toObjects(Posting::class.java) ?: emptyList()
             val combineContents = postings
                 .sortedBy { it.postTime }
                 .map {
@@ -115,6 +114,16 @@ class MainViewModel @Inject constructor(
             _postingLoaded.emit(true)
         }
     }
+
+    private fun Posting.translate(images: List<Uri>) = PostingItem(
+        postId = postId,
+        title = title,
+        message = message,
+        postTime = postTime,
+        thumbnail = images.firstOrNull(),
+        hits = hits,
+        images = images,
+    )
 
     override val recentPostingItems = _postingItems
         .map { it.reversed().take(MAXIMUM_LAST_POST_COUNT) }
@@ -145,15 +154,6 @@ class MainViewModel @Inject constructor(
             compareByDescending<PostingItem> { it.hits }.thenByDescending { it.postTime }
         ).take(MAXIMUM_HITS_POST_COUNT)
 
-
-    private val _loadErrorEvent = MutableSharedFlow<Throwable>()
-    val loadErrorEvent = _loadErrorEvent.asSharedFlow()
-    private fun loadError(tr: Throwable) {
-        viewModelScope.launch {
-            _loadErrorEvent.emit(tr)
-        }
-    }
-
     private val _composeEvent = MutableSharedFlow<Unit>()
     val composeEvent = _composeEvent.asSharedFlow()
 
@@ -173,22 +173,20 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    private val _logoutEvent = MutableSharedFlow<Unit>()
-    val logoutEvent = _logoutEvent.asSharedFlow()
+    private val _invalidateEvent = MutableSharedFlow<Event>()
+    val invalidateEvent = _invalidateEvent.asSharedFlow()
     override fun logout() {
         clearDataStore {
             auth.signOut()
-            _logoutEvent()
+            _invalidateEvent.emit(Event.LOGOUT)
         }
     }
 
-    private val _resignEvent = MutableSharedFlow<Unit>()
-    val resignEvent = _resignEvent.asSharedFlow()
     override fun resign() {
         auth.currentUser?.delete()?.addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 clearDataStore {
-                    _resignEvent()
+                    _invalidateEvent.emit(Event.RESIGN)
                 }
             }
         }

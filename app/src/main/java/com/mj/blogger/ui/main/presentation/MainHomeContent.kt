@@ -308,7 +308,7 @@ private fun HitsPostingCard(
             shape = RoundedCornerShape(16.dp),
         ) {
             if (!postingLoaded) {
-                return@Card HitsPlaceholder()
+                HitsPlaceholder()
             } else {
                 if (hitsItems.isEmpty()) {
                     EmptyHits()

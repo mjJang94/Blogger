@@ -68,8 +68,8 @@ class LoginActivity : AppCompatActivity() {
             .addOnCompleteListener(this) { task ->
                 when {
                     task.isSuccessful -> {
-                        Timber.d("createUserWithEmail:success")
                         val userId = auth.currentUser?.uid
+                        Timber.d("signUp success: $userId")
                         viewModel.saveUserInfo(userId, email)
                     }
 
@@ -86,8 +86,8 @@ class LoginActivity : AppCompatActivity() {
             .addOnCompleteListener(this) { task ->
                 when {
                     task.isSuccessful -> {
-                        Timber.d("signInWithEmail:success")
                         val userId = auth.currentUser?.uid
+                        Timber.d("signIn success: $userId")
                         viewModel.saveUserInfo(userId, email)
                     }
 

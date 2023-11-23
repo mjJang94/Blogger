@@ -73,11 +73,8 @@ fun GlideImage(
 
 @Composable
 fun ImageCountDim(count: Int) {
-    val imageCount by remember {
-        mutableIntStateOf(count - 1)
-    }
 
-    if (imageCount < 1) return
+    if (count < 1) return
 
     Box(
         modifier = Modifier
@@ -86,7 +83,7 @@ fun ImageCountDim(count: Int) {
         contentAlignment = Alignment.Center,
     ) {
         Text(
-            text = stringResource(id = R.string.posting_images_count, imageCount),
+            text = stringResource(id = R.string.posting_images_count, (count - 1)),
             color = Color.White,
             textAlign = TextAlign.Center,
             fontWeight = FontWeight.Bold,

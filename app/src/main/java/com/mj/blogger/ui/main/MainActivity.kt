@@ -3,33 +3,38 @@ package com.mj.blogger.ui.main
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.runtime.Composable
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestoreException
+import com.google.firebase.firestore.FirebaseFirestore
 import com.mj.blogger.R
 import com.mj.blogger.common.compose.theme.BloggerTheme
 import com.mj.blogger.common.ktx.collect
-import com.mj.blogger.common.ktx.observe
+import com.mj.blogger.common.ktx.parcelable
 import com.mj.blogger.common.ktx.toast
+import com.mj.blogger.repo.di.Repository
 import com.mj.blogger.ui.compose.MainComposeActivity
+import com.mj.blogger.ui.compose.MainComposeActivity.Modify
 import com.mj.blogger.ui.login.LoginActivity
-import com.mj.blogger.ui.main.MainViewModel.InvalidUserException
 import com.mj.blogger.ui.main.presentation.MainScreen
 import com.mj.blogger.ui.post.PostDetailActivity
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import com.mj.blogger.ui.main.MainViewModel.UserEvent as Event
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     @Inject
-    lateinit var auth: FirebaseAuth
+    lateinit var fireStore: FirebaseFirestore
+
+    @Inject
+    lateinit var repository: Repository
 
     companion object {
+        const val EXTRA_MODIFY_DATA = "EXTRA_MODIFY_DATA"
+
         fun start(context: Context) {
             val intent = Intent(context, MainActivity::class.java)
             context.startActivity(intent)
@@ -41,35 +46,41 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val composeResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK) {
+                viewModel.fetchPostingData()
+            }
+        }
+
+        val detailResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK) {
+                when (val intent = result.data) {
+                    null -> viewModel.fetchPostingData()
+                    else -> {
+                        val data = intent.parcelable<Modify>(EXTRA_MODIFY_DATA)
+                        composeResult.launch(MainComposeActivity.contract(this, data))
+                    }
+                }
+            }
+        }
+
         viewModel.composeEvent.collect(this) {
-            MainComposeActivity.start(this)
+            composeResult.launch(MainComposeActivity.contract(this))
         }
 
         viewModel.openDetailEvent.collect(this) { item ->
-            PostDetailActivity.start(this, item)
+            detailResult.launch(PostDetailActivity.contract(this, item))
         }
 
-        viewModel.logoutEvent.collect(this) {
-            LoginActivity.start(this)
-            finish()
-        }
-
-        viewModel.resignEvent.collect(this) {
-            LoginActivity.start(this)
-            finish()
-        }
-
-        viewModel.loadErrorEvent.collect(this) { tr ->
-            when (tr) {
-                is InvalidUserException -> LoginActivity.start(this@MainActivity)
-                is FirebaseFirestoreException -> {
-                    if (FirebaseFirestoreException.Code.PERMISSION_DENIED == tr.code) {
-                        toast(getString(R.string.setting_logout_complete))
-                    }
-                }
-
-                else -> toast(tr.message)
+        viewModel.invalidateEvent.collect(this) { event ->
+            val msg = when (event) {
+                Event.LOGOUT -> getString(R.string.setting_logout_complete)
+                Event.RESIGN -> getString(R.string.setting_resign_complete)
+                Event.INVALIDATE -> getString(R.string.main_invalidate_access)
             }
+            toast(msg)
+            LoginActivity.start(this)
+            finish()
         }
 
         setContent {
