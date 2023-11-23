@@ -14,6 +14,7 @@ import com.mj.blogger.R
 import com.mj.blogger.common.compose.theme.BloggerTheme
 import com.mj.blogger.common.ktx.collect
 import com.mj.blogger.common.ktx.observe
+import com.mj.blogger.common.ktx.toast
 import com.mj.blogger.ui.compose.MainComposeActivity
 import com.mj.blogger.ui.login.LoginActivity
 import com.mj.blogger.ui.main.MainViewModel.InvalidUserException
@@ -63,11 +64,11 @@ class MainActivity : AppCompatActivity() {
                 is InvalidUserException -> LoginActivity.start(this@MainActivity)
                 is FirebaseFirestoreException -> {
                     if (FirebaseFirestoreException.Code.PERMISSION_DENIED == tr.code) {
-                        Toast.makeText(this, getString(R.string.setting_logout_complete), Toast.LENGTH_SHORT).show()
+                        toast(getString(R.string.setting_logout_complete))
                     }
                 }
 
-                else -> Toast.makeText(this, tr.message, Toast.LENGTH_SHORT).show()
+                else -> toast(tr.message)
             }
         }
 

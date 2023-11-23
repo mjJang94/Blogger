@@ -11,6 +11,7 @@ import com.mj.blogger.R
 import com.mj.blogger.common.compose.theme.BloggerTheme
 import com.mj.blogger.common.ktx.collect
 import com.mj.blogger.common.ktx.parcelable
+import com.mj.blogger.common.ktx.toast
 import com.mj.blogger.ui.compose.MainComposeActivity
 import com.mj.blogger.ui.post.PostDetailViewModel.PostDetailEvent.Back
 import com.mj.blogger.ui.post.PostDetailViewModel.PostDetailEvent.DeleteComplete
@@ -58,11 +59,11 @@ class PostDetailActivity : AppCompatActivity() {
                 }
 
                 is DeleteError -> {
-                    Toast.makeText(this, getString(R.string.detail_delete_failure), Toast.LENGTH_SHORT).show()
+                    toast(getString(R.string.detail_delete_failure))
                 }
 
                 is DeleteComplete -> {
-                    Toast.makeText(this, getString(R.string.detail_delete_complete), Toast.LENGTH_SHORT).show()
+                    toast(getString(R.string.detail_delete_complete))
                     finish()
                 }
 

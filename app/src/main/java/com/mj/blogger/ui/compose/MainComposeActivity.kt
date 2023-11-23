@@ -7,7 +7,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Parcelable
 import android.provider.MediaStore
-import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.viewModels
@@ -17,6 +16,7 @@ import com.mj.blogger.common.base.ImageUploadFailException
 import com.mj.blogger.common.compose.theme.BloggerTheme
 import com.mj.blogger.common.ktx.collect
 import com.mj.blogger.common.ktx.parcelable
+import com.mj.blogger.common.ktx.toast
 import com.mj.blogger.ui.compose.presentation.MainComposeScreen
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.parcelize.Parcelize
@@ -68,11 +68,11 @@ class MainComposeActivity : AppCompatActivity() {
                 is ImageUploadFailException -> getString(R.string.compose_fail)
                 else -> tr.message
             }
-            Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+            toast(msg)
         }
 
         viewModel.maxImageEvent.collect(this) {
-            Toast.makeText(this, R.string.compose_posting_image_full, Toast.LENGTH_SHORT).show()
+            toast(getString(R.string.compose_posting_image_full))
         }
 
         viewModel.closeEvent.collect(this) {
@@ -80,7 +80,7 @@ class MainComposeActivity : AppCompatActivity() {
         }
 
         viewModel.completeEvent.collect(this) {
-            Toast.makeText(this, R.string.compose_posting_complete, Toast.LENGTH_SHORT).show()
+            toast(getString(R.string.compose_posting_complete))
             finish()
         }
 

@@ -8,8 +8,10 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
+import com.mj.blogger.R
 import com.mj.blogger.common.compose.theme.BloggerTheme
 import com.mj.blogger.common.ktx.collect
+import com.mj.blogger.common.ktx.toast
 import com.mj.blogger.ui.login.presentation.LoginScreen
 import com.mj.blogger.ui.login.presentation.LoginState
 import com.mj.blogger.ui.main.MainActivity
@@ -50,7 +52,7 @@ class LoginActivity : AppCompatActivity() {
         viewModel.loginEvent.collect(this) { result ->
             when (result) {
                 LoginState.SUCCESS -> MainActivity.start(this)
-                LoginState.FAIL -> Toast.makeText(this, "로그인에 실패하였습니다.", Toast.LENGTH_SHORT).show()
+                LoginState.FAIL ->  toast(getString(R.string.login_failure))
             }
         }
 
@@ -73,7 +75,7 @@ class LoginActivity : AppCompatActivity() {
 
                     else -> {
                         Timber.w("createUserWithEmail:failure = ${task.exception}")
-                        Toast.makeText(this, "계정생성에 실패하였습니다.", Toast.LENGTH_SHORT).show()
+                        toast(getString(R.string.login_signup_fail))
                     }
                 }
             }
@@ -91,7 +93,7 @@ class LoginActivity : AppCompatActivity() {
 
                     else -> {
                         Timber.w("signInWithEmail:failure = ${task.exception}")
-                        Toast.makeText(this, "로그인에 실패하였습니다.", Toast.LENGTH_SHORT).show()
+                        toast(getString(R.string.login_failure))
                     }
                 }
             }
