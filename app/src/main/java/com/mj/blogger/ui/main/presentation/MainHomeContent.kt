@@ -22,7 +22,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -33,11 +32,9 @@ import com.mj.blogger.common.compose.foundation.GlideImage
 import com.mj.blogger.common.compose.foundation.Image
 import com.mj.blogger.common.compose.foundation.ImageCountDim
 import com.mj.blogger.common.compose.ktx.ConvertMillisToFormattedDate
-import com.mj.blogger.common.compose.ktx.rememberImmutableList
 import com.mj.blogger.common.compose.theme.BloggerTheme
 import com.mj.blogger.ui.main.presentation.state.MainContentState
 import com.mj.blogger.ui.main.presentation.state.PostingItem
-import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 fun MainHomeContent(
@@ -49,10 +46,12 @@ fun MainHomeContent(
         recentScrollState.animateScrollTo(0)
     }
 
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .background(Color.White)
-        .verticalScroll(rememberScrollState())) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)
+            .verticalScroll(rememberScrollState())
+    ) {
 
         Column(
             modifier = Modifier.padding(horizontal = 16.dp),
@@ -141,18 +140,20 @@ private fun EmptyRecentPostingList() {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(250.dp)
-            .padding(horizontal = 10.dp),
+            .height(250.dp),
         elevation = 4.dp,
         shape = RoundedCornerShape(16.dp),
     ) {
-        Text(
+        Box(
             modifier = Modifier.fillMaxSize(),
-            text = stringResource(R.string.main_empty_recent_posting),
-            fontSize = 12.sp,
-            color = Color.Black,
-            textAlign = TextAlign.Center,
-        )
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = stringResource(R.string.main_empty_recent_posting),
+                fontSize = 12.sp,
+                color = Color.Black,
+            )
+        }
     }
 }
 
@@ -310,7 +311,7 @@ private fun HitsPostingCard(
                 return@Card HitsPlaceholder()
             } else {
                 if (hitsItems.isEmpty()) {
-                    EmptyHitsList()
+                    EmptyHits()
                 } else {
                     HitsPosting(
                         items = hitsItems,
@@ -335,16 +336,19 @@ private fun HitsPlaceholder() {
 }
 
 @Composable
-private fun EmptyHitsList() {
-    Text(
+private fun EmptyHits() {
+    Box(
         modifier = Modifier
             .fillMaxWidth()
             .height(240.dp),
-        text = stringResource(R.string.main_empty_recent_posting),
-        fontSize = 12.sp,
-        color = Color.Black,
-        textAlign = TextAlign.Center,
-    )
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = stringResource(R.string.main_empty_recent_posting),
+            fontSize = 12.sp,
+            color = Color.Black,
+        )
+    }
 }
 
 @Composable
@@ -369,7 +373,7 @@ private fun HitsPosting(
                     text = (index + 1).toString(),
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
-                    color = when(index){
+                    color = when (index) {
                         0 -> Color(0XFFFFD700)
                         1 -> Color(0XFFC0C0C0)
                         else -> Color(0XFF88540B)
@@ -424,7 +428,7 @@ private fun HitsPosting(
 
 
 @Composable
-@Preview(device = Devices.NEXUS_5)
+@Preview
 private fun MainHomeContentPreview() {
     BloggerTheme {
         MainHomeContent(

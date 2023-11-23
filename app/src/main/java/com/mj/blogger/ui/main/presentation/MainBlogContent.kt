@@ -76,18 +76,45 @@ private fun AllPostingCard(
     listState: LazyListState = rememberLazyListState(),
     onOpenDetail: (PostingItem) -> Unit,
 ) {
+    if (items.isEmpty()) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center,
+        ){
+            Text(
+                text = stringResource(R.string.main_empty_recent_posting),
+                fontSize = 12.sp,
+                color = Color.Black,
+            )
+        }
+    } else {
+        PostingList(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 10.dp),
+            listState = listState,
+            items = items,
+            onOpenDetail = onOpenDetail
+        )
+    }
+}
+
+@Composable
+private fun PostingList(
+    modifier: Modifier,
+    listState: LazyListState,
+    items: ImmutableList<PostingItem>,
+    onOpenDetail: (PostingItem) -> Unit,
+) {
 
     LaunchedEffect(items) {
         listState.animateScrollToItem(0)
     }
 
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 10.dp),
+        modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-
         Text(
             modifier = Modifier
                 .fillMaxWidth()
