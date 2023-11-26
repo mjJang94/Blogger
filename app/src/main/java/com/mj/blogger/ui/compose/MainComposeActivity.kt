@@ -36,13 +36,6 @@ class MainComposeActivity : AppCompatActivity() {
     companion object {
         private const val EXTRA_POST_MODIFY = "EXTRA_POST_MODIFY"
 
-        fun start(context: Context, item: Modify? = null) {
-            val intent = Intent(context, MainComposeActivity::class.java).apply {
-                putExtra(EXTRA_POST_MODIFY, item)
-            }
-            context.startActivity(intent)
-        }
-
         fun contract(context: Context, item: Modify? = null): Intent =
             Intent(context, MainComposeActivity::class.java).apply {
                 putExtra(EXTRA_POST_MODIFY, item)

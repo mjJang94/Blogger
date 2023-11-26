@@ -52,7 +52,7 @@ class MainComposeViewModel @Inject constructor(
         title: String,
         message: String,
         hits: Int,
-        images: List<Uri>
+        images: List<Uri>,
     ) {
         viewModelScope.launch {
             _isModify.emit(true)
@@ -199,6 +199,7 @@ class MainComposeViewModel @Inject constructor(
                             true -> context.downloadAndConvertToInternalUri(uri.toString())
                             else -> uri
                         }
+
                         storage.reference.child("images/$postId/image_$index.jpg").putFile(image).await()
                     }
                 }.join()

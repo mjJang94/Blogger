@@ -74,7 +74,7 @@ fun GlideImage(
 @Composable
 fun ImageCountDim(count: Int) {
 
-    if (count < 1) return
+    if (count <= 1) return
 
     Box(
         modifier = Modifier

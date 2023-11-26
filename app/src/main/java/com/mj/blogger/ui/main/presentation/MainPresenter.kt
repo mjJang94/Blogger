@@ -9,6 +9,7 @@ interface MainPresenter {
     val page: StateFlow<Page>
 
     val postingLoaded: StateFlow<Boolean>
+    val fetchPosting: StateFlow<Boolean>
     val email: StateFlow<String>
 
     val recentPostingItems : StateFlow<List<PostingItem>>

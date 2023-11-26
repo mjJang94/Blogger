@@ -23,6 +23,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.getAndUpdate
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -50,7 +51,9 @@ class MainViewModel @Inject constructor(
     }
 
     init {
-        fetchPostingData()
+        viewModelScope.launch {
+            loadPosting()
+        }
     }
 
     private val _postingLoaded = MutableStateFlow(false)
@@ -73,26 +76,34 @@ class MainViewModel @Inject constructor(
         initialValue = "",
     )
 
+    private val _fetchPosting = MutableStateFlow(false)
+    override val fetchPosting = _fetchPosting.asStateFlow()
+
     fun fetchPostingData() {
         viewModelScope.launch {
-            val userId = repository.userIdFlow.firstOrNull()
-                ?: return@launch _invalidateEvent.emit(Event.INVALIDATE)
-            fireStore.collection(userId)
-                .get()
-                .addOnSuccessListener { snapshot ->
-                    combinePostingItems(snapshot)
-                }
-                .addOnFailureListener { exception ->
-                    Timber.e("$exception")
-                    when (exception) {
-                        is FirebaseFirestoreException -> {
-                            if (FirebaseFirestoreException.Code.PERMISSION_DENIED == exception.code) {
-                                logout()
-                            }
+            _fetchPosting.emit(true)
+            loadPosting()
+        }
+    }
+
+    private suspend fun loadPosting() {
+        val userId = repository.userIdFlow.firstOrNull()
+            ?: return _invalidateEvent.emit(Event.INVALIDATE)
+        fireStore.collection(userId)
+            .get()
+            .addOnSuccessListener { snapshot ->
+                combinePostingItems(snapshot)
+            }
+            .addOnFailureListener { exception ->
+                Timber.e("$exception")
+                when (exception) {
+                    is FirebaseFirestoreException -> {
+                        if (FirebaseFirestoreException.Code.PERMISSION_DENIED == exception.code) {
+                            logout()
                         }
                     }
                 }
-        }
+            }
     }
 
     private val _postingItems = MutableStateFlow<List<PostingItem>>(emptyList())
@@ -107,11 +118,11 @@ class MainViewModel @Inject constructor(
                         val imageRef = storage.reference.child("images/").child(it.postId).listAll().await()
                         imageRef.items.map { ref -> ref.downloadUrl.await() }
                     }
-                    Timber.d("combinePostingItems = $images")
                     it.translate(images)
                 }
             _postingItems.emit(combineContents)
             _postingLoaded.emit(true)
+            _fetchPosting.emit(false)
         }
     }
 

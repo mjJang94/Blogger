@@ -20,6 +20,7 @@ import com.mj.blogger.ui.login.LoginActivity
 import com.mj.blogger.ui.main.presentation.MainScreen
 import com.mj.blogger.ui.post.PostDetailActivity
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 import javax.inject.Inject
 import com.mj.blogger.ui.main.MainViewModel.UserEvent as Event
 

@@ -46,33 +46,53 @@ fun MainHomeContent(
         recentScrollState.animateScrollTo(0)
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
-            .verticalScroll(rememberScrollState())
-    ) {
-
+    Box {
         Column(
-            modifier = Modifier.padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(24.dp)
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.White)
+                .verticalScroll(rememberScrollState())
         ) {
-            WelcomeLabel()
 
-            LoginLabel(email = state.email)
+            Column(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(24.dp)
+            ) {
 
-            RecentPostingCard(
-                scrollState = recentScrollState,
-                postingLoaded = state.postingLoaded,
-                recentItems = state.recentPostingItems,
-                onClick = state.openDetail,
-            )
+                WelcomeLabel()
 
-            HitsPostingCard(
-                postingLoaded = state.postingLoaded,
-                hitsItems = state.hitsPostingItems,
-                onClick = state.openDetail,
-            )
+                LoginLabel(email = state.email)
+
+                RecentPostingCard(
+                    scrollState = recentScrollState,
+                    postingLoaded = state.postingLoaded,
+                    recentItems = state.recentPostingItems,
+                    onClick = state.openDetail,
+                )
+
+                HitsPostingCard(
+                    postingLoaded = state.postingLoaded,
+                    hitsItems = state.hitsPostingItems,
+                    onClick = state.openDetail,
+                )
+            }
+        }
+        FetchProgress(state.fetchPosting)
+    }
+}
+
+@Composable
+private fun FetchProgress(
+    showing: Boolean,
+) {
+    if (showing){
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color(0x33000000)),
+            contentAlignment = Alignment.Center,
+        ) {
+            CircularProgress(showing = true)
         }
     }
 }
@@ -331,7 +351,7 @@ private fun HitsPlaceholder() {
             .height(240.dp),
         contentAlignment = Alignment.Center,
     ) {
-        CircularProgress(loading = true)
+        CircularProgress(showing = true)
     }
 }
 

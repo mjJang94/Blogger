@@ -31,13 +31,6 @@ class PostDetailActivity : AppCompatActivity() {
 
         private const val EXTRA_POST_DETAIL_ITEM = "EXTRA_POSTING_ITEM"
 
-        fun start(context: Context, item: PostDetail) {
-            val intent = Intent(context, PostDetailActivity::class.java).apply {
-                putExtra(EXTRA_POST_DETAIL_ITEM, item)
-            }
-            context.startActivity(intent)
-        }
-
         fun contract(context: Context, item: PostDetail): Intent =
             Intent(context, PostDetailActivity::class.java).apply {
                 putExtra(EXTRA_POST_DETAIL_ITEM, item)
@@ -75,7 +68,10 @@ class PostDetailActivity : AppCompatActivity() {
                     finish()
                 }
 
-                is Back -> finish()
+                is Back -> {
+                    setResult(RESULT_OK)
+                    finish()
+                }
             }
         }
 

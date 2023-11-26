@@ -15,6 +15,7 @@ class MainContentState(
     page: State<MainPage>,
 
     postingLoaded: State<Boolean>,
+    fetchPosting: State<Boolean>,
     email: State<String>,
     recentPostingItems: State<List<PostingItem>>,
     hitsPostingItems: State<List<PostingItem>>,
@@ -27,6 +28,7 @@ class MainContentState(
 ) {
     val page by page
     val postingLoaded by postingLoaded
+    val fetchPosting by fetchPosting
     val email by email
     val recentPostingItems by recentPostingItems
     val hitsPostingItems by hitsPostingItems
@@ -40,6 +42,7 @@ fun rememberMainContentState(
 ): MainContentState {
     val currentPage = presenter.page.collectAsStateWithLifecycle()
     val postingLoaded = presenter.postingLoaded.collectAsStateWithLifecycle()
+    val fetchPosting = presenter.fetchPosting.collectAsStateWithLifecycle()
     val email = presenter.email.collectAsStateWithLifecycle()
     val recentPostingItems = presenter.recentPostingItems.collectAsStateWithLifecycle()
     val hitsPostingItems = presenter.hitsPostingItems.collectAsStateWithLifecycle()
@@ -50,6 +53,7 @@ fun rememberMainContentState(
             pagerState = screenState.pagerState,
             page = currentPage,
             postingLoaded = postingLoaded,
+            fetchPosting = fetchPosting,
             email = email,
             recentPostingItems = recentPostingItems,
             hitsPostingItems = hitsPostingItems,
