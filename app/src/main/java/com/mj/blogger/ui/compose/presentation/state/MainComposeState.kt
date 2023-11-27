@@ -3,7 +3,7 @@ package com.mj.blogger.ui.compose.presentation.state
 import android.net.Uri
 import androidx.compose.runtime.*
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.mj.blogger.ui.compose.presentation.MainComposePresenter
+import com.mj.blogger.ui.compose.presentation.ComposePresenter
 
 @Stable
 class MainComposeState(
@@ -32,7 +32,7 @@ class MainComposeState(
 
 @Composable
 fun rememberMainComposeState(
-    presenter: MainComposePresenter,
+    presenter: ComposePresenter,
 ): MainComposeState {
 
     val isModify = presenter.isModify.collectAsStateWithLifecycle()

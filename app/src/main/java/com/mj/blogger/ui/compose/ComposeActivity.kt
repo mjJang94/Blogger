@@ -22,7 +22,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.parcelize.Parcelize
 
 @AndroidEntryPoint
-class MainComposeActivity : AppCompatActivity() {
+class ComposeActivity : AppCompatActivity() {
 
     @Parcelize
     data class Modify(
@@ -37,12 +37,12 @@ class MainComposeActivity : AppCompatActivity() {
         private const val EXTRA_POST_MODIFY = "EXTRA_POST_MODIFY"
 
         fun contract(context: Context, item: Modify? = null): Intent =
-            Intent(context, MainComposeActivity::class.java).apply {
+            Intent(context, ComposeActivity::class.java).apply {
                 putExtra(EXTRA_POST_MODIFY, item)
             }
     }
 
-    private val viewModel: MainComposeViewModel by viewModels()
+    private val viewModel: ComposeViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -89,6 +89,8 @@ class MainComposeActivity : AppCompatActivity() {
             }
         }
     }
+
+
 
     private val pickGalleryImage = registerForActivityResult(
         object : ActivityResultContract<Unit, List<Uri>>() {

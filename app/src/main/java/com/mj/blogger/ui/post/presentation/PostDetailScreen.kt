@@ -37,7 +37,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.mj.blogger.R
 import com.mj.blogger.common.compose.foundation.CircularProgress
@@ -45,6 +44,7 @@ import com.mj.blogger.common.compose.foundation.GlideImage
 import com.mj.blogger.common.compose.foundation.Image
 import com.mj.blogger.common.compose.ktx.ConvertMillisToFormattedDate
 import com.mj.blogger.common.compose.ktx.rememberImmutableList
+import com.mj.blogger.common.compose.theme.Typography
 import com.mj.blogger.ui.post.presentation.state.PostDetail
 import com.mj.blogger.ui.post.presentation.state.PostDetailState
 import com.mj.blogger.ui.post.presentation.state.rememberPostDetailState
@@ -82,8 +82,7 @@ private fun PostDetailContent(
                 elevation = 12.dp
             ) {
                 Row(
-                    modifier = Modifier
-                        .fillMaxSize(),
+                    modifier = Modifier.fillMaxSize(),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Box(
@@ -156,7 +155,7 @@ private fun PostContent(
                     .padding(bottom = 10.dp),
                 text = postDetail.title,
                 color = Color.Black,
-                fontSize = 24.sp,
+                style = Typography.titleLarge,
             )
 
             ContentInformation(
@@ -183,7 +182,7 @@ private fun PostContent(
                     .padding(bottom = 20.dp),
                 text = postDetail.message,
                 color = Color.Black,
-                fontSize = 16.sp,
+                style = Typography.bodyMedium,
             )
         }
     }
@@ -211,14 +210,14 @@ private fun ContentInformation(
             Text(
                 text = hits.toString(),
                 color = Color.Gray,
-                fontSize = 14.sp,
+                style = Typography.labelMedium,
                 textAlign = TextAlign.End,
             )
         }
         Text(
             text = ConvertMillisToFormattedDate(postTime),
             color = Color.Gray,
-            fontSize = 14.sp,
+            style = Typography.labelMedium,
             textAlign = TextAlign.End,
         )
     }

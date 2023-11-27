@@ -23,7 +23,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.getAndUpdate
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -109,7 +108,6 @@ class MainViewModel @Inject constructor(
     private val _postingItems = MutableStateFlow<List<PostingItem>>(emptyList())
     private fun combinePostingItems(snapshot: QuerySnapshot?) {
         viewModelScope.launch {
-
             val postings = snapshot?.toObjects(Posting::class.java) ?: emptyList()
             val combineContents = postings
                 .sortedBy { it.postTime }
@@ -120,9 +118,9 @@ class MainViewModel @Inject constructor(
                     }
                     it.translate(images)
                 }
-            _postingItems.emit(combineContents)
             _postingLoaded.emit(true)
             _fetchPosting.emit(false)
+            _postingItems.emit(combineContents)
         }
     }
 

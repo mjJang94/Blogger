@@ -3,7 +3,7 @@ package com.mj.blogger.ui.post
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
+import androidx.activity.addCallback
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -12,7 +12,7 @@ import com.mj.blogger.common.compose.theme.BloggerTheme
 import com.mj.blogger.common.ktx.collect
 import com.mj.blogger.common.ktx.parcelable
 import com.mj.blogger.common.ktx.toast
-import com.mj.blogger.ui.compose.MainComposeActivity
+import com.mj.blogger.ui.compose.ComposeActivity
 import com.mj.blogger.ui.main.MainActivity.Companion.EXTRA_MODIFY_DATA
 import com.mj.blogger.ui.post.PostDetailViewModel.PostDetailEvent.Back
 import com.mj.blogger.ui.post.PostDetailViewModel.PostDetailEvent.DeleteComplete
@@ -40,13 +40,17 @@ class PostDetailActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        onBackPressedDispatcher.addCallback(this) {
+            resultFinish()
+        }
+
         val data = intent.parcelable<PostDetail>(EXTRA_POST_DETAIL_ITEM) ?: return finish()
         viewModel.configure(data)
 
         viewModel.postDetailEvent.collect(this) { event ->
             when (event) {
                 is Modify -> {
-                    val modify = MainComposeActivity.Modify(
+                    val modify = ComposeActivity.Modify(
                         postId = event.postId,
                         title = event.title,
                         message = event.message,
@@ -64,13 +68,11 @@ class PostDetailActivity : AppCompatActivity() {
 
                 is DeleteComplete -> {
                     toast(getString(R.string.detail_delete_complete))
-                    setResult(RESULT_OK)
-                    finish()
+                    resultFinish()
                 }
 
                 is Back -> {
-                    setResult(RESULT_OK)
-                    finish()
+                    resultFinish()
                 }
             }
         }
@@ -80,5 +82,10 @@ class PostDetailActivity : AppCompatActivity() {
                 PostDetailScreen(presenter = viewModel)
             }
         }
+    }
+
+    private fun resultFinish(){
+        setResult(RESULT_OK)
+        finish()
     }
 }

@@ -12,7 +12,7 @@ fun CircularProgress(
 ) {
     if (showing) {
         CircularProgressIndicator(
-            color = colorResource(id = R.color.purple_200),
+            color = colorResource(id = R.color.blue),
             strokeWidth = 2.dp
         )
     }

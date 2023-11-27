@@ -1,6 +1,5 @@
 package com.mj.blogger.ui.splash
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -11,7 +10,6 @@ import com.mj.blogger.ui.splash.presentation.SplashScreen
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-@SuppressLint("CustomSplashScreen")
 class SplashActivity : ComponentActivity() {
 
     private val viewModel: SplashViewModel by viewModels()

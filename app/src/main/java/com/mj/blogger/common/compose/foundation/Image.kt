@@ -28,6 +28,7 @@ import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.Placeholder
 import com.bumptech.glide.integration.compose.RequestBuilderTransform
 import com.mj.blogger.R
+import com.mj.blogger.common.compose.theme.Typography
 
 @Composable
 fun Image(
@@ -86,7 +87,7 @@ fun ImageCountDim(count: Int) {
             text = stringResource(id = R.string.posting_images_count, (count - 1)),
             color = Color.White,
             textAlign = TextAlign.Center,
-            fontWeight = FontWeight.Bold,
+            style = Typography.labelMedium
         )
     }
 }

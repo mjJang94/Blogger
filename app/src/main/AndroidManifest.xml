@@ -51,7 +51,7 @@
             android:screenOrientation="portrait"/>
 
         <activity
-            android:name=".ui.compose.MainComposeActivity"
+            android:name=".ui.compose.ComposeActivity"
             android:exported="false"
             android:screenOrientation="portrait"/>
     </application>

@@ -3,7 +3,7 @@ package com.mj.blogger.ui.compose.presentation
 import android.net.Uri
 import kotlinx.coroutines.flow.StateFlow
 
-interface MainComposePresenter {
+interface ComposePresenter {
     val isModify: StateFlow<Boolean>
     val title: StateFlow<String>
     val message: StateFlow<String>

@@ -41,6 +41,7 @@ import com.mj.blogger.common.compose.foundation.ImageCountDim
 import com.mj.blogger.common.compose.ktx.ConvertMillisToFormattedDate
 import com.mj.blogger.common.compose.ktx.rememberImmutableList
 import com.mj.blogger.common.compose.theme.BloggerTheme
+import com.mj.blogger.common.compose.theme.Typography
 import com.mj.blogger.ui.main.presentation.state.MainContentState
 import com.mj.blogger.ui.main.presentation.state.PostingItem
 import kotlinx.collections.immutable.ImmutableList
@@ -80,11 +81,11 @@ private fun AllPostingCard(
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center,
-        ){
+        ) {
             Text(
                 text = stringResource(R.string.main_empty_recent_posting),
-                fontSize = 12.sp,
                 color = Color.Black,
+                style = Typography.labelSmall,
             )
         }
     } else {
@@ -120,9 +121,8 @@ private fun PostingList(
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp),
             text = stringResource(R.string.main_category_label),
-            fontSize = 14.sp,
+            style = Typography.labelMedium,
             color = Color.Black,
-            fontWeight = FontWeight.Bold,
         )
 
         LazyColumn(
@@ -150,16 +150,16 @@ private fun PostingList(
                     ) {
                         Text(
                             text = item.title,
-                            fontSize = 14.sp,
                             color = Color.Black,
+                            style = Typography.labelSmall,
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis,
                         )
 
                         Text(
                             text = ConvertMillisToFormattedDate(millis = item.postTime),
-                            fontSize = 12.sp,
                             color = Color.Gray,
+                            style = Typography.labelSmall,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                         )

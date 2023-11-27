@@ -14,13 +14,12 @@ import com.mj.blogger.common.ktx.collect
 import com.mj.blogger.common.ktx.parcelable
 import com.mj.blogger.common.ktx.toast
 import com.mj.blogger.repo.di.Repository
-import com.mj.blogger.ui.compose.MainComposeActivity
-import com.mj.blogger.ui.compose.MainComposeActivity.Modify
+import com.mj.blogger.ui.compose.ComposeActivity
+import com.mj.blogger.ui.compose.ComposeActivity.Modify
 import com.mj.blogger.ui.login.LoginActivity
 import com.mj.blogger.ui.main.presentation.MainScreen
 import com.mj.blogger.ui.post.PostDetailActivity
 import dagger.hilt.android.AndroidEntryPoint
-import timber.log.Timber
 import javax.inject.Inject
 import com.mj.blogger.ui.main.MainViewModel.UserEvent as Event
 
@@ -59,14 +58,14 @@ class MainActivity : AppCompatActivity() {
                     null -> viewModel.fetchPostingData()
                     else -> {
                         val data = intent.parcelable<Modify>(EXTRA_MODIFY_DATA)
-                        composeResult.launch(MainComposeActivity.contract(this, data))
+                        composeResult.launch(ComposeActivity.contract(this, data))
                     }
                 }
             }
         }
 
         viewModel.composeEvent.collect(this) {
-            composeResult.launch(MainComposeActivity.contract(this))
+            composeResult.launch(ComposeActivity.contract(this))
         }
 
         viewModel.openDetailEvent.collect(this) { item ->

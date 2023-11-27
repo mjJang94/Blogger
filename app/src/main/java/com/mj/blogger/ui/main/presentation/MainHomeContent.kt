@@ -24,7 +24,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.mj.blogger.R
 import com.mj.blogger.common.compose.foundation.CircularProgress
@@ -33,6 +32,7 @@ import com.mj.blogger.common.compose.foundation.Image
 import com.mj.blogger.common.compose.foundation.ImageCountDim
 import com.mj.blogger.common.compose.ktx.ConvertMillisToFormattedDate
 import com.mj.blogger.common.compose.theme.BloggerTheme
+import com.mj.blogger.common.compose.theme.Typography
 import com.mj.blogger.ui.main.presentation.state.MainContentState
 import com.mj.blogger.ui.main.presentation.state.PostingItem
 
@@ -45,54 +45,34 @@ fun MainHomeContent(
     LaunchedEffect(state.recentPostingItems) {
         recentScrollState.animateScrollTo(0)
     }
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)
+            .verticalScroll(rememberScrollState())
+    ) {
 
-    Box {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.White)
-                .verticalScroll(rememberScrollState())
+            modifier = Modifier.padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
 
-            Column(
-                modifier = Modifier.padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(24.dp)
-            ) {
+            WelcomeLabel()
 
-                WelcomeLabel()
+            LoginLabel(email = state.email)
 
-                LoginLabel(email = state.email)
+            RecentPostingCard(
+                scrollState = recentScrollState,
+                postingLoaded = state.postingLoaded,
+                recentItems = state.recentPostingItems,
+                onClick = state.openDetail,
+            )
 
-                RecentPostingCard(
-                    scrollState = recentScrollState,
-                    postingLoaded = state.postingLoaded,
-                    recentItems = state.recentPostingItems,
-                    onClick = state.openDetail,
-                )
-
-                HitsPostingCard(
-                    postingLoaded = state.postingLoaded,
-                    hitsItems = state.hitsPostingItems,
-                    onClick = state.openDetail,
-                )
-            }
-        }
-        FetchProgress(state.fetchPosting)
-    }
-}
-
-@Composable
-private fun FetchProgress(
-    showing: Boolean,
-) {
-    if (showing){
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color(0x33000000)),
-            contentAlignment = Alignment.Center,
-        ) {
-            CircularProgress(showing = true)
+            HitsPostingCard(
+                postingLoaded = state.postingLoaded,
+                hitsItems = state.hitsPostingItems,
+                onClick = state.openDetail,
+            )
         }
     }
 }
@@ -105,10 +85,9 @@ private fun WelcomeLabel() {
             .wrapContentHeight()
             .padding(top = 10.dp),
         text = stringResource(R.string.main_greeting_label),
-        fontSize = 24.sp,
-        fontWeight = FontWeight.Bold,
         color = Color.Black,
         textAlign = TextAlign.Start,
+        style = Typography.titleLarge,
     )
 }
 
@@ -116,8 +95,8 @@ private fun WelcomeLabel() {
 private fun LoginLabel(email: String) {
     Text(
         text = email,
-        fontSize = 12.sp,
         color = Color.Black,
+        style = Typography.labelSmall,
     )
 }
 
@@ -135,9 +114,8 @@ private fun RecentPostingCard(
 
         Text(
             text = stringResource(R.string.main_recent_label),
-            fontSize = 14.sp,
             color = Color.Black,
-            fontWeight = FontWeight.Bold,
+            style = Typography.labelMedium,
         )
         if (!postingLoaded) {
             RecentPlaceholder()
@@ -170,8 +148,8 @@ private fun EmptyRecentPostingList() {
         ) {
             Text(
                 text = stringResource(R.string.main_empty_recent_posting),
-                fontSize = 12.sp,
                 color = Color.Black,
+                style = Typography.labelSmall,
             )
         }
     }
@@ -274,10 +252,10 @@ private fun RecentPostingList(
                             .weight(0.2f)
                             .padding(horizontal = 10.dp, vertical = 5.dp),
                         text = item.title,
-                        fontSize = 16.sp,
                         color = Color.Black,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
+                        style = Typography.bodyMedium,
                     )
 
                     Text(
@@ -289,10 +267,10 @@ private fun RecentPostingList(
                                 Modifier.padding(bottom = 5.dp)
                             ),
                         text = ConvertMillisToFormattedDate(millis = item.postTime),
-                        fontSize = 12.sp,
                         color = Color.Gray,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
+                        style = Typography.bodySmall,
                     )
                 }
             }
@@ -315,9 +293,9 @@ private fun HitsPostingCard(
 
         Text(
             text = stringResource(R.string.main_hits_label),
-            fontSize = 14.sp,
             color = Color.Black,
             fontWeight = FontWeight.Bold,
+            style = Typography.labelMedium,
         )
 
         Card(
@@ -365,8 +343,8 @@ private fun EmptyHits() {
     ) {
         Text(
             text = stringResource(R.string.main_empty_recent_posting),
-            fontSize = 12.sp,
             color = Color.Black,
+            style = Typography.labelSmall,
         )
     }
 }
@@ -391,8 +369,7 @@ private fun HitsPosting(
 
                 Text(
                     text = (index + 1).toString(),
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
+                    style = Typography.titleLarge,
                     color = when (index) {
                         0 -> Color(0XFFFFD700)
                         1 -> Color(0XFFC0C0C0)
@@ -408,7 +385,7 @@ private fun HitsPosting(
                 ) {
                     Text(
                         text = item.title,
-                        fontSize = 14.sp,
+                        style = Typography.bodyMedium,
                         color = Color.Black,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
@@ -416,7 +393,7 @@ private fun HitsPosting(
 
                     Text(
                         text = stringResource(R.string.main_hits, item.hits),
-                        fontSize = 12.sp,
+                        style = Typography.bodySmall,
                         color = Color.Gray,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,

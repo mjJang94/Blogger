@@ -3,11 +3,11 @@ package com.mj.blogger.ui.login
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.mj.blogger.R
 import com.mj.blogger.common.compose.theme.BloggerTheme
 import com.mj.blogger.common.ktx.collect
@@ -52,7 +52,7 @@ class LoginActivity : AppCompatActivity() {
         viewModel.loginEvent.collect(this) { result ->
             when (result) {
                 LoginState.SUCCESS -> MainActivity.start(this)
-                LoginState.FAIL ->  toast(getString(R.string.login_failure))
+                LoginState.FAIL -> toast(getString(R.string.login_failure))
             }
         }
 
@@ -74,7 +74,7 @@ class LoginActivity : AppCompatActivity() {
                     }
 
                     else -> {
-                        Timber.w("createUserWithEmail:failure = ${task.exception}")
+                        Timber.w("signUp failure: ${task.exception}")
                         toast(getString(R.string.login_signup_fail))
                     }
                 }
@@ -92,8 +92,12 @@ class LoginActivity : AppCompatActivity() {
                     }
 
                     else -> {
-                        Timber.w("signInWithEmail:failure = ${task.exception}")
-                        toast(getString(R.string.login_failure))
+                        Timber.e("signIn failure: ${task.exception}")
+                        val msg = when (task.exception) {
+                            is FirebaseAuthInvalidCredentialsException -> getString(R.string.login_invalid_credential)
+                            else -> getString(R.string.login_failure)
+                        }
+                        toast(msg)
                     }
                 }
             }

@@ -10,14 +10,12 @@ import com.mj.blogger.common.base.ImageUploadFailException
 import com.mj.blogger.common.compose.ktx.invoke
 import com.mj.blogger.common.firebase.vo.Posting
 import com.mj.blogger.common.ktx.context
-import com.mj.blogger.core.UploadHelper
 import com.mj.blogger.core.UploadHelper.compressImage
 import com.mj.blogger.core.UploadHelper.downloadAndConvertToInternalUri
 import com.mj.blogger.repo.di.Repository
-import com.mj.blogger.ui.compose.presentation.MainComposePresenter
+import com.mj.blogger.ui.compose.presentation.ComposePresenter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -28,18 +26,17 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
 import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
-class MainComposeViewModel @Inject constructor(
+class ComposeViewModel @Inject constructor(
     application: Application,
     private val fireStore: FirebaseFirestore,
     private val storage: FirebaseStorage,
     private val repository: Repository,
-) : AndroidViewModel(application), MainComposePresenter {
+) : AndroidViewModel(application), ComposePresenter {
 
     companion object {
         private const val MAX_IMAGE_COUNT = 3
@@ -127,10 +124,9 @@ class MainComposeViewModel @Inject constructor(
             fireStore.collection(userId)
                 .add(post)
                 .addOnSuccessListener { documentReference ->
-                    if (images.isEmpty()) {
-                        complete()
-                    } else {
-                        uploadImage(documentReference.id, images)
+                    when (images.isEmpty()) {
+                        true -> complete()
+                        else -> uploadImage(documentReference.id, images)
                     }
                 }
                 .addOnFailureListener { tr ->
@@ -181,11 +177,14 @@ class MainComposeViewModel @Inject constructor(
                 .document(postId)
                 .set(post)
                 .addOnSuccessListener { _ ->
-                    if (images.isEmpty()) {
-                        complete()
-                    } else {
-                        modifyImage(postId, images)
+                    when (images.isEmpty()) {
+                        true -> complete()
+                        else -> modifyImage(postId, images)
                     }
+                }
+                .addOnFailureListener { tr ->
+                    Timber.w("Error uploading document : $tr")
+                    uploadFail(tr)
                 }
         }
     }
@@ -199,7 +198,6 @@ class MainComposeViewModel @Inject constructor(
                             true -> context.downloadAndConvertToInternalUri(uri.toString())
                             else -> uri
                         }
-
                         storage.reference.child("images/$postId/image_$index.jpg").putFile(image).await()
                     }
                 }.join()
@@ -243,14 +241,17 @@ class MainComposeViewModel @Inject constructor(
         }
     }
 
+    private val _maxImageEvent = MutableSharedFlow<Unit>()
+    val maxImageEvent = _maxImageEvent.asSharedFlow()
+
     private val _uploadFailEvent = MutableSharedFlow<Throwable>()
     val uploadFailEvent = _uploadFailEvent.asSharedFlow()
     private fun uploadFail(tr: Throwable) {
-        viewModelScope.launch { _uploadFailEvent.emit(tr) }
+        viewModelScope.launch {
+            _progressing.emit(false)
+            _uploadFailEvent.emit(tr)
+        }
     }
-
-    private val _maxImageEvent = MutableSharedFlow<Unit>()
-    val maxImageEvent = _maxImageEvent.asSharedFlow()
 
     private val _completeEvent = MutableSharedFlow<Unit>()
     val completeEvent = _completeEvent.asSharedFlow()

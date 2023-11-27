@@ -31,12 +31,13 @@ import com.mj.blogger.common.compose.foundation.Image
 import com.mj.blogger.common.compose.foundation.TextField
 import com.mj.blogger.common.compose.ktx.rememberImmutableList
 import com.mj.blogger.common.compose.theme.BloggerTheme
+import com.mj.blogger.common.compose.theme.Typography
 import com.mj.blogger.ui.compose.presentation.state.MainComposeState
 import com.mj.blogger.ui.compose.presentation.state.rememberMainComposeState
 import kotlinx.collections.immutable.ImmutableList
 
 @Composable
-fun MainComposeScreen(presenter: MainComposePresenter) {
+fun MainComposeScreen(presenter: ComposePresenter) {
     MainComposeContent(
         rememberMainComposeState(presenter = presenter)
     )
@@ -149,7 +150,7 @@ private fun ComposeToolbar(
                         else -> stringResource(R.string.compose_image)
                     },
                     color = imagePickButtonColor,
-                    fontSize = 12.sp,
+                    style = Typography.labelSmall,
                 )
 
                 val composeButtonColor = when (allowCompose) {
@@ -175,7 +176,7 @@ private fun ComposeToolbar(
                         ),
                     text = stringResource(R.string.compose_complete),
                     color = composeButtonColor,
-                    fontSize = 12.sp,
+                    style = Typography.labelSmall,
                 )
             }
         }

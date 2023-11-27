@@ -36,7 +36,7 @@ fun PageButton(
                 .background(
                     when (enabled) {
                         true -> Color.LightGray
-                        false -> colorResource(id = R.color.purple_200)
+                        false -> colorResource(id = R.color.blue)
                     }
                 )
                 .clickable(
