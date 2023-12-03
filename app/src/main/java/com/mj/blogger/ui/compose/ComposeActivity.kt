@@ -12,11 +12,11 @@ import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.mj.blogger.R
-import com.mj.blogger.common.base.ImageUploadFailException
 import com.mj.blogger.common.compose.theme.BloggerTheme
 import com.mj.blogger.common.ktx.collect
 import com.mj.blogger.common.ktx.parcelable
 import com.mj.blogger.common.ktx.toast
+import com.mj.blogger.ui.compose.ComposeViewModel.*
 import com.mj.blogger.ui.compose.presentation.MainComposeScreen
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.parcelize.Parcelize

@@ -136,6 +136,8 @@ class ComposeViewModel @Inject constructor(
         }
     }
 
+    class ImageUploadFailException : Exception()
+
     private fun uploadImage(postId: String, images: List<Uri>) {
         viewModelScope.launch {
             runCatching {
