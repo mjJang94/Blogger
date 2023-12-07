@@ -6,7 +6,6 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
-import com.mj.blogger.common.base.ImageUploadFailException
 import com.mj.blogger.common.compose.ktx.invoke
 import com.mj.blogger.common.firebase.vo.Posting
 import com.mj.blogger.common.ktx.context
@@ -136,8 +135,6 @@ class ComposeViewModel @Inject constructor(
         }
     }
 
-    class ImageUploadFailException : Exception()
-
     private fun uploadImage(postId: String, images: List<Uri>) {
         viewModelScope.launch {
             runCatching {
@@ -151,7 +148,7 @@ class ComposeViewModel @Inject constructor(
                 complete()
             }.onFailure { tr ->
                 Timber.w("Upload failure : $tr")
-                uploadFail(ImageUploadFailException())
+                uploadFail(tr)
             }
         }
     }
@@ -207,7 +204,7 @@ class ComposeViewModel @Inject constructor(
                 complete()
             }.onFailure { tr ->
                 Timber.w("Fail to modify images = $tr")
-                uploadFail(ImageUploadFailException())
+                uploadFail(tr)
             }
         }
     }

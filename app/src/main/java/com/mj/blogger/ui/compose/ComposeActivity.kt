@@ -16,7 +16,6 @@ import com.mj.blogger.common.compose.theme.BloggerTheme
 import com.mj.blogger.common.ktx.collect
 import com.mj.blogger.common.ktx.parcelable
 import com.mj.blogger.common.ktx.toast
-import com.mj.blogger.ui.compose.ComposeViewModel.*
 import com.mj.blogger.ui.compose.presentation.MainComposeScreen
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.parcelize.Parcelize
@@ -62,11 +61,7 @@ class ComposeActivity : AppCompatActivity() {
         }
 
         viewModel.uploadFailEvent.collect(this) { tr ->
-            val msg = when (tr) {
-                is ImageUploadFailException -> getString(R.string.compose_fail)
-                else -> tr.message
-            }
-            toast(msg)
+            toast(getString(R.string.compose_fail))
         }
 
         viewModel.maxImageEvent.collect(this) {
